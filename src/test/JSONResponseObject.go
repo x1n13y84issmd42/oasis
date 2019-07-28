@@ -21,6 +21,7 @@ type JSONMap = map[string]interface{}
 
 // Test tests.
 func (tResp JSONResponseObject) Test(response *http.Response) bool {
+	//TODO: HTTPReponse{}.Test(response)
 	responseBody, _ := ioutil.ReadAll(response.Body)
 	mJSON := make(JSONMap)
 	errJSON := json.Unmarshal(responseBody, &mJSON)

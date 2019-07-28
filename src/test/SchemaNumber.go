@@ -6,7 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaNumber asserts that the provided data is a string.
+// SchemaNumber asserts that the provided data is a number.
 type SchemaNumber struct {
 	Schema *api.Schema
 	Log    log.ILogger

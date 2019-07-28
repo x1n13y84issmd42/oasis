@@ -6,7 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaArray asserts that the provided data is a string.
+// SchemaArray asserts that the provided data is an array.
 type SchemaArray struct {
 	Schema *api.Schema
 	Log    log.ILogger

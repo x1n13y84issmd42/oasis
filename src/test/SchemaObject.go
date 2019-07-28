@@ -6,7 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaObject asserts that the provided data is a string.
+// SchemaObject asserts that the provided data is an object.
 type SchemaObject struct {
 	Schema *api.Schema
 	Log    log.ILogger

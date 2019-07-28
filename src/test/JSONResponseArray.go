@@ -18,6 +18,7 @@ type JSONResponseArray struct {
 
 // Test tests.
 func (tResp JSONResponseArray) Test(response *http.Response) bool {
+	//TODO: HTTPReponse{}.Test(response)
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
 	var mJSON []interface{}

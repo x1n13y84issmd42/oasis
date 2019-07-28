@@ -19,13 +19,5 @@ func Load(path string) (Spec, error) {
 	specData := make(map[interface{}]interface{})
 	yaml.Unmarshal([]byte(fileData), &specData)
 
-	// fmt.Printf("--- The specData map:\n%v\n\n", specData)
-
-	/* b, err := json.Marshal(specData["components"])
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(b)) */
-
 	return SpecV3{specData}, nil
 }

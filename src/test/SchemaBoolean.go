@@ -6,7 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaBoolean asserts that the provided data is a string.
+// SchemaBoolean asserts that the provided data is a boolean value.
 type SchemaBoolean struct {
 	Schema *api.Schema
 	Log    log.ILogger

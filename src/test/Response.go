@@ -68,5 +68,6 @@ func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
 
 // Test tests.
 func (tResp HTTPResponse) Test(resp *http.Response) bool {
+	//TODO: test response headers
 	return tResp.APIResponse.StatusCode == resp.StatusCode && tResp.APIResponse.ContentType == resp.Header.Get("Content-Type")
 }
