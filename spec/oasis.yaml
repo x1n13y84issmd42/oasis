@@ -1,0 +1,185 @@
+openapi: 3.0.1
+info:
+  title: OASIS Mock API
+  description: 'This is a mock API used to develop & test the OASIS, an application
+    to automatically test APIs using an Open API Spec definitions. '
+  contact:
+    url: https://github.com/x1n13y84issmd42/oasis
+  version: 1.0.0
+servers:
+- url: http://localhost
+  description: Localhost
+paths:
+  /api/public/primitive/string:
+    get:
+      summary: Get string
+      description: Responds with a single string.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/public/primitive/number:
+    get:
+      summary: Get number
+      description: Responds with a single random number.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: number
+  /api/public/primitive/boolean:
+    get:
+      summary: Get boolean
+      description: Responds with a single random boolean.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/public/primitive/time:
+    get:
+      summary: Get time
+      description: Responds with a string in time format.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/public/primitive/date:
+    get:
+      summary: Get date
+      description: Responds with a single random Date.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date
+  /api/public/primitive/datetime:
+    get:
+      summary: Get date & time
+      description: Responds with a string in DateTime format.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+  /api/public/array/strings:
+    get:
+      summary: List strings
+      description: Responds with an array of strings.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/public/array/numbers:
+    get:
+      summary: List numbers
+      description: Responds with an array of numbers.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: number
+  /api/public/array/users:
+    get:
+      summary: List users
+      description: Responds with an array of User objects.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/public/array/visits/fail:
+    get:
+      summary: List visits
+      description: Responds with an array of objects defined inline.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  required:
+                  - IP
+                  - counter
+                  - createdAt
+                  type: object
+                  properties:
+                    createdAt:
+                      type: string
+                      format: date-time
+                    IP:
+                      type: string
+                    counter:
+                      type: number
+  /api/public/object/user/{UID}:
+    get:
+      summary: Single user
+      description: Responds wih a single User object.
+      parameters:
+      - name: UID
+        in: path
+        description: An ID of a user to retrieve
+        required: true
+        schema:
+          type: string
+        example: "345"
+      responses:
+        200:
+          description: Status 200
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+components:
+  schemas:
+    User:
+      required:
+      - createdAt
+      - email
+      - name
+      - token
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date
+        token:
+          type: string
+      example: "{\r\n\"name\": \"Seamus Gulgowski\",\r\n\"email\": \"Eldridge87@hotmail.com\"\
+        ,\r\n\"createdAt\": \"2019-03-01T21:58:16.596Z\",\r\n\"token\": \"f5f8cf46-7ed9-465c-827a-3c39470b178b\"\
+        \r\n}"
