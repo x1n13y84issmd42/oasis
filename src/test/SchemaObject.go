@@ -15,9 +15,12 @@ type SchemaObject struct {
 // Test tests.
 func (schema SchemaObject) Test(v interface{}, ctx *utility.Context) bool {
 	resp, isit := v.(map[string]interface{})
-	// fmt.Printf("SchemaObject result: %v\n", isit)
 
 	OK := isit
+
+	if !OK {
+		return false
+	}
 
 	for _, apiProp := range *schema.Schema.Properties {
 		respProp := resp[apiProp.Name]

@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -19,17 +18,14 @@ type JSONResponseArray struct {
 
 // Test tests.
 func (tResp JSONResponseArray) Test(response *http.Response) bool {
-	// fmt.Println("JSONResponseArray is working")
 	responseBody, _ := ioutil.ReadAll(response.Body)
-
-	// fmt.Println("Response body: ", string(responseBody))
-	// fmt.Println("Response status: ", response.StatusCode)
 
 	var mJSON []interface{}
 	errJSON := json.Unmarshal(responseBody, &mJSON)
 
 	if errJSON != nil {
-		fmt.Println("Something happened with JSON: ", errJSON)
+		tResp.Log.ResponseExpectedArray(tResp.APIResponse)
+		tResp.Log.Error(errJSON)
 		return false
 	}
 

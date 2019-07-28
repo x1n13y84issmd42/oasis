@@ -28,6 +28,10 @@ func (ctx Context) String() string {
 
 // CurrentValueType return the underlying type of V.
 func (ctx Context) CurrentValueType() string {
-	t := reflect.TypeOf(ctx.V)
-	return t.Name()
+	if ctx.V != nil {
+		t := reflect.TypeOf(ctx.V)
+		return t.Name()
+	}
+
+	return "null"
 }

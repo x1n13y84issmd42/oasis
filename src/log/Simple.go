@@ -28,8 +28,8 @@ func (log Simple) ResponseExpectedObject(schema *api.Response) {
 
 // Error --
 func (log Simple) Error(err error) {
-	fmt.Printf("\tBetter luck next time.\n")
-	fmt.Printf("\t%s\n", err.Error())
+	// fmt.Printf("\tBetter luck next time.\n")
+	fmt.Printf("\tError: %s\n", err.Error())
 }
 
 // Overriding --

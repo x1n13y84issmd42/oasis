@@ -14,15 +14,17 @@ type SchemaArray struct {
 
 // Test tests.
 func (schema SchemaArray) Test(v interface{}, ctx *utility.Context) bool {
-	va, isit := v.([]interface{})
-	// fmt.Printf("SchemaArray result: %v\n", isit)
-
-	test := Schema{schema.Schema.Items, schema.Log}
+	items, isit := v.([]interface{})
 	OK := isit
 
-	for vI, item := range va {
-		tr := test.Test(item, ctx.PushIndex(vI, item))
-		OK = OK && tr
+	if !OK {
+		return false
+	}
+
+	test := Schema{schema.Schema.Items, schema.Log}
+
+	for vI, item := range items {
+		OK = OK && test.Test(item, ctx.PushIndex(vI, item))
 	}
 
 	return OK

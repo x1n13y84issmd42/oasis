@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -27,7 +26,8 @@ func (tResp JSONResponseObject) Test(response *http.Response) bool {
 	errJSON := json.Unmarshal(responseBody, &mJSON)
 
 	if errJSON != nil {
-		fmt.Println("Something happened with JSON: ", errJSON)
+		tResp.Log.ResponseExpectedObject(tResp.APIResponse)
+		tResp.Log.Error(errJSON)
 		return false
 	}
 

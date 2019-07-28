@@ -27,6 +27,9 @@ func main() {
 		runner.Test("Localhost", "List visits", "*", 0, "*")
 		runner.Test("Localhost", "Single user", "*", 0, "*")
 		runner.Test("Localhost", "List users", "*", 0, "*")
+		runner.Test("Localhost", "List visits failing", "*", 0, "*")
+		runner.Test("Localhost", "Single user failing", "*", 0, "*")
+		runner.Test("Localhost", "List users failing", "*", 0, "*")
 	} else {
 		fmt.Println(specErr)
 	}
