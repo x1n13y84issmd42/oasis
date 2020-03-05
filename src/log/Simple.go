@@ -16,6 +16,14 @@ func (log Simple) UsingDefaultHost() {
 	fmt.Printf("No host name has been specified, using the first one in the list.\n")
 }
 
+func (log Simple) HostNotFound(h string) {
+	if h == "" {
+		fmt.Printf("No default host is found in the spec.\n")
+	} else {
+		fmt.Printf("The host \"%s\" is not found in the spec.\n", h)
+	}
+}
+
 // ResponseExpectedArray --
 func (log Simple) ResponseExpectedArray(schema *api.Response) {
 	fmt.Printf("\tExpected an array in response, but received something else.\n")

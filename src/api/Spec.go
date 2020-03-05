@@ -6,6 +6,7 @@ type Spec interface {
 	GetOperation(name string) *Operation
 	GetOperations() []Operation
 	GetHost(name string) *Host
+	GetDefaultHost() *Host
 	GetSecurity(name string) *Security
 	GetSchema(name string) *Schema
 }

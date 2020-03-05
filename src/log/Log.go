@@ -11,6 +11,7 @@ type ILogger interface {
 	TestingProject(p *api.ProjectInfo)
 	UsingHost(p *api.Host)
 	UsingDefaultHost()
+	HostNotFound(h string)
 	TestingOperation(res *api.Operation)
 	UsingSecurity(sec *api.Security)
 	UsingRequest(req *api.Request)

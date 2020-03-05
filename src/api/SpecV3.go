@@ -210,6 +210,20 @@ func (spec SpecV3) GetHost(name string) *Host {
 	return nil
 }
 
+// GetDefaultHost -
+func (spec SpecV3) GetDefaultHost() *Host {
+	servers := spec.data["servers"].([]interface{})
+	for _, s := range servers {
+		server := s.(imap)
+		return &Host{
+			URL:         server["url"].(string),
+			Name:        server["description"].(string),
+			Description: server["description"].(string),
+		}
+	}
+	return nil
+}
+
 // GetSecurity -
 func (spec SpecV3) GetSecurity(name string) *Security {
 	ymlScheme := spec.data["components"].(imap)["securitySchemes"].(imap)[name]

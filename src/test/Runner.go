@@ -17,8 +17,23 @@ type Runner struct {
 func (runner Runner) Test(hostName string, operationName string, requestContentType string, responseStatus int, responseContentType string) {
 	runner.Log.TestingProject(runner.Spec.GetProjectInfo())
 
-	host := runner.Spec.GetHost(hostName)
-	runner.Log.UsingHost(host)
+	//	Figuring out the host name.
+	//	Empty string means default host.
+	var host *api.Host
+
+	if hostName != "" {
+		host = runner.Spec.GetHost(hostName)
+	} else {
+		runner.Log.UsingDefaultHost()
+		host = runner.Spec.GetDefaultHost()
+	}
+
+	if host != nil {
+		runner.Log.UsingHost(host)
+	} else {
+		runner.Log.HostNotFound(hostName)
+		return
+	}
 
 	operation := runner.Spec.GetOperation(operationName)
 
