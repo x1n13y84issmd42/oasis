@@ -35,15 +35,18 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 		return false
 	}
 
+	//	Getting the tested operation from the spec.
 	operation := runner.Spec.GetOperation(operationName)
 	result := false
 
 	if operation != nil {
+		//	Operation test.
 		tOp := Operation{
 			runner.Log,
 			host,
 			operation,
 		}
+		//	Running the op test.
 		result = tOp.Run(requestContentType, responseStatus, responseContentType)
 	} else {
 		fmt.Printf("The operation \"%s\" isn't there.\n", operationName)

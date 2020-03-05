@@ -16,11 +16,17 @@ func main() {
 	var fScript string
 	var fHost string
 	var fOp string
+	var fReqCT string
+	var fRespCT string
+	var fRespStatus int
 
 	flag.StringVar(&fSpec, "spec", "", "A path to an OAS file.")
 	flag.StringVar(&fScript, "script", "", "A path to a test script file.")
 	flag.StringVar(&fHost, "host", "", "A hostname from the spec file.")
 	flag.StringVar(&fOp, "op", "", "An operation name from the spec file.")
+	flag.StringVar(&fReqCT, "reqCT", "*", "A request Content-Type to use for request.")
+	flag.StringVar(&fRespCT, "respCT", "*", "A response Content-Type to test against.")
+	flag.IntVar(&fRespStatus, "respStatus", 0, "An expected response status code.")
 	flag.Parse()
 
 	if fSpec == "" && fScript == "" {

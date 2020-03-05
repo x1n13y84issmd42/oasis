@@ -58,7 +58,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 				// `security` is an array of maps, using the first key of the first item as a security scheme name
 				ymlOpSec := operation["security"]
 				if ymlOpSec != nil {
-					ymlOpSec0 := ymlOpSec.([]interface{})[0].(imap)
+					ymlOpSec0 := ymlOpSec.(iarray)[0].(imap)
 					for osn := range ymlOpSec0 {
 						spec.GetSecurity(osn.(string))
 						break
@@ -196,7 +196,7 @@ func (spec SpecV3) GetOperations() []Operation {
 
 // GetHost -
 func (spec SpecV3) GetHost(name string) *Host {
-	servers := spec.data["servers"].([]interface{})
+	servers := spec.data["servers"].(iarray)
 	for _, s := range servers {
 		server := s.(imap)
 		if server["description"] == name {
@@ -212,9 +212,9 @@ func (spec SpecV3) GetHost(name string) *Host {
 
 // GetDefaultHost -
 func (spec SpecV3) GetDefaultHost() *Host {
-	servers := spec.data["servers"].([]interface{})
-	for _, s := range servers {
-		server := s.(imap)
+	servers := spec.data["servers"].(iarray)
+	if len(servers) > 0 {
+		server := servers[0].(imap)
 		return &Host{
 			URL:         server["url"].(string),
 			Name:        server["description"].(string),
@@ -302,10 +302,10 @@ func (spec SpecV3) parseObjectProperties(name string, ymlSchemaM imap) *[]Proper
 		return nil
 	}
 
-	var ymlRequired []interface{}
+	var ymlRequired iarray
 
 	if ymlSchemaM["required"] != nil {
-		ymlRequired = ymlSchemaM["required"].([]interface{})
+		ymlRequired = ymlSchemaM["required"].(iarray)
 	}
 
 	isRequired := func(propName string) bool {
