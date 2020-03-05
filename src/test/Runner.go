@@ -14,7 +14,7 @@ type Runner struct {
 }
 
 // Test --
-func (runner Runner) Test(hostName string, operationName string, requestContentType string, responseStatus int, responseContentType string) {
+func (runner Runner) Test(hostName string, operationName string, requestContentType string, responseStatus int, responseContentType string) bool {
 	runner.Log.TestingProject(runner.Spec.GetProjectInfo())
 
 	//	Figuring out the host name.
@@ -32,10 +32,11 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 		runner.Log.UsingHost(host)
 	} else {
 		runner.Log.HostNotFound(hostName)
-		return
+		return false
 	}
 
 	operation := runner.Spec.GetOperation(operationName)
+	result := false
 
 	if operation != nil {
 		tOp := Operation{
@@ -43,13 +44,14 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 			host,
 			operation,
 		}
-		tOp.Run(requestContentType, responseStatus, responseContentType)
+		result = tOp.Run(requestContentType, responseStatus, responseContentType)
 	} else {
 		fmt.Printf("The operation \"%s\" isn't there.\n", operationName)
 		runner.printOperations()
 	}
 
 	fmt.Println("")
+	return result
 }
 
 func (runner Runner) printOperations() {

@@ -17,7 +17,7 @@ type Operation struct {
 }
 
 // Run performs a test.
-func (op Operation) Run(requestContentType string, responseStatus int, responseContentType string) {
+func (op Operation) Run(requestContentType string, responseStatus int, responseContentType string) bool {
 	op.Log.TestingOperation(op.Operation)
 
 	client := http.Client{}
@@ -27,17 +27,17 @@ func (op Operation) Run(requestContentType string, responseStatus int, responseC
 
 	if err != nil {
 		fmt.Println("Something happened: ", err)
-		return
+		return false
 	}
 
 	resp := op.getResponse(responseStatus, responseContentType)
 	if resp == nil {
 		fmt.Printf("No response for Status of %d & Content-Type of \"%s\"\n", responseStatus, responseContentType)
-		return
+		return false
 	}
 
 	tResp := NewResponse(resp, op.Log)
-	tResp.Test(response)
+	return tResp.Test(response)
 }
 
 func (op Operation) makeRequest(CT string) *http.Request {

@@ -25,7 +25,7 @@ func main() {
 
 	if fSpec == "" && fScript == "" {
 		flag.Usage()
-		os.Exit(0)
+		os.Exit(255)
 	}
 
 	if fScript != "" {
@@ -41,22 +41,13 @@ func main() {
 				Log:  log.Simple{},
 			}
 
-			// runner.Test("Localhost", "Get boolean", "*", 0, "*")
-			// runner.Test("Localhost", "Get number", "*", 0, "*")
-			// runner.Test("Localhost", "Get string", "*", 0, "*")
-			// runner.Test("Localhost", "List strings", "*", 0, "*")
-			// runner.Test("Localhost", "List numbers", "*", 0, "*")
-
-			// runner.Test("Localhost", "List visits", "*", 0, "*")
-			// runner.Test("Localhost", "Single user", "*", 0, "*")
-			// runner.Test("Localhost", "List users", "*", 0, "*")
-			// runner.Test("Localhost", "List visits failing", "*", 0, "*")
-			// runner.Test("Localhost", "Single user failing", "*", 0, "*")
-			// runner.Test("Localhost", "List users failing", "*", 0, "*")
-			runner.Test(fHost, fOp, "*", 0, "*")
+			testResult := runner.Test(fHost, fOp, "*", 0, "*")
+			if !testResult {
+				os.Exit(255)
+			}
 		} else {
 			fmt.Println(specErr)
+			os.Exit(255)
 		}
 	}
-
 }
