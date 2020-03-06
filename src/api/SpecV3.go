@@ -71,11 +71,25 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 				if ymlResps != nil {
 					ymlMResps := ymlResps.(imap)
 
-					for ymlStatus, ymlStatusResponses := range ymlMResps {
-						ymlMStatusCTResponses := ymlStatusResponses.(imap)["content"].(imap)
+					for ymlStatus, ymlStatusResponse := range ymlMResps {
+						ymlStatusContentResponses := ymlStatusResponse.(imap)["content"]
+						ymlStatusHeaders := ymlStatusResponse.(imap)["headers"]
 
-						for ymlCT, ymlCTResp := range ymlMStatusCTResponses {
-							responses = append(responses, spec.makeResponse(ymlCT.(string), ymlStatus.(int), ymlCTResp.(imap)))
+						headers := HeaderBag{}
+
+						if ymlStatusHeaders != nil {
+							for ymlHeaderName, ymlHeader := range ymlStatusHeaders.(imap) {
+								ymlSHeaderName := ymlHeaderName.(string)
+								headers[ymlSHeaderName] = append(headers[ymlSHeaderName], spec.makeHeader(ymlSHeaderName, ymlHeader.(imap)))
+							}
+						}
+
+						if ymlStatusContentResponses != nil {
+							for ymlCT, ymlCTResp := range ymlStatusContentResponses.(imap) {
+								responses = append(responses, spec.makeResponse(ymlCT.(string), ymlStatus.(int), ymlCTResp.(imap), headers))
+							}
+						} else {
+							responses = append(responses, spec.makeResponse("", ymlStatus.(int), nil, headers))
 						}
 					}
 				}
@@ -92,6 +106,17 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 	}
 
 	return nil
+}
+
+func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
+	return Header{
+		Name:        ymlHeaderName,
+		DataType:    spec.mapDataType(ymlHeader["schema"].(imap)["type"].(DataType)),
+		Description: ymlHeader["description"].(string),
+		Required:    ymlHeader["required"].(bool),
+		// Example: string,
+		// Value: string
+	}
 }
 
 func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
@@ -112,25 +137,26 @@ func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
 	return
 }
 
-func (spec SpecV3) makeResponse(ymlCT string, ymlStatus int, ymlResp imap) Response {
-	ymlRespSchema := ymlResp["schema"].(imap)
+func (spec SpecV3) makeResponse(ymlCT string, ymlStatus int, ymlResp imap, headers HeaderBag) Response {
 	ymlRespExample := ""
+	var respModelSchema *Schema = nil
 
-	if ymlResp["example"] != nil {
-		ymlRespExample = ymlResp["example"].(string)
+	if ymlResp != nil {
+		ymlRespSchema := ymlResp["schema"].(imap)
+
+		if ymlResp["example"] != nil {
+			ymlRespExample = ymlResp["example"].(string)
+		}
+
+		respModelSchema = spec.parseSchema("unnamed", ymlRespSchema)
 	}
-
-	// respDataType := spec.mapSchemaDataType(ymlRespSchema)
-	// respModelSchemaName := spec.resolveShemaRef(ymlRespSchema, respDataType)
-	respModelSchema := spec.parseSchema("unnamed", ymlRespSchema)
 
 	return Response{
 		ContentType: ymlCT,
-		// DataType:    respDataType, //TODO: move to schema
-		Example:    ymlRespExample,
-		Headers:    nil, //TODO
-		Schema:     respModelSchema,
-		StatusCode: ymlStatus,
+		Example:     ymlRespExample,
+		Headers:     headers,
+		Schema:      respModelSchema,
+		StatusCode:  ymlStatus,
 	}
 }
 

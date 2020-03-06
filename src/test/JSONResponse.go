@@ -32,7 +32,7 @@ func (tResp JSONResponseString) Test(response *http.Response) bool {
 		return (SchemaString{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	fmt.Println("JSONResponseString error:", err)
+	tResp.Log.Error(err)
 
 	return false
 }
@@ -58,7 +58,7 @@ func (tResp JSONResponseNumber) Test(response *http.Response) bool {
 		return (SchemaNumber{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	fmt.Println("JSONResponseNumber error:", err)
+	tResp.Log.Error(err)
 
 	return false
 }
@@ -84,7 +84,7 @@ func (tResp JSONResponseBoolean) Test(response *http.Response) bool {
 		return (SchemaBoolean{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	fmt.Println("JSONResponseBoolean error:", err)
+	tResp.Log.Error(err)
 
 	return false
 }

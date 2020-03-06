@@ -218,6 +218,19 @@ paths:
                       type: string
                     counter:
                       type: number
+  /api/public/meta/headers/redirect:
+    get:
+      summary: Redirect
+      description: Responds with a 302 status and a Location header.
+      responses:
+        302:
+          description: Found
+          headers:
+            Location:
+              schema:
+                type: string
+              required: true
+              description: 'A location to redirect a client to.'
 components:
   schemas:
     User:

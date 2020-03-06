@@ -49,7 +49,7 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 		//	Running the op test.
 		result = tOp.Run(requestContentType, responseStatus, responseContentType)
 	} else {
-		fmt.Printf("The operation \"%s\" isn't there.\n", operationName)
+		runner.Log.OperationNotFound(operationName)
 		runner.printOperations()
 	}
 

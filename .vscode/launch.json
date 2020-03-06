@@ -11,7 +11,12 @@
 			"mode": "auto",
 			"program": "${workspaceFolder}/src",
 			"env": {},
-			"args": []
+			"args": [
+				"--spec",
+				"../spec/oasis.yaml",
+				"--op",
+				"Redirect"
+			]
 		}
 	]
 }

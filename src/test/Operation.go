@@ -16,34 +16,40 @@ type Operation struct {
 	Operation *api.Operation
 }
 
-// Run performs a test.
+// Run performs a test of an operation.
 func (op Operation) Run(requestContentType string, responseStatus int, responseContentType string) bool {
 	op.Log.TestingOperation(op.Operation)
 
-	client := http.Client{}
+	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 	req := op.makeRequest(requestContentType)
 
 	response, err := client.Do(req)
 
 	if err != nil {
-		fmt.Println("Something happened: ", err)
+		op.Log.Error(err)
 		return false
 	}
 
 	resp := op.getResponse(responseStatus, responseContentType)
 	if resp == nil {
-		fmt.Printf("No response for Status of %d & Content-Type of \"%s\"\n", responseStatus, responseContentType)
+		op.Log.ResponseNotFound(responseContentType, responseStatus)
 		return false
 	}
 
+	//	Testing the response.
 	tResp := NewResponse(resp, op.Log)
 	return tResp.Test(response)
 }
 
 func (op Operation) makeRequest(CT string) *http.Request {
 	URL := fmt.Sprintf("%s%s", op.Host.URL, op.Operation.Path)
-	fmt.Printf("Requesting %s\n", URL)
+	op.Log.Requesting(URL)
 	req, _ := http.NewRequest(op.Operation.Method, URL, nil)
+	//TODO: req body & CT
 	return req
 }
 

@@ -36,13 +36,22 @@ func (log Simple) ResponseExpectedObject(schema *api.Response) {
 
 // Error --
 func (log Simple) Error(err error) {
-	// fmt.Printf("\tBetter luck next time.\n")
-	fmt.Printf("\tError: %s\n", err.Error())
+	fmt.Printf("\tSomething happened: %s\n", err.Error())
 }
 
 // Overriding --
 func (log Simple) Overriding(what string) {
 	fmt.Printf("\tOverriding %s.\n", what)
+}
+
+// Requesting --
+func (log Simple) Requesting(URL string) {
+	fmt.Printf("\tRequesting %s\n", URL)
+}
+
+// ResponseNotFound --
+func (log Simple) ResponseNotFound(CT string, status int) {
+	fmt.Printf("\tNo response for Status of %d & Content-Type of \"%s\"\n", status, CT)
 }
 
 // ResponseHasWrongStatus --
@@ -93,6 +102,11 @@ func (log Simple) OperationFail(res *api.Operation) {
 	fmt.Printf("FAILURE\n")
 }
 
+// OperationNotFound --
+func (log Simple) OperationNotFound(op string) {
+	fmt.Printf("The operation \"%s\" isn't there.\n", op)
+}
+
 // SchemaOK --
 func (log Simple) SchemaOK(schema *api.Schema) {
 }
@@ -100,6 +114,11 @@ func (log Simple) SchemaOK(schema *api.Schema) {
 // SchemaFail --
 func (log Simple) SchemaFail(schema *api.Schema) {
 	fmt.Printf("\tSchema '%s' has errors.\n", schema.Name)
+}
+
+// UnknownSchemaDataType --
+func (log Simple) UnknownSchemaDataType(schema *api.Schema) {
+	fmt.Printf("\tSchema '%s' has unknown data type '%s'.\n", schema.Name, schema.DataType)
 }
 
 // UsingSecurity --

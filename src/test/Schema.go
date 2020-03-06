@@ -34,6 +34,7 @@ func (schema Schema) Test(data interface{}, ctx *utility.Context) bool {
 
 	default:
 		fmt.Println("Woot")
+		schema.Log.UnknownSchemaDataType(schema.APISchema)
 	}
 	return false
 }

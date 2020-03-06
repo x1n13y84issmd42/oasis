@@ -9,15 +9,18 @@ import (
 type ILogger interface {
 	Error(err error)
 	TestingProject(p *api.ProjectInfo)
+	TestingOperation(res *api.Operation)
+
 	UsingHost(p *api.Host)
 	UsingDefaultHost()
 	HostNotFound(h string)
-	TestingOperation(res *api.Operation)
+
 	UsingSecurity(sec *api.Security)
 	UsingRequest(req *api.Request)
 	UsingResponse(req *api.Response)
 
 	Overriding(what string)
+	Requesting(url string)
 
 	PropertyHasNoValue(prop *api.Property, ctx *utility.Context)
 	PropertyHasWrongType(prop *api.Property, ctx *utility.Context)
@@ -27,9 +30,13 @@ type ILogger interface {
 	ResponseHasWrongContentType(schema *api.Response, actualCT string)
 	ResponseExpectedArray(schema *api.Response)
 	ResponseExpectedObject(schema *api.Response)
+	ResponseNotFound(CT string, status int)
 
 	OperationOK(res *api.Operation)
 	OperationFail(res *api.Operation)
+	OperationNotFound(op string)
+
 	SchemaOK(schema *api.Schema)
 	SchemaFail(schema *api.Schema)
+	UnknownSchemaDataType(schema *api.Schema)
 }

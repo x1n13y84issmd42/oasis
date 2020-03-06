@@ -24,7 +24,8 @@ type HTTPResponse struct {
 	APIResponse *api.Response
 }
 
-// NewResponse --
+// NewResponse creates a new response test object. It can be either a basic HTTP response,
+// or one of the JSON family of response testers.
 func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
 	if apiResp.ContentType == "application/json" {
 		switch apiResp.Schema.DataType {
@@ -66,8 +67,34 @@ func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
 	}
 }
 
-// Test tests.
+// Test checks basic response properties such as status code and headers.
 func (tResp HTTPResponse) Test(resp *http.Response) bool {
-	//TODO: test response headers
-	return tResp.APIResponse.StatusCode == resp.StatusCode && tResp.APIResponse.ContentType == resp.Header.Get("Content-Type")
+	statusOK := tResp.APIResponse.StatusCode == resp.StatusCode
+	CTOK := (tResp.APIResponse.ContentType == "") || (tResp.APIResponse.ContentType == resp.Header.Get("Content-Type"))
+
+	headersOK := true
+	for specHeaderName, specHeaderValues := range tResp.APIResponse.Headers {
+		respHeaderValues := resp.Header.Values(specHeaderName)
+		for _, specHeader := range specHeaderValues {
+			if specHeader.Required {
+				requiredOK := headersOK && (len(respHeaderValues) > 0)
+
+				if !requiredOK {
+					tResp.Log.HeaderHasNoValue(&specHeader)
+				}
+
+				headersOK = headersOK && requiredOK
+			}
+		}
+	}
+
+	if !statusOK {
+		tResp.Log.ResponseHasWrongStatus(tResp.APIResponse, resp.StatusCode)
+	}
+
+	if !CTOK {
+		tResp.Log.ResponseHasWrongContentType(tResp.APIResponse, resp.Header.Get("Content-Type"))
+	}
+
+	return statusOK && CTOK && headersOK
 }
