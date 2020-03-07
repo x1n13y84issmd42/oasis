@@ -5,6 +5,7 @@ Work in progress.
 
 ## Resources
 [OpenAPI Spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#securitySchemeObject)
+
 [HTTP Auth Registry](http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml)
 
 ## TODO
