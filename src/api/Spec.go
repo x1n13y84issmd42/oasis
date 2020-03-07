@@ -34,14 +34,31 @@ type ParameterLocation = string
 
 // SecurityType is a type of security mechanism used
 type SecurityType = string
+type SecurityScheme = string
 
 // DataType is data type, FFS
 type DataType = string
+type DataFormat = string
 
 // Types of security mechanisms
 const (
-	SecurityTypeBasic  = "basic"
+	SecurityTypeHTTP   = "http"
 	SecurityTypeAPIKey = "apiKey"
+	SecurityTypeOAuth2 = "oauth2"
+	SecurityTypeOpenID = "openIdConnect"
+)
+
+// Subtypes of security mechanisms
+const (
+	SecuritySchemeBasic       = "basic"
+	SecuritySchemeBearer      = "bearer"
+	SecuritySchemeHoba        = "hoba"
+	SecuritySchemeMutual      = "mutual"
+	SecuritySchemeNegotiate   = "negotiate"
+	SecuritySchemeOauth       = "oauth"
+	SecuritySchemeScramSHA1   = "scram-sha-1"
+	SecuritySchemeScramSHA256 = "scram-sha-256"
+	SecuritySchemeVapid       = "vapid"
 )
 
 // Parameter locations
@@ -58,8 +75,17 @@ const (
 	DataTypeArray   = "array"
 	DataTypeBoolean = "boolean"
 	DataTypeNumber  = "number"
-	//TODO: the rest of primitive types
+	DataTypeInteger = "integer"
 )
+
+// Data formats
+const (
+	DataFormatDate     = "date"
+	DataFormatDateTime = "date-time"
+)
+
+type AuthFlow struct {
+}
 
 // Security is a description of a security mechanism used on some Operation
 type Security struct {

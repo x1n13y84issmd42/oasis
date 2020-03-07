@@ -21,6 +21,9 @@ func (test Schema) Test(data interface{}, ctx *utility.Context) bool {
 	case api.DataTypeNumber:
 		return SchemaNumber{test.APISchema, test.Log}.Test(data, ctx)
 
+	case api.DataTypeInteger:
+		return SchemaInteger{test.APISchema, test.Log}.Test(data, ctx)
+
 	case api.DataTypeBoolean:
 		return SchemaBoolean{test.APISchema, test.Log}.Test(data, ctx)
 

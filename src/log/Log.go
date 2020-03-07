@@ -41,6 +41,7 @@ type ILogger interface {
 	UnknownSchemaDataType(schema *api.Schema)
 	SchemaExpectedBoolean(schema *api.Schema, v interface{})
 	SchemaExpectedNumber(schema *api.Schema, v interface{})
+	SchemaExpectedInteger(schema *api.Schema, v interface{})
 	SchemaExpectedString(schema *api.Schema, v interface{})
 	SchemaExpectedArray(schema *api.Schema, v interface{})
 	SchemaExpectedObject(schema *api.Schema, v interface{})

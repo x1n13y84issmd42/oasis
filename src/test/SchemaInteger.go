@@ -8,31 +8,31 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaNumber asserts that the provided data is a floating point number.
-type SchemaNumber struct {
+// SchemaInteger asserts that the provided data is an integer number.
+type SchemaInteger struct {
 	APISchema *api.Schema
 	Log       log.ILogger
 }
 
-// Test checks if the passed value v is a floating point one.
+// Test checks if the passed value v is an integer one.
 // Two cases are possible:
 //		1. a string arrives (usually from a response header)
-//			try to ParseFloat() it
+//			try to ParseInt() it
 //		2. a native value arrives (usually from a parsed JSON)
 //			just type cast it and see what happens
-func (test SchemaNumber) Test(v interface{}, ctx *utility.Context) (isit bool) {
+func (test SchemaInteger) Test(v interface{}, ctx *utility.Context) (isit bool) {
 	sv, isstring := v.(string)
 	if isstring {
-		_, err := strconv.ParseFloat(sv, 64)
+		_, err := strconv.ParseInt(sv, 10, 64)
 		if err == nil {
 			isit = true
 		}
 	} else {
-		_, isit = v.(float64)
+		_, isit = v.(int64)
 	}
 
 	if !isit {
-		test.Log.SchemaExpectedNumber(test.APISchema, v)
+		test.Log.SchemaExpectedInteger(test.APISchema, v)
 	}
 
 	return

@@ -231,9 +231,9 @@ paths:
                 type: string
               required: true
               description: 'A location to redirect a client to.'
-  /api/public/meta/headers/number:
+  /api/public/meta/headers/integer:
     get:
-      summary: Meta Number
+      summary: Meta Integer
       description: Responds with a 200 status and a X-Num header with an integer value.
       responses:
         200:
@@ -241,13 +241,26 @@ paths:
           headers:
             X-Num:
               schema:
-                type: number
+                type: integer
               required: true
               description: 'An answer to the ultimate question of life, universe and everything.'
-  /api/public/meta/headers/number/fail:
+  /api/public/meta/headers/integer/fail:
     get:
-      summary: Meta Number Fail
+      summary: Meta Integer Fail
       description: Responds with a 200 status and a X-Num header with a non-numeric value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Num:
+              schema:
+                type: integer
+              required: true
+              description: 'A wrong answer to the ultimate question of life, universe and everything.'
+  /api/public/meta/headers/number:
+    get:
+      summary: Meta Number
+      description: Responds with a 200 status and a X-Num header with a floating point value.
       responses:
         200:
           description: OK
@@ -256,7 +269,20 @@ paths:
               schema:
                 type: number
               required: true
-              description: 'A wrong answer to the ultimate question of life, universe and everything.'
+              description: 'A Pi value.'
+  /api/public/meta/headers/number/fail:
+    get:
+      summary: Meta Number Fail
+      description: Responds with a 200 status and a X-Num header with a floating point value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Num:
+              schema:
+                type: number
+              required: true
+              description: 'A Pie!'
   /api/public/meta/headers/boolean:
     get:
       summary: Meta Bool

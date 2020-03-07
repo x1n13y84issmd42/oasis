@@ -128,7 +128,12 @@ func (log Simple) SchemaExpectedBoolean(schema *api.Schema, v interface{}) {
 
 // SchemaExpectedNumber --
 func (log Simple) SchemaExpectedNumber(schema *api.Schema, v interface{}) {
-	fmt.Printf("\tSchema \"%s\" expected %#v to be a numeric type (int or float).\n", schema.Name, v)
+	fmt.Printf("\tSchema \"%s\" expected %#v to be a floating point number.\n", schema.Name, v)
+}
+
+// SchemaExpectedInteger --
+func (log Simple) SchemaExpectedInteger(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be an integer number.\n", schema.Name, v)
 }
 
 // SchemaExpectedString --

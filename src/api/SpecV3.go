@@ -168,13 +168,20 @@ func (spec SpecV3) makeResponse(ymlCT string, ymlStatus int, ymlResp imap, heade
 }
 
 func (spec SpecV3) mapDataType(ymlDT string) DataType {
-	return map[string]DataType{
+	dt := map[string]DataType{
 		"string":  DataTypeString,
 		"object":  DataTypeObject,
 		"array":   DataTypeArray,
 		"boolean": DataTypeBoolean,
 		"number":  DataTypeNumber,
+		"integer": DataTypeInteger,
 	}[ymlDT]
+
+	if dt == "" {
+		dt = ymlDT
+	}
+
+	return dt
 }
 
 func (spec SpecV3) mapSchemaDataType(ymlRespSchema imap) DataType {
