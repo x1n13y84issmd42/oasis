@@ -20,15 +20,15 @@ type JSONResponseObject struct {
 type JSONMap = map[string]interface{}
 
 // Test tests.
-func (tResp JSONResponseObject) Test(response *http.Response) bool {
+func (test JSONResponseObject) Test(response *http.Response) bool {
 	//TODO: HTTPReponse{}.Test(response)
 	responseBody, _ := ioutil.ReadAll(response.Body)
 	mJSON := make(JSONMap)
 	errJSON := json.Unmarshal(responseBody, &mJSON)
 
 	if errJSON != nil {
-		tResp.Log.ResponseExpectedObject(tResp.APIResponse)
-		tResp.Log.Error(errJSON)
+		test.Log.ResponseExpectedObject(test.APIResponse)
+		test.Log.Error(errJSON)
 		return false
 	}
 
@@ -36,5 +36,5 @@ func (tResp JSONResponseObject) Test(response *http.Response) bool {
 		Path: []string{"Response"},
 	}
 
-	return Schema{tResp.APIResponse.Schema, tResp.Log}.Test(mJSON, ctx)
+	return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
 }

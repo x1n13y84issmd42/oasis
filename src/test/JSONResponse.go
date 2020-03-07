@@ -18,7 +18,7 @@ type JSONResponseString struct {
 }
 
 // Test tests.
-func (tResp JSONResponseString) Test(response *http.Response) bool {
+func (test JSONResponseString) Test(response *http.Response) bool {
 	var err error
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
@@ -29,10 +29,10 @@ func (tResp JSONResponseString) Test(response *http.Response) bool {
 	err = json.Unmarshal(responseBody, &v)
 
 	if err == nil {
-		return (SchemaString{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+		return (SchemaString{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	tResp.Log.Error(err)
+	test.Log.Error(err)
 
 	return false
 }
@@ -44,7 +44,7 @@ type JSONResponseNumber struct {
 }
 
 // Test tests.
-func (tResp JSONResponseNumber) Test(response *http.Response) bool {
+func (test JSONResponseNumber) Test(response *http.Response) bool {
 	var err error
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
@@ -55,10 +55,10 @@ func (tResp JSONResponseNumber) Test(response *http.Response) bool {
 	err = json.Unmarshal(responseBody, &v)
 
 	if err == nil {
-		return (SchemaNumber{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+		return (SchemaNumber{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	tResp.Log.Error(err)
+	test.Log.Error(err)
 
 	return false
 }
@@ -70,7 +70,7 @@ type JSONResponseBoolean struct {
 }
 
 // Test tests.
-func (tResp JSONResponseBoolean) Test(response *http.Response) bool {
+func (test JSONResponseBoolean) Test(response *http.Response) bool {
 	var err error
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
@@ -81,10 +81,10 @@ func (tResp JSONResponseBoolean) Test(response *http.Response) bool {
 	err = json.Unmarshal(responseBody, &v)
 
 	if err == nil {
-		return (SchemaBoolean{tResp.APIResponse.Schema, tResp.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+		return (SchemaBoolean{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 	}
 
-	tResp.Log.Error(err)
+	test.Log.Error(err)
 
 	return false
 }

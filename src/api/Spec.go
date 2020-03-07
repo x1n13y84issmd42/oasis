@@ -100,7 +100,7 @@ type Property struct {
 // Header is a description of an HTTP header
 type Header struct {
 	Name        string
-	DataType    DataType
+	Schema      *Schema
 	Description string
 	Required    bool
 	Example     string

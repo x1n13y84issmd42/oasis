@@ -61,18 +61,18 @@ func (log Simple) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
 
 // ResponseHasWrongContentType --
 func (log Simple) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
-	fmt.Printf("\tExpected the '%s' Content-Type in response, but got '%s'.\n", resp.ContentType, actualCT)
+	fmt.Printf("\tExpected the \"%s\" Content-Type in response, but got \"%s\".\n", resp.ContentType, actualCT)
 }
 
 // UsingRequest --
 func (log Simple) UsingRequest(req *api.Request) {
-	fmt.Printf("\tUsing the '%s' request.\n", req.ContentType)
+	fmt.Printf("\tUsing the \"%s\" request.\n", req.ContentType)
 }
 
 // UsingResponse --
 func (log Simple) UsingResponse(resp *api.Response) {
 	if resp.Schema != nil {
-		fmt.Printf("\tTesting against the '%s' response.\n", resp.Schema.Name)
+		fmt.Printf("\tTesting against the \"%s\" response.\n", resp.Schema.Name)
 	} else {
 		CT := resp.ContentType
 		if len(CT) == 0 {
@@ -84,12 +84,12 @@ func (log Simple) UsingResponse(resp *api.Response) {
 
 // HeaderHasNoValue --
 func (log Simple) HeaderHasNoValue(hdr *api.Header) {
-	fmt.Printf("\tHeader '%s' is required but is not present.\n", hdr.Name)
+	fmt.Printf("\tHeader \"%s\" is required but is not present.\n", hdr.Name)
 }
 
 // HeaderHasWrongType --
 func (log Simple) HeaderHasWrongType(hdr *api.Header) {
-	fmt.Printf("\tHeader '%s' has a wrong type.\n", hdr.Name)
+	fmt.Printf("\tHeader \"%s\" has a wrong type.\n", hdr.Name)
 }
 
 // OperationOK --
@@ -113,17 +113,42 @@ func (log Simple) SchemaOK(schema *api.Schema) {
 
 // SchemaFail --
 func (log Simple) SchemaFail(schema *api.Schema) {
-	fmt.Printf("\tSchema '%s' has errors.\n", schema.Name)
+	fmt.Printf("\tSchema \"%s\" has errors.\n", schema.Name)
 }
 
 // UnknownSchemaDataType --
 func (log Simple) UnknownSchemaDataType(schema *api.Schema) {
-	fmt.Printf("\tSchema '%s' has unknown data type '%s'.\n", schema.Name, schema.DataType)
+	fmt.Printf("\tSchema \"%s\" has unknown data type \"%s\".\n", schema.Name, schema.DataType)
+}
+
+// SchemaExpectedBoolean --
+func (log Simple) SchemaExpectedBoolean(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be a boolean type.\n", schema.Name, v)
+}
+
+// SchemaExpectedNumber --
+func (log Simple) SchemaExpectedNumber(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be a numeric type (int or float).\n", schema.Name, v)
+}
+
+// SchemaExpectedString --
+func (log Simple) SchemaExpectedString(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be a string type.\n", schema.Name, v)
+}
+
+// SchemaExpectedArray --
+func (log Simple) SchemaExpectedArray(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be an array type.\n", schema.Name, v)
+}
+
+// SchemaExpectedObject --
+func (log Simple) SchemaExpectedObject(schema *api.Schema, v interface{}) {
+	fmt.Printf("\tSchema \"%s\" expected %#v to be an object type.\n", schema.Name, v)
 }
 
 // UsingSecurity --
 func (log Simple) UsingSecurity(sec *api.Security) {
-	fmt.Printf("\tUsing the '%s' security settings.\n", sec.Name)
+	fmt.Printf("\tUsing the \"%s\" security settings.\n", sec.Name)
 }
 
 // PropertyHasNoValue --

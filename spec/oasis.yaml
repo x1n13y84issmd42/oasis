@@ -231,6 +231,58 @@ paths:
                 type: string
               required: true
               description: 'A location to redirect a client to.'
+  /api/public/meta/headers/number:
+    get:
+      summary: Meta Number
+      description: Responds with a 200 status and a X-Num header with an integer value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Num:
+              schema:
+                type: number
+              required: true
+              description: 'An answer to the ultimate question of life, universe and everything.'
+  /api/public/meta/headers/number/fail:
+    get:
+      summary: Meta Number Fail
+      description: Responds with a 200 status and a X-Num header with a non-numeric value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Num:
+              schema:
+                type: number
+              required: true
+              description: 'A wrong answer to the ultimate question of life, universe and everything.'
+  /api/public/meta/headers/boolean:
+    get:
+      summary: Meta Bool
+      description: Responds with a 200 status and a X-Truth header with a random boolean value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Truth:
+              schema:
+                type: boolean
+              required: true
+              description: 'Your source of truth.'
+  /api/public/meta/headers/boolean/fail:
+    get:
+      summary: Meta Bool Fail
+      description: Responds with a 200 status and a X-Truth header with a non-boolean value.
+      responses:
+        200:
+          description: OK
+          headers:
+            X-Truth:
+              schema:
+                type: boolean
+              required: true
+              description: 'Your unreliable source of truth.'
 components:
   schemas:
     User:

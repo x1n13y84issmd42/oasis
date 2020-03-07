@@ -12,6 +12,12 @@ type Context struct {
 	V    interface{}
 }
 
+func NewContext(n string) *Context {
+	return &Context{
+		Path: []string{n},
+	}
+}
+
 // PushIndex creates a new Context with an added array index value to the path.
 func (ctx Context) PushIndex(i int, v interface{}) *Context {
 	return &Context{append(ctx.Path, fmt.Sprintf("[%d]", i)), v}

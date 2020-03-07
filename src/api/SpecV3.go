@@ -41,7 +41,10 @@ func (spec SpecV3) GetProjectInfo() *ProjectInfo {
 	}
 }
 
-// GetOperation -
+// GetOperation extracts an operation data from the spec file.
+// It includes everything needed to perform the operation
+// and validate it's outcome: request methods, URLs, response & request
+// headers, security settings, request & response bodies, etc.
 func (spec SpecV3) GetOperation(name string) *Operation {
 	paths := spec.data["paths"].(imap)
 
@@ -71,6 +74,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 				if ymlResps != nil {
 					ymlMResps := ymlResps.(imap)
 
+					// Iterating over status codes in the 'responses' map.
 					for ymlStatus, ymlStatusResponse := range ymlMResps {
 						ymlStatusContentResponses := ymlStatusResponse.(imap)["content"]
 						ymlStatusHeaders := ymlStatusResponse.(imap)["headers"]
@@ -78,6 +82,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						headers := HeaderBag{}
 
 						if ymlStatusHeaders != nil {
+							// Iterating over header names in the 'responses[STATUS_CODE]' map.
 							for ymlHeaderName, ymlHeader := range ymlStatusHeaders.(imap) {
 								ymlSHeaderName := ymlHeaderName.(string)
 								headers[ymlSHeaderName] = append(headers[ymlSHeaderName], spec.makeHeader(ymlSHeaderName, ymlHeader.(imap)))
@@ -85,10 +90,12 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						}
 
 						if ymlStatusContentResponses != nil {
+							// Iterate over content-type keys in the 'content' map.
 							for ymlCT, ymlCTResp := range ymlStatusContentResponses.(imap) {
 								responses = append(responses, spec.makeResponse(ymlCT.(string), ymlStatus.(int), ymlCTResp.(imap), headers))
 							}
 						} else {
+							// Contentless responses which have onlny status code & headers.
 							responses = append(responses, spec.makeResponse("", ymlStatus.(int), nil, headers))
 						}
 					}
@@ -111,7 +118,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 	return Header{
 		Name:        ymlHeaderName,
-		DataType:    spec.mapDataType(ymlHeader["schema"].(imap)["type"].(DataType)),
+		Schema:      spec.parseSchema(ymlHeaderName, ymlHeader["schema"].(imap)),
 		Description: ymlHeader["description"].(string),
 		Required:    ymlHeader["required"].(bool),
 		// Example: string,
@@ -129,7 +136,7 @@ func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
 				RX, _ := regexp.Compile("\\{" + ymlP["name"].(string) + "\\}")
 				path = string(RX.ReplaceAll([]byte(path), []byte(ymlP["example"].(string))))
 			} else {
-				fmt.Printf("Tha path '%s' parameter %s has no example value to use.", p, ymlP["name"].(string))
+				fmt.Printf("The path '%s' parameter %s has no example value to use.", p, ymlP["name"].(string))
 			}
 		}
 	}

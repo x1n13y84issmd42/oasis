@@ -68,32 +68,21 @@ func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
 }
 
 // Test checks basic response properties such as status code and headers.
-func (tResp HTTPResponse) Test(resp *http.Response) bool {
-	statusOK := tResp.APIResponse.StatusCode == resp.StatusCode
-	CTOK := (tResp.APIResponse.ContentType == "") || (tResp.APIResponse.ContentType == resp.Header.Get("Content-Type"))
+func (test HTTPResponse) Test(resp *http.Response) bool {
+	statusOK := test.APIResponse.StatusCode == resp.StatusCode
+	CTOK := (test.APIResponse.ContentType == "") || (test.APIResponse.ContentType == resp.Header.Get("Content-Type"))
 
 	headersOK := true
-	for specHeaderName, specHeaderValues := range tResp.APIResponse.Headers {
-		respHeaderValues := resp.Header.Values(specHeaderName)
-		for _, specHeader := range specHeaderValues {
-			if specHeader.Required {
-				requiredOK := headersOK && (len(respHeaderValues) > 0)
-
-				if !requiredOK {
-					tResp.Log.HeaderHasNoValue(&specHeader)
-				}
-
-				headersOK = headersOK && requiredOK
-			}
-		}
+	for apiHeaderName, apiHeaderValues := range test.APIResponse.Headers {
+		headersOK = headersOK && NewResponseHeader(apiHeaderValues, test.Log).Test(resp.Header.Values(apiHeaderName))
 	}
 
 	if !statusOK {
-		tResp.Log.ResponseHasWrongStatus(tResp.APIResponse, resp.StatusCode)
+		test.Log.ResponseHasWrongStatus(test.APIResponse, resp.StatusCode)
 	}
 
 	if !CTOK {
-		tResp.Log.ResponseHasWrongContentType(tResp.APIResponse, resp.Header.Get("Content-Type"))
+		test.Log.ResponseHasWrongContentType(test.APIResponse, resp.Header.Get("Content-Type"))
 	}
 
 	return statusOK && CTOK && headersOK

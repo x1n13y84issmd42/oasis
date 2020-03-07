@@ -17,7 +17,7 @@ type JSONResponseArray struct {
 }
 
 // Test tests.
-func (tResp JSONResponseArray) Test(response *http.Response) bool {
+func (test JSONResponseArray) Test(response *http.Response) bool {
 	//TODO: HTTPReponse{}.Test(response)
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
@@ -25,8 +25,8 @@ func (tResp JSONResponseArray) Test(response *http.Response) bool {
 	errJSON := json.Unmarshal(responseBody, &mJSON)
 
 	if errJSON != nil {
-		tResp.Log.ResponseExpectedArray(tResp.APIResponse)
-		tResp.Log.Error(errJSON)
+		test.Log.ResponseExpectedArray(test.APIResponse)
+		test.Log.Error(errJSON)
 		return false
 	}
 
@@ -34,5 +34,5 @@ func (tResp JSONResponseArray) Test(response *http.Response) bool {
 		Path: []string{"Response"},
 	}
 
-	return Schema{tResp.APIResponse.Schema, tResp.Log}.Test(mJSON, ctx)
+	return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
 }

@@ -8,23 +8,24 @@ import (
 
 // SchemaArray asserts that the provided data is an array.
 type SchemaArray struct {
-	Schema *api.Schema
-	Log    log.ILogger
+	APISchema *api.Schema
+	Log       log.ILogger
 }
 
 // Test tests.
-func (schema SchemaArray) Test(v interface{}, ctx *utility.Context) bool {
+func (test SchemaArray) Test(v interface{}, ctx *utility.Context) bool {
 	items, isit := v.([]interface{})
 	OK := isit
 
 	if !OK {
+		test.Log.SchemaExpectedArray(test.APISchema, v)
 		return false
 	}
 
-	test := Schema{schema.Schema.Items, schema.Log}
+	testItems := Schema{test.APISchema.Items, test.Log}
 
 	for vI, item := range items {
-		OK = OK && test.Test(item, ctx.PushIndex(vI, item))
+		OK = OK && testItems.Test(item, ctx.PushIndex(vI, item))
 	}
 
 	return OK

@@ -8,13 +8,17 @@ import (
 
 // SchemaString asserts that the provided data is a string.
 type SchemaString struct {
-	Schema *api.Schema
-	Log    log.ILogger
+	APISchema *api.Schema
+	Log       log.ILogger
 }
 
 // Test tests.
-func (schema SchemaString) Test(v interface{}, ctx *utility.Context) (isit bool) {
+func (test SchemaString) Test(v interface{}, ctx *utility.Context) (isit bool) {
 	_, isit = v.(string)
-	// fmt.Printf("SchemaString result: %v\n", isit)
+
+	if !isit {
+		test.Log.SchemaExpectedString(test.APISchema, v)
+	}
+
 	return
 }

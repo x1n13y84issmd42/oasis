@@ -1,8 +1,6 @@
 package test
 
 import (
-	"fmt"
-
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
 	"github.com/x1n13y84issmd42/goasis/src/utility"
@@ -14,27 +12,26 @@ type Schema struct {
 	Log       log.ILogger
 }
 
-// Test tests.
-func (schema Schema) Test(data interface{}, ctx *utility.Context) bool {
-	switch schema.APISchema.DataType {
+// Test uses type-soecific schema tests.
+func (test Schema) Test(data interface{}, ctx *utility.Context) bool {
+	switch test.APISchema.DataType {
 	case api.DataTypeString:
-		return SchemaString{schema.APISchema, schema.Log}.Test(data, ctx)
+		return SchemaString{test.APISchema, test.Log}.Test(data, ctx)
 
 	case api.DataTypeNumber:
-		return SchemaNumber{schema.APISchema, schema.Log}.Test(data, ctx)
+		return SchemaNumber{test.APISchema, test.Log}.Test(data, ctx)
 
 	case api.DataTypeBoolean:
-		return SchemaBoolean{schema.APISchema, schema.Log}.Test(data, ctx)
+		return SchemaBoolean{test.APISchema, test.Log}.Test(data, ctx)
 
 	case api.DataTypeArray:
-		return SchemaArray{schema.APISchema, schema.Log}.Test(data, ctx)
+		return SchemaArray{test.APISchema, test.Log}.Test(data, ctx)
 
 	case api.DataTypeObject:
-		return SchemaObject{schema.APISchema, schema.Log}.Test(data, ctx)
+		return SchemaObject{test.APISchema, test.Log}.Test(data, ctx)
 
 	default:
-		fmt.Println("Woot")
-		schema.Log.UnknownSchemaDataType(schema.APISchema)
+		test.Log.UnknownSchemaDataType(test.APISchema)
 	}
 	return false
 }
