@@ -12,7 +12,7 @@ type Schema struct {
 	Log       log.ILogger
 }
 
-// Test uses type-soecific schema tests.
+// Test doesn't do much by itself, it relies on type-specific schema tests.
 func (test Schema) Test(data interface{}, ctx *utility.Context) bool {
 	switch test.APISchema.DataType {
 	case api.DataTypeString:

@@ -257,6 +257,9 @@ paths:
                 type: integer
               required: true
               description: 'A wrong answer to the ultimate question of life, universe and everything.'
+      security:
+        - HTTP Basic: []
+        - API Key - Query: []
   /api/public/meta/headers/number:
     get:
       summary: Meta Number
@@ -309,7 +312,71 @@ paths:
                 type: boolean
               required: true
               description: 'Your unreliable source of truth.'
+  /api/secure/http-basic/get:
+    get:
+      summary: Secure HTTP Basic
+      description: Requires A Basic HTTP Security & responds with a 200 status.
+      responses:
+        200:
+          description: OK
+      security:
+        - HTTP Basic: []
 components:
+  securitySchemes:
+    API Key - Query:
+      name: apikey
+      type: apiKey
+      in: query
+    API Key - Header:
+      name: X-APIKey
+      type: apiKey
+      in: header
+      example: 0o1liloi1l0o1i0ol1il01oli10o0l1liolli0o1i0lliol1l1oiio0
+    HTTP Basic:
+      type: http
+      scheme: basic
+      example: Basic dXNlcjoxMjM=
+    HTTP Digest:
+      type: http
+      scheme: digest
+    HTTP Bearer:
+      type: http
+      scheme: bearer
+    HTTP HOBA:
+      type: http
+      scheme: hoba
+    API Key - 1:
+      type: http
+      scheme: mutual
+    API Key - 2:
+      type: http
+      scheme: negotiate
+    API Key - 3:
+      type: http
+      scheme: oauth
+    API Key - 4:
+      type: http
+      scheme: scram-sha-1
+    API Key - 5:
+      type: http
+      scheme: scram-sha-256
+    API Key - 6:
+      type: http
+      scheme: vapid
+    OAuth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: ''
+          refreshUrl: ''
+          scopes: {}
+        password:
+          tokenUrl: ''
+          refreshUrl: ''
+          scopes: {}
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: 'https://foo.com'
   schemas:
     User:
       required:

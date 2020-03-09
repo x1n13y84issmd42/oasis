@@ -6,6 +6,7 @@ import (
 
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
+	"github.com/x1n13y84issmd42/goasis/src/test/security"
 )
 
 // Operation performs a test of an operation by requesting a path
@@ -16,7 +17,8 @@ type Operation struct {
 	Operation *api.Operation
 }
 
-// Run performs a test of an operation.
+// Run performs a test of an operation by making a requests to the operation URL with the operation method
+// and chosen Content-Type.
 func (test Operation) Run(requestContentType string, responseStatus int, responseContentType string) bool {
 	test.Log.TestingOperation(test.Operation)
 
@@ -26,6 +28,11 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 		},
 	}
 	req := test.makeRequest(requestContentType)
+
+	if test.Operation.Security != nil {
+		test.Log.UsingSecurity(test.Operation.Security)
+		security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
+	}
 
 	response, err := client.Do(req)
 
@@ -49,7 +56,7 @@ func (test Operation) makeRequest(CT string) *http.Request {
 	URL := fmt.Sprintf("%s%s", test.Host.URL, test.Operation.Path)
 	test.Log.Requesting(URL)
 	req, _ := http.NewRequest(test.Operation.Method, URL, nil)
-	//TODO: req body & CT
+	//TODO: use req body & CT when applicable
 	return req
 }
 

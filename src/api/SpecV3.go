@@ -63,7 +63,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 				if ymlOpSec != nil {
 					ymlOpSec0 := ymlOpSec.(iarray)[0].(imap)
 					for osn := range ymlOpSec0 {
-						spec.GetSecurity(osn.(string))
+						security = spec.GetSecurity(osn.(string))
 						break
 					}
 				}
@@ -267,36 +267,50 @@ func (spec SpecV3) GetDefaultHost() *Host {
 // GetSecurity -
 func (spec SpecV3) GetSecurity(name string) *Security {
 	ymlScheme := spec.data["components"].(imap)["securitySchemes"].(imap)[name]
+	ymlSchemeM := ymlScheme.(imap)
 
 	if ymlScheme == nil {
 		fmt.Printf("Security scheme \"%s\" isn't there.\n", name)
 		return nil
 	}
 
-	ymlExample := ymlScheme.(imap)["example"]
+	//	Example data.
+	ymlExample := ymlSchemeM["example"]
 
 	if ymlExample == nil || len(ymlExample.(string)) == 0 {
 		fmt.Printf("Security schema \"%s\" has no example data to use during request.\n", name)
 		return nil
 	}
 
-	pLoc := map[string]ParameterLocation{
-		"query":  ParameterLocationQuery,
-		"header": ParameterLocationHeader,
-		"cookie": ParameterLocationCookie,
-	}[ymlScheme.(imap)["in"].(string)]
+	var pName string
+	var pLoc string
 
-	if len(pLoc) == 0 {
-		fmt.Printf("\"%s\" is an unknown parameter location.", ymlScheme.(imap)["in"])
-		return nil
+	//	Parameter location.
+	if ymlSchemeM["in"] != nil {
+		pLoc := map[string]ParameterLocation{
+			"query":  ParameterLocationQuery,
+			"header": ParameterLocationHeader,
+			"cookie": ParameterLocationCookie,
+		}[ymlSchemeM["in"].(string)]
+
+		if len(pLoc) == 0 {
+			fmt.Printf("\"%s\" is an unknown parameter location.", ymlSchemeM["in"])
+			return nil
+		}
+	}
+
+	//	Parameter name.
+	if ymlSchemeM["name"] != nil {
+		pName = ymlSchemeM["name"].(string)
 	}
 
 	return &Security{
-		Name:         name,
-		SecurityType: ymlScheme.(imap)["type"].(string),
-		ParamName:    ymlScheme.(imap)["name"].(string),
-		In:           pLoc,
-		Example:      ymlExample.(string),
+		Name:           name,
+		SecurityType:   ymlSchemeM["type"].(string),
+		SecurityScheme: ymlSchemeM["scheme"].(string),
+		ParamName:      pName,
+		In:             pLoc,
+		Example:        ymlExample.(string),
 	}
 }
 

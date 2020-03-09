@@ -51,6 +51,7 @@ const (
 // Subtypes of security mechanisms
 const (
 	SecuritySchemeBasic       = "basic"
+	SecuritySchemeDigest      = "digest"
 	SecuritySchemeBearer      = "bearer"
 	SecuritySchemeHoba        = "hoba"
 	SecuritySchemeMutual      = "mutual"
@@ -89,11 +90,12 @@ type AuthFlow struct {
 
 // Security is a description of a security mechanism used on some Operation
 type Security struct {
-	Name         string
-	SecurityType SecurityType
-	ParamName    string
-	In           ParameterLocation
-	Example      string
+	Name           string
+	SecurityType   SecurityType
+	SecurityScheme SecurityScheme
+	ParamName      string
+	In             ParameterLocation
+	Example        string
 }
 
 // Host is an API host desciption
