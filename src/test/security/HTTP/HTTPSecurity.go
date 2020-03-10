@@ -47,7 +47,7 @@ func (sec HTTPSecurity) Secure(req *http.Request) {
 }
 
 // Probe makes a GET request to a URL which is (supposedly) protected
-// by an HTTP Basic authentication scheme in order to obtain an authentication
+// by an HTTP Basic or Digest authentication scheme in order to obtain an authentication
 // request from the server.
 func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
 	client := http.Client{
@@ -56,7 +56,7 @@ func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
 		},
 	}
 
-	probeReq, _ := http.NewRequest("GET", req.URL.String(), nil)
+	probeReq, _ := http.NewRequest(req.Method, req.URL.String(), nil)
 
 	resp, _ := client.Do(probeReq)
 
