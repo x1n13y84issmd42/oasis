@@ -71,6 +71,7 @@ If a property has one of the following validation rules, those are used to furth
 * enum
 
 Supported value formats:
+
 Format|Meaning|Example
 -|-|-
 date|A date value|
