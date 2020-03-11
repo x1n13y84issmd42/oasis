@@ -1,255 +1,122 @@
 openapi: 3.0.1
 info:
   title: OASIS Mock API
-  description: 'This is a mock of an API used to develop & test the OASIS, an application
-    to automatically test APIs using Open API Spec definition files. '
-  contact:
-    url: https://github.com/x1n13y84issmd42/oasis
   version: 1.0.0
+  contact:
+    url: 'https://github.com/x1n13y84issmd42/oasis'
+  description: 'This is a mock of an API used to develop & test Oasis, an application to automatically test APIs using Open API Spec definition files. '
+tags:
+  - name: public
+  - name: secure
+  - name: primitive
+  - name: composite
+  - name: metadata
+  - name: format
+  - name: failure
+  - name: example
 servers:
-- url: http://localhost
-  description: Localhost
+  - url: 'http://localhost'
+    description: Localhost
 paths:
-  /api/public/primitive/string:
+  /api/secure/http-basic/get:
     get:
-      summary: Get string
-      description: Responds with a single string.
+      tags:
+        - secure
+        - primitive
+      operationId: secure-http-basic
+      summary: Secure HTTP Basic
+      description: 'Requires A Basic HTTP Security & responds with a 200 status.'
       responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: string
-  /api/public/primitive/number:
+        '200':
+          description: OK
+      security:
+        - HTTP Basic: []
+  /api/public/meta/headers/boolean/fail:
     get:
-      summary: Get number
-      description: Responds with a single random number.
+      tags:
+        - public
+        - primitive
+        - metadata
+        - failure
+      operationId: meta-bool-fail
+      summary: Meta Bool Fail
+      description: Responds with a 200 status and a X-Truth header with a non-boolean value.
       responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: number
-  /api/public/primitive/boolean:
-    get:
-      summary: Get boolean
-      description: Responds with a single random boolean.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
+        '200':
+          description: OK
+          headers:
+            X-Truth:
               schema:
                 type: boolean
-  /api/public/primitive/time:
-    get:
-      summary: Get time
-      description: Responds with a string in time format.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: string
-  /api/public/primitive/date:
-    get:
-      summary: Get date
-      description: Responds with a single random Date.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: string
-                format: date
-  /api/public/primitive/datetime:
-    get:
-      summary: Get date & time
-      description: Responds with a string in DateTime format.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: string
-                format: date-time
-  /api/public/array/strings:
-    get:
-      summary: List strings
-      description: Responds with an array of strings.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-  /api/public/array/numbers:
-    get:
-      summary: List numbers
-      description: Responds with an array of numbers.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: number
-  /api/public/array/users:
-    get:
-      summary: List users
-      description: Responds with an array of User objects.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-  /api/public/array/users/fail:
-    get:
-      summary: List users failing
-      description: Responds with an array of malformed User objects.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-  /api/public/object/user/{UID}:
-    get:
-      summary: Single user
-      description: Responds wih a single User object.
-      parameters:
-      - name: UID
-        in: path
-        description: An ID of a user to retrieve
-        required: true
-        schema:
-          type: string
-        example: "345"
-      responses:
-        200:
-          description: Status 200
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-  /api/public/object/user/{UID}/fail:
-    get:
-      summary: Single user failing
-      description: Responds wih a malformed single User object.
-      parameters:
-      - name: UID
-        in: path
-        description: An ID of a user to retrieve
-        required: true
-        schema:
-          type: string
-        example: "345"
-      responses:
-        200:
-          description: Status 200
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-  /api/public/array/visits:
-    get:
-      summary: List visits
-      description: Responds with an array of objects defined inline.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  required:
-                  - IP
-                  - counter
-                  - createdAt
-                  type: object
-                  properties:
-                    createdAt:
-                      type: string
-                      format: date-time
-                    IP:
-                      type: string
-                    counter:
-                      type: number
-  /api/public/array/visits/fail:
-    get:
-      summary: List visits failing
-      description: Responds with an array of objects defined inline, but malformed.
-      responses:
-        200:
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  required:
-                  - IP
-                  - counter
-                  - createdAt
-                  type: object
-                  properties:
-                    createdAt:
-                      type: string
-                      format: date-time
-                    IP:
-                      type: string
-                    counter:
-                      type: number
-  /api/public/meta/headers/redirect:
-    get:
-      summary: Redirect
-      description: Responds with a 302 status and a Location header.
-      responses:
-        302:
-          description: Found
-          headers:
-            Location:
-              schema:
-                type: string
               required: true
-              description: 'A location to redirect a client to.'
-  /api/public/meta/headers/integer:
+              description: Your unreliable source of truth.
+  /api/public/meta/headers/boolean:
     get:
-      summary: Meta Integer
-      description: Responds with a 200 status and a X-Num header with an integer value.
+      tags:
+        - public
+        - primitive
+        - metadata
+      operationId: meta-bool
+      summary: Meta Bool
+      description: Responds with a 200 status and a X-Truth header with a random boolean value.
       responses:
-        200:
+        '200':
+          description: OK
+          headers:
+            X-Truth:
+              schema:
+                type: boolean
+              required: true
+              description: Your source of truth.
+  /api/public/meta/headers/number/fail:
+    get:
+      tags:
+        - public
+        - primitive
+        - metadata
+        - failure
+      operationId: meta-number-fail
+      summary: Meta Number Fail
+      description: Responds with a 200 status and a X-Num header with a floating point value.
+      responses:
+        '200':
           description: OK
           headers:
             X-Num:
               schema:
-                type: integer
+                type: number
               required: true
-              description: 'An answer to the ultimate question of life, universe and everything.'
+              description: 'A Pie!'
+  /api/public/meta/headers/number:
+    get:
+      tags:
+        - public
+        - primitive
+        - metadata
+      operationId: meta-number
+      summary: Meta Number
+      description: Responds with a 200 status and a X-Num header with a floating point value.
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Num:
+              schema:
+                type: number
+              required: true
+              description: A Pi value.
   /api/public/meta/headers/integer/fail:
     get:
+      tags:
+        - public
+        - primitive
+        - metadata
+        - failure
+      operationId: meta-integer-fail
       summary: Meta Integer Fail
       description: Responds with a 200 status and a X-Num header with a non-numeric value.
       responses:
-        200:
+        '200':
           description: OK
           headers:
             X-Num:
@@ -260,68 +127,344 @@ paths:
       security:
         - HTTP Basic: []
         - API Key - Query: []
-  /api/public/meta/headers/number:
+  /api/public/meta/headers/integer:
     get:
-      summary: Meta Number
-      description: Responds with a 200 status and a X-Num header with a floating point value.
+      tags:
+        - public
+        - primitive
+        - metadata
+      operationId: meta-integer
+      summary: Meta Integer
+      description: Responds with a 200 status and a X-Num header with an integer value.
       responses:
-        200:
+        '200':
           description: OK
           headers:
             X-Num:
               schema:
-                type: number
+                type: integer
               required: true
-              description: 'A Pi value.'
-  /api/public/meta/headers/number/fail:
+              description: 'An answer to the ultimate question of life, universe and everything.'
+  /api/public/meta/headers/redirect:
     get:
-      summary: Meta Number Fail
-      description: Responds with a 200 status and a X-Num header with a floating point value.
+      tags:
+        - public
+        - metadata
+      operationId: redirect
+      summary: Redirect
+      description: Responds with a 302 status and a Location header.
       responses:
-        200:
-          description: OK
+        '302':
+          description: Found
           headers:
-            X-Num:
+            Location:
               schema:
-                type: number
+                type: string
               required: true
-              description: 'A Pie!'
-  /api/public/meta/headers/boolean:
+              description: A location to redirect a client to.
+  /api/public/array/visits/fail:
     get:
-      summary: Meta Bool
-      description: Responds with a 200 status and a X-Truth header with a random boolean value.
+      tags:
+        - public
+        - composite
+        - failure
+      operationId: list-visits-failing
+      summary: List visits failing
+      description: 'Responds with an array of objects defined inline, but malformed.'
       responses:
-        200:
-          description: OK
-          headers:
-            X-Truth:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  required:
+                    - IP
+                    - counter
+                    - createdAt
+                  type: object
+                  properties:
+                    createdAt:
+                      type: string
+                      format: date-time
+                    IP:
+                      type: string
+                    counter:
+                      type: number
+  /api/public/array/visits:
+    get:
+      tags:
+        - public
+        - composite
+      operationId: list-visits
+      summary: List visits
+      description: Responds with an array of objects defined inline.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  required:
+                    - IP
+                    - counter
+                    - createdAt
+                  type: object
+                  properties:
+                    createdAt:
+                      type: string
+                      format: date-time
+                    IP:
+                      type: string
+                    counter:
+                      type: number
+  '/api/public/object/user/{UID}/fail':
+    get:
+      tags:
+        - public
+        - composite
+        - example
+        - failure
+      operationId: single-user-failing
+      summary: Single user failing
+      description: Responds wih a malformed single User object.
+      parameters:
+        - name: UID
+          in: path
+          description: An ID of a user to retrieve
+          required: true
+          schema:
+            type: string
+          example: '345'
+      responses:
+        '200':
+          description: Status 200
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  '/api/public/object/user/{UID}':
+    get:
+      tags:
+        - public
+        - composite
+        - example
+      operationId: single-user
+      summary: Single user
+      description: Responds wih a single User object.
+      parameters:
+        - name: UID
+          in: path
+          description: An ID of a user to retrieve
+          required: true
+          schema:
+            type: string
+          example: '345'
+      responses:
+        '200':
+          description: Status 200
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    parameters:
+      - schema:
+          type: string
+        name: UID
+        in: path
+        required: true
+        description: |
+          A user ID to retrieve.
+  /api/public/array/users/fail:
+    get:
+      tags:
+        - public
+        - composite
+        - failure
+      operationId: list-users-failing
+      summary: List users failing
+      description: Responds with an array of malformed User objects.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/public/array/users:
+    get:
+      tags:
+        - public
+        - composite
+      operationId: list-users
+      summary: List users
+      description: Responds with an array of User objects.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/public/array/numbers:
+    get:
+      tags:
+        - public
+        - composite
+      operationId: list-numbers
+      summary: List numbers
+      description: Responds with an array of numbers.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: number
+  /api/public/array/strings:
+    get:
+      tags:
+        - public
+        - composite
+      operationId: list-strings
+      summary: List strings
+      description: Responds with an array of strings.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/public/primitive/datetime:
+    get:
+      tags:
+        - public
+        - primitive
+        - format
+      operationId: 'get-date-time'
+      summary: 'Get date & time'
+      description: Responds with a string in DateTime format.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+  /api/public/primitive/date:
+    get:
+      tags:
+        - public
+        - primitive
+        - format
+      operationId: get-date
+      summary: Get date
+      description: Responds with a single random Date.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date
+  /api/public/primitive/time:
+    get:
+      tags:
+        - public
+        - primitive
+        - format
+      operationId: get-time
+      summary: Get time
+      description: Responds with a string in time format.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/public/primitive/boolean:
+    get:
+      tags:
+        - public
+        - primitive
+      operationId: get-boolean
+      summary: Get boolean
+      description: Responds with a single random boolean.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
               schema:
                 type: boolean
-              required: true
-              description: 'Your source of truth.'
-  /api/public/meta/headers/boolean/fail:
+  /api/public/primitive/number:
     get:
-      summary: Meta Bool Fail
-      description: Responds with a 200 status and a X-Truth header with a non-boolean value.
+      tags:
+        - public
+        - primitive
+      operationId: get-number
+      summary: Get number
+      description: Responds with a single random number.
       responses:
-        200:
-          description: OK
-          headers:
-            X-Truth:
+        '200':
+          description: Successful response
+          content:
+            application/json:
               schema:
-                type: boolean
-              required: true
-              description: 'Your unreliable source of truth.'
-  /api/secure/http-basic/get:
+                type: number
+  /api/public/primitive/string:
     get:
-      summary: Secure HTTP Basic
-      description: Requires A Basic HTTP Security & responds with a 200 status.
+      tags:
+        - public
+        - primitive
+      operationId: get-string
+      summary: Get string
+      description: Responds with a single string.
       responses:
-        200:
-          description: OK
-      security:
-        - HTTP Basic: []
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: string
 components:
+  schemas:
+    User:
+      required:
+        - createdAt
+        - email
+        - name
+        - token
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date
+        token:
+          type: string
+      example: "{\r\n\"name\": \"Seamus Gulgowski\",\r\n\"email\": \"Eldridge87@hotmail.com\",\r\n\"createdAt\": \"2019-03-01T21:58:16.596Z\",\r\n\"token\": \"f5f8cf46-7ed9-465c-827a-3c39470b178b\"\r\n}"
+      x-examples:
+        example-1:
+          name: John
   securitySchemes:
     API Key - Query:
       name: apikey
@@ -377,24 +520,3 @@ components:
     OpenID:
       type: openIdConnect
       openIdConnectUrl: 'https://foo.com'
-  schemas:
-    User:
-      required:
-      - createdAt
-      - email
-      - name
-      - token
-      type: object
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-        createdAt:
-          type: string
-          format: date
-        token:
-          type: string
-      example: "{\r\n\"name\": \"Seamus Gulgowski\",\r\n\"email\": \"Eldridge87@hotmail.com\"\
-        ,\r\n\"createdAt\": \"2019-03-01T21:58:16.596Z\",\r\n\"token\": \"f5f8cf46-7ed9-465c-827a-3c39470b178b\"\
-        \r\n}"
