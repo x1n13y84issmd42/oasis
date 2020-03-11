@@ -74,6 +74,7 @@ Supported validation rules:
 * enum
 
 Supported value formats:
+
 Format|Meaning|Example
 -|-|-
 date|A date value|
