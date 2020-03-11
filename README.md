@@ -2,6 +2,20 @@
 Open API Specification Intelligence Services. Or in a less fancy way, a tool to test APIs which uses OAS/Swagger spec files as a test suite.
 
 Work in progress.
+- [Usage](#usage)
+  - [Manual mode](#manual-mode)
+  - [Alternative humane syntax](#alternative-humane-syntax)
+  - [Script mode](#script-mode)
+- [How it works](#how-it-works)
+  - [Operation request data](#operation-request-data)
+  - [Operation security](#operation-security)
+  - [Operation response validation](#operation-response-validation)
+    - [HTTP response status code](#http-response-status-code)
+    - [HTTP response headers](#http-response-headers)
+    - [HTTP response body](#http-response-body)
+    - [Schema properties](#schema-properties)
+- [Schema extensions](#schema-extensions)
+- [Security Object Schema](#security-object-schema)
 
 ## Usage
 Goasis can be used either in manual mode, which allows to test one opration at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
@@ -11,7 +25,9 @@ Goasis can be used either in manual mode, which allows to test one opration at a
 
 `goasis --spec=spec/oasis.yaml  --op="Meta Number Fail"`
 
-### Alternative humane syntax (TODO)
+### Alternative humane syntax
+> (TODO)
+
 `goasis from spec/oasis.yaml test "Meta Number Fail" expect status 200 CT application/json`
 
 ### Script mode
@@ -36,23 +52,23 @@ OAuth2 & OpenIdConnect are not supported because they require user interaction.
 ### Operation response validation
 Oasis uses the [OAS Responses](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#responses-object) as a definition of an operation response: a status code, headers & content schema where available.
 
-#### HTTP Response Status Code
+#### HTTP response status code
 The status code from the [OAS Responses](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#responses-object) object is used.
 
-#### HTTP Response Headers
+#### HTTP response headers
 The [OAS Header](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#header-object) object is used.
 
 If a header has a `required` property, then it must be present in the operation response.
 
 If it has a schema, then the header values will be validated against it. At least one value must be valid in order for test to succeed.
 
-#### HTTP Response Body
+#### HTTP response body
 Oasis uses the [OAS Schema](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#schema-object) definition to validate structured response data.
 
-#### Schema Properties
-If a property has a `required` set to `true`, it must be present in response data.
+#### Schema properties
+Properties' types are checked first.
 
-Properties' types are checked also.
+If a property has a `required` set to `true`, it must be present in response data.
 
 If a property has some of the following validation rules or value formats, those are used to further validate the value.
 
