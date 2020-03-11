@@ -30,7 +30,8 @@ At the moment Oasis supports the following OAS security types:
 * API Key (OAS: `type: apiKey`)
 * HTTP Basic (OAS: `type: http` & `scheme: basic`) (See [extensions](#security-object-schema))
 * HTTP Digest (OAS: `type: http` & `scheme: digest`)(See [extensions](#security-object-schema))
-* OAuth2 (OAS: `type: oauth2`)
+
+OAuth2 & OpenIdConnect are not supported because they require user interaction.
 
 ### Operation response validation
 Oasis uses the [OAS Responses](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#responses-object) as a definition of an operation response: a status code, headers & content schema where available.
@@ -53,7 +54,9 @@ If a property has a `required` set to `true`, it must be present in response dat
 
 Properties' types are checked also.
 
-If a property has one of the following validation rules, those are used to further validate the value:
+If a property has some of the following validation rules or value formats, those are used to further validate the value.
+
+Supported validation rules:
 * multipleOf
 * maximum
 * exclusiveMaximum
