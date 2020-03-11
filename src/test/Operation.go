@@ -27,7 +27,7 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 			return http.ErrUseLastResponse
 		},
 	}
-	req := test.makeRequest(requestContentType)
+	req := test.createRequest(requestContentType)
 
 	if test.Operation.Security != nil {
 		test.Log.UsingSecurity(test.Operation.Security)
@@ -52,7 +52,7 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 	return tResp.Test(response)
 }
 
-func (test Operation) makeRequest(CT string) *http.Request {
+func (test Operation) createRequest(CT string) *http.Request {
 	URL := fmt.Sprintf("%s%s", test.Host.URL, test.Operation.Path)
 	test.Log.Requesting(URL)
 	req, _ := http.NewRequest(test.Operation.Method, URL, nil)

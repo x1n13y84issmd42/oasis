@@ -32,7 +32,7 @@ type SpecV3 struct {
 	data imap
 }
 
-// GetProjectInfo -
+// GetProjectInfo returns project info.
 func (spec SpecV3) GetProjectInfo() *ProjectInfo {
 	id := spec.data["info"].(imap)
 	return &ProjectInfo{
@@ -50,10 +50,8 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 	ymlPaths := spec.data["paths"].(imap)
 
 	for ymlPath, ymlPathData := range ymlPaths {
-		ymlPathDataM := ymlPathData.(imap)
-
 		for _, method := range []string{"get", "post", "put", "delete", "patch", "options", "trace", "head"} {
-			ymlOp := ymlPathDataM[method]
+			ymlOp := ymlPathData.(imap)[method]
 
 			if ymlOp != nil {
 				ymlOpM := ymlOp.(imap)
@@ -62,11 +60,11 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 
 					// Loading the associated security scheme
 					var specSecurity *Security
-					// `security` is an array of maps, using the first key of the first item as a security scheme name
 					ymlOpSec := ymlOpM["security"]
+
 					if ymlOpSec != nil {
-						ymlOpSec0 := ymlOpSec.(iarray)[0].(imap)
-						for osn := range ymlOpSec0 {
+						// `security` is an array of maps, using the first key of the first item as a security scheme name
+						for osn := range ymlOpSec.(iarray)[0].(imap) {
 							specSecurity = spec.GetSecurity(osn.(string))
 							break
 						}
@@ -75,6 +73,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 					// Loading the responses.
 					var specResponses []Response
 					ymlResps := ymlOpM["responses"]
+
 					if ymlResps != nil {
 						ymlResponsesM := ymlResps.(imap)
 
@@ -82,7 +81,6 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						for ymlStatus, ymlStatusResponse := range ymlResponsesM {
 							ymlStatusContentResponses := ymlStatusResponse.(imap)["content"]
 							ymlStatusHeaders := ymlStatusResponse.(imap)["headers"]
-
 							specHeaders := HeaderBag{}
 
 							if ymlStatusHeaders != nil {

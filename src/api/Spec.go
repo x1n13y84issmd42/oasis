@@ -1,6 +1,6 @@
 package api
 
-// Spec is an interface to access specification data
+// Spec is an interface to access specification data.
 type Spec interface {
 	GetProjectInfo() *ProjectInfo
 	GetOperation(name string) *Operation
@@ -11,7 +11,7 @@ type Spec interface {
 	GetSchema(name string) *Schema
 }
 
-// Operation is an operation description from a spec
+// Operation is an operation description.
 type Operation struct {
 	Name      string
 	Path      string
@@ -22,22 +22,27 @@ type Operation struct {
 	Responses *[]Response
 }
 
-// ProjectInfo is a generic project information
+// ProjectInfo is a generic project information.
 type ProjectInfo struct {
 	Title       string
 	Description string
 	Version     string
 }
 
-// ParameterLocation describes a parameter location in requests and security settings
+// ParameterLocation describes a parameter location in requests and security settings.
 type ParameterLocation = string
 
-// SecurityType is a type of security mechanism used
+// SecurityType is a type of security mechanism used.
 type SecurityType = string
+
+// SecurityScheme is specific exclusively to the http security type
+// and describes the HTTP authentication mechanism used.
 type SecurityScheme = string
 
-// DataType is data type, FFS
+// DataType is a schema data type, FFS.
 type DataType = string
+
+// DataFormat is an additional rule, specific for each type (string can be emails, as well as dates).
 type DataFormat = string
 
 // Types of security mechanisms
@@ -88,7 +93,7 @@ const (
 type AuthFlow struct {
 }
 
-// Security is a description of a security mechanism used on some Operation
+// Security is a description of a security mechanism used on some Operation.
 type Security struct {
 	Name           string
 	SecurityType   SecurityType
@@ -98,7 +103,7 @@ type Security struct {
 	Example        string
 }
 
-// Host is an API host desciption
+// Host is an API host desciption.
 type Host struct {
 	Name        string
 	URL         string
@@ -117,7 +122,7 @@ type Schema struct {
 	Example     string
 }
 
-// Property describes a property of an object being described by a Schema
+// Property describes a property of an object being described by a Schema.
 type Property struct {
 	Name        string
 	Description string
@@ -125,27 +130,42 @@ type Property struct {
 	Required    bool
 }
 
-// Header is a description of an HTTP header
+type ParameterStyle string
+
+const (
+	ParameterStyleMatrix         = ParameterStyle("matrix")
+	ParameterStyleLabel          = ParameterStyle("label")
+	ParameterStyleForm           = ParameterStyle("form")
+	ParameterStyleSimple         = ParameterStyle("simple")
+	ParameterStyleSpaceDelimited = ParameterStyle("spaceDelimited")
+	ParameterStylePipeDelimited  = ParameterStyle("pipeDelimited")
+	ParameterStyleDeepObject     = ParameterStyle("deepObject")
+)
+
+// Header is a description of an HTTP header.
 type Header struct {
 	Name        string
 	Schema      *Schema
 	Description string
 	Required    bool
+	AllowEmpty  bool
+	Explode     bool
+	Style       ParameterStyle
 	Example     string
 	Value       string
 }
 
-// HeaderBag is a set of headers to used in requests and responses
+// HeaderBag is a set of headers to used in requests and responses.
 type HeaderBag = map[string][]Header
 
-// Request describes a generic HTTP request
+// Request describes a generic HTTP request.
 type Request struct {
 	ContentType string
 	Headers     HeaderBag
 	Schema      *Schema
 }
 
-// Response describes a generic HTTP response
+// Response describes a generic HTTP response.
 type Response struct {
 	StatusCode  int
 	ContentType string

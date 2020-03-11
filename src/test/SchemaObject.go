@@ -6,13 +6,13 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// SchemaObject asserts that the provided data is an object.
+// SchemaObject asserts that the provided data is an object and it's properties conform the schema.
 type SchemaObject struct {
 	APISchema *api.Schema
 	Log       log.ILogger
 }
 
-// Test tests.
+// Test ensures that v is a map, iterates over properties and validate them against them schema.
 func (test SchemaObject) Test(v interface{}, ctx *utility.Context) bool {
 	resp, isit := v.(map[string]interface{})
 

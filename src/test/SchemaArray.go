@@ -12,7 +12,7 @@ type SchemaArray struct {
 	Log       log.ILogger
 }
 
-// Test tests.
+// Test ensures that v is an array, iterates over items and validate them against them schema.
 func (test SchemaArray) Test(v interface{}, ctx *utility.Context) bool {
 	items, isit := v.([]interface{})
 	OK := isit
