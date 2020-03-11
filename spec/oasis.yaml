@@ -278,6 +278,7 @@ paths:
         required: true
         description: |
           A user ID to retrieve.
+        example: '123'
   /api/public/array/users/fail:
     get:
       tags:

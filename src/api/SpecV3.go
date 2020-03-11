@@ -51,7 +51,8 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 
 	for ymlPath, ymlPathData := range ymlPaths {
 		for _, method := range []string{"get", "post", "put", "delete", "patch", "options", "trace", "head"} {
-			ymlOp := ymlPathData.(imap)[method]
+			ymlPathDataM := ymlPathData.(imap)
+			ymlOp := ymlPathDataM[method]
 
 			if ymlOp != nil {
 				ymlOpM := ymlOp.(imap)
@@ -105,7 +106,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 
 					return &Operation{
 						Name:      ymlOpM["summary"].(string),
-						Path:      spec.assemblePath(ymlOpM, ymlPath.(string)),
+						Path:      spec.assemblePath(ymlOpM, ymlPathDataM, ymlPath.(string)),
 						Method:    strings.ToUpper(method),
 						Security:  specSecurity,
 						Responses: &specResponses,
@@ -129,20 +130,29 @@ func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 	}
 }
 
-func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
+func (spec SpecV3) assemblePath(ymlOp imap, ymlPath imap, p string) (path string) {
 	path = p
-	//TODO: the path itself can also have parameters with examples, use those too.
-	if ymlOp["parameters"] != nil {
-		ymlParams := ymlOp["parameters"].(iarray)
+
+	useParameters := func(ymlParams iarray, container string) {
 		for _, ymlIP := range ymlParams {
 			ymlP := ymlIP.(imap)
-			if ymlP["example"] != nil {
-				RX, _ := regexp.Compile("\\{" + ymlP["name"].(string) + "\\}")
-				path = string(RX.ReplaceAll([]byte(path), []byte(ymlP["example"].(string))))
-			} else {
-				fmt.Printf("The path '%s' parameter %s has no example value to use.", p, ymlP["name"].(string))
+			RX, _ := regexp.Compile("\\{" + ymlP["name"].(string) + "\\}")
+			if RX.Match([]byte(path)) {
+				if ymlP["example"] != nil {
+					path = string(RX.ReplaceAll([]byte(path), []byte(ymlP["example"].(string))))
+				} else {
+					fmt.Printf("The %s parameter %s has no example value to use.\n", container, ymlP["name"].(string))
+				}
 			}
 		}
+	}
+
+	if ymlOp["parameters"] != nil {
+		useParameters(ymlOp["parameters"].(iarray), "operation")
+	}
+
+	if ymlPath["parameters"] != nil {
+		useParameters(ymlPath["parameters"].(iarray), "path")
 	}
 
 	return
