@@ -27,7 +27,7 @@ func NewSecurity(apiSec *api.Security, log log.ILogger) Security {
 func (sec Security) Secure(req *http.Request) {
 	switch sec.APISecurity.SecurityType {
 	case api.SecurityTypeHTTP:
-		HTTP.HTTPSecurity{sec.APISecurity, sec.Log}.Secure(req)
+		HTTP.HTTPSecurity{APISecurity: sec.APISecurity, Log: sec.Log}.Secure(req)
 
 	default:
 		fmt.Printf("Unknown security type '%s'\n", sec.APISecurity.SecurityType)

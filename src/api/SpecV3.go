@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ func mapPropsMap(m imap, cb mapPropsMapFn) (props []Property) {
 	return
 }
 
-func istring(i interface{}) (s string) {
+func isstring(i interface{}) (s string) {
 	if i != nil {
 		s = i.(string)
 	}
@@ -46,67 +47,71 @@ func (spec SpecV3) GetProjectInfo() *ProjectInfo {
 // and validate it's outcome: request methods, URLs, response & request
 // headers, security settings, request & response bodies, etc.
 func (spec SpecV3) GetOperation(name string) *Operation {
-	paths := spec.data["paths"].(imap)
+	ymlPaths := spec.data["paths"].(imap)
 
-	for path, pd := range paths {
-		pathData := pd.(imap)
+	for ymlPath, ymlPathData := range ymlPaths {
+		ymlPathDataM := ymlPathData.(imap)
 
-		for method, op := range pathData {
-			operation := op.(imap)
+		for _, method := range []string{"get", "post", "put", "delete", "patch", "options", "trace", "head"} {
+			ymlOp := ymlPathDataM[method]
 
-			if operation["summary"] == name {
+			if ymlOp != nil {
+				ymlOpM := ymlOp.(imap)
 
-				// Loading the associated security scheme
-				var security *Security
-				// `security` is an array of maps, using the first key of the first item as a security scheme name
-				ymlOpSec := operation["security"]
-				if ymlOpSec != nil {
-					ymlOpSec0 := ymlOpSec.(iarray)[0].(imap)
-					for osn := range ymlOpSec0 {
-						security = spec.GetSecurity(osn.(string))
-						break
-					}
-				}
+				if ymlOpM["summary"] == name || ymlOpM["operationId"] == name {
 
-				// Loading the responses.
-				var responses []Response
-				ymlResps := operation["responses"]
-				if ymlResps != nil {
-					ymlMResps := ymlResps.(imap)
-
-					// Iterating over status codes in the 'responses' map.
-					for ymlStatus, ymlStatusResponse := range ymlMResps {
-						ymlStatusContentResponses := ymlStatusResponse.(imap)["content"]
-						ymlStatusHeaders := ymlStatusResponse.(imap)["headers"]
-
-						headers := HeaderBag{}
-
-						if ymlStatusHeaders != nil {
-							// Iterating over header names in the 'responses[STATUS_CODE]' map.
-							for ymlHeaderName, ymlHeader := range ymlStatusHeaders.(imap) {
-								ymlSHeaderName := ymlHeaderName.(string)
-								headers[ymlSHeaderName] = append(headers[ymlSHeaderName], spec.makeHeader(ymlSHeaderName, ymlHeader.(imap)))
-							}
-						}
-
-						if ymlStatusContentResponses != nil {
-							// Iterate over content-type keys in the 'content' map.
-							for ymlCT, ymlCTResp := range ymlStatusContentResponses.(imap) {
-								responses = append(responses, spec.makeResponse(ymlCT.(string), ymlStatus.(int), ymlCTResp.(imap), headers))
-							}
-						} else {
-							// Contentless responses which have onlny status code & headers.
-							responses = append(responses, spec.makeResponse("", ymlStatus.(int), nil, headers))
+					// Loading the associated security scheme
+					var specSecurity *Security
+					// `security` is an array of maps, using the first key of the first item as a security scheme name
+					ymlOpSec := ymlOpM["security"]
+					if ymlOpSec != nil {
+						ymlOpSec0 := ymlOpSec.(iarray)[0].(imap)
+						for osn := range ymlOpSec0 {
+							specSecurity = spec.GetSecurity(osn.(string))
+							break
 						}
 					}
-				}
 
-				return &Operation{
-					Name:      name,
-					Path:      spec.assemblePath(operation, path.(string)),
-					Method:    strings.ToUpper(method.(string)),
-					Security:  security,
-					Responses: &responses,
+					// Loading the responses.
+					var specResponses []Response
+					ymlResps := ymlOpM["responses"]
+					if ymlResps != nil {
+						ymlResponsesM := ymlResps.(imap)
+
+						// Iterating over status codes in the 'responses' map.
+						for ymlStatus, ymlStatusResponse := range ymlResponsesM {
+							ymlStatusContentResponses := ymlStatusResponse.(imap)["content"]
+							ymlStatusHeaders := ymlStatusResponse.(imap)["headers"]
+
+							specHeaders := HeaderBag{}
+
+							if ymlStatusHeaders != nil {
+								// Iterating over header names in the 'responses[STATUS_CODE]' map.
+								for ymlHeaderName, ymlHeader := range ymlStatusHeaders.(imap) {
+									ymlSHeaderName := ymlHeaderName.(string)
+									specHeaders[ymlSHeaderName] = append(specHeaders[ymlSHeaderName], spec.makeHeader(ymlSHeaderName, ymlHeader.(imap)))
+								}
+							}
+
+							if ymlStatusContentResponses != nil {
+								// Iterate over content-type keys in the 'content' map.
+								for ymlCT, ymlCTResp := range ymlStatusContentResponses.(imap) {
+									specResponses = append(specResponses, spec.makeResponse(ymlCT.(string), ymlStatus.(string), ymlCTResp.(imap), specHeaders))
+								}
+							} else {
+								// Contentless responses which have onlny status code & headers.
+								specResponses = append(specResponses, spec.makeResponse("", ymlStatus.(string), nil, specHeaders))
+							}
+						}
+					}
+
+					return &Operation{
+						Name:      ymlOpM["summary"].(string),
+						Path:      spec.assemblePath(ymlOpM, ymlPath.(string)),
+						Method:    strings.ToUpper(method),
+						Security:  specSecurity,
+						Responses: &specResponses,
+					}
 				}
 			}
 		}
@@ -128,6 +133,7 @@ func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 
 func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
 	path = p
+	//TODO: the path itself can also have parameters with examples, use those too.
 	if ymlOp["parameters"] != nil {
 		ymlParams := ymlOp["parameters"].(iarray)
 		for _, ymlIP := range ymlParams {
@@ -144,9 +150,9 @@ func (spec SpecV3) assemblePath(ymlOp imap, p string) (path string) {
 	return
 }
 
-func (spec SpecV3) makeResponse(ymlCT string, ymlStatus int, ymlResp imap, headers HeaderBag) Response {
+func (spec SpecV3) makeResponse(ymlCT string, ymlStatus string, ymlResp imap, specHeaders HeaderBag) Response {
 	ymlRespExample := ""
-	var respModelSchema *Schema = nil
+	var specRespSchema *Schema = nil
 
 	if ymlResp != nil {
 		ymlRespSchema := ymlResp["schema"].(imap)
@@ -155,15 +161,20 @@ func (spec SpecV3) makeResponse(ymlCT string, ymlStatus int, ymlResp imap, heade
 			ymlRespExample = ymlResp["example"].(string)
 		}
 
-		respModelSchema = spec.parseSchema("unnamed", ymlRespSchema)
+		specRespSchema = spec.parseSchema("unnamed", ymlRespSchema)
+	}
+
+	specStatus, specStatusErr := strconv.ParseInt(ymlStatus, 10, 64)
+	if specStatusErr != nil {
+		specStatus = 0
 	}
 
 	return Response{
 		ContentType: ymlCT,
 		Example:     ymlRespExample,
-		Headers:     headers,
-		Schema:      respModelSchema,
-		StatusCode:  ymlStatus,
+		Headers:     specHeaders,
+		Schema:      specRespSchema,
+		StatusCode:  int(specStatus),
 	}
 }
 
@@ -195,6 +206,7 @@ func (spec SpecV3) mapSchemaDataType(ymlRespSchema imap) DataType {
 	}
 
 	if ymlRespSchema["$ref"] != nil {
+		//TODO: resolve the $ref and get actual data type info?
 		return DataTypeObject
 	}
 
@@ -215,33 +227,30 @@ func (spec SpecV3) resolveShemaRef(ymlSchemaRef string) string {
 
 // GetOperations -
 func (spec SpecV3) GetOperations() []Operation {
-	ops := []Operation{}
+	specOps := []Operation{}
 
-	paths := spec.data["paths"].(imap)
-	for path, pd := range paths {
-		pathData := pd.(imap)
-
-		for method, op := range pathData {
-			operation := op.(imap)
-			ops = append(ops, Operation{
-				Name:   operation["summary"].(string),
-				Path:   path.(string),
-				Method: method.(string),
+	ymlPaths := spec.data["paths"].(imap)
+	for ymlPath, ymlPathData := range ymlPaths {
+		for ymlMethod, ymlOp := range ymlPathData.(imap) {
+			specOps = append(specOps, Operation{
+				Name:   ymlOp.(imap)["summary"].(string),
+				Path:   ymlPath.(string),
+				Method: ymlMethod.(string),
 			})
 		}
 	}
 
-	return ops
+	return specOps
 }
 
-// GetHost -
+// GetHost finds & returns an API host by name.
 func (spec SpecV3) GetHost(name string) *Host {
-	servers := spec.data["servers"].(iarray)
-	for _, s := range servers {
-		server := s.(imap)
-		if server["description"] == name {
+	ymlServers := spec.data["servers"].(iarray)
+	for _, s := range ymlServers {
+		ymlServerM := s.(imap)
+		if ymlServerM["description"] == name {
 			return &Host{
-				URL:         server["url"].(string),
+				URL:         ymlServerM["url"].(string),
 				Name:        name,
 				Description: name,
 			}
@@ -250,21 +259,21 @@ func (spec SpecV3) GetHost(name string) *Host {
 	return nil
 }
 
-// GetDefaultHost -
+// GetDefaultHost returns the first host from the list as default.
 func (spec SpecV3) GetDefaultHost() *Host {
-	servers := spec.data["servers"].(iarray)
-	if len(servers) > 0 {
-		server := servers[0].(imap)
+	ymlServers := spec.data["servers"].(iarray)
+	if len(ymlServers) > 0 {
+		ymlServerM := ymlServers[0].(imap)
 		return &Host{
-			URL:         server["url"].(string),
-			Name:        server["description"].(string),
-			Description: server["description"].(string),
+			URL:         ymlServerM["url"].(string),
+			Name:        ymlServerM["description"].(string),
+			Description: ymlServerM["description"].(string),
 		}
 	}
 	return nil
 }
 
-// GetSecurity -
+// GetSecurity returns a security mechanism definition.
 func (spec SpecV3) GetSecurity(name string) *Security {
 	ymlScheme := spec.data["components"].(imap)["securitySchemes"].(imap)[name]
 	ymlSchemeM := ymlScheme.(imap)
@@ -282,8 +291,7 @@ func (spec SpecV3) GetSecurity(name string) *Security {
 		return nil
 	}
 
-	var pName string
-	var pLoc string
+	var specParamLoc ParameterLocation
 
 	//	Parameter location.
 	if ymlSchemeM["in"] != nil {
@@ -299,22 +307,17 @@ func (spec SpecV3) GetSecurity(name string) *Security {
 		}
 	}
 
-	//	Parameter name.
-	if ymlSchemeM["name"] != nil {
-		pName = ymlSchemeM["name"].(string)
-	}
-
 	return &Security{
 		Name:           name,
-		SecurityType:   ymlSchemeM["type"].(string),
-		SecurityScheme: ymlSchemeM["scheme"].(string),
-		ParamName:      pName,
-		In:             pLoc,
+		SecurityType:   ymlSchemeM["type"].(SecurityType),
+		SecurityScheme: ymlSchemeM["scheme"].(SecurityScheme),
+		ParamName:      isstring(ymlSchemeM["name"]),
+		In:             specParamLoc,
 		Example:        ymlExample.(string),
 	}
 }
 
-// GetSchema -
+// GetSchema parses and returns a data schema definition.
 func (spec SpecV3) GetSchema(name string) *Schema {
 	ymlSchema := spec.data["components"].(imap)["schemas"].(imap)[name]
 	if ymlSchema == nil {
@@ -330,24 +333,24 @@ func (spec SpecV3) parseSchema(name string, ymlSchemaM imap) *Schema {
 		return spec.GetSchema(spec.resolveShemaRef(ymlSchemaM["$ref"].(string)))
 	}
 
-	schemaDT := spec.mapDataType(istring(ymlSchemaM["type"]))
+	specSchemaDT := spec.mapDataType(isstring(ymlSchemaM["type"]))
 
-	var props *[]Property
-	var items *Schema
+	var specProps *[]Property
+	var specItems *Schema
 
-	if schemaDT == DataTypeObject {
-		props = spec.parseObjectProperties(name, ymlSchemaM)
-	} else if schemaDT == DataTypeArray {
-		items = spec.parseArrayItems(name, ymlSchemaM)
+	if specSchemaDT == DataTypeObject {
+		specProps = spec.parseObjectProperties(name, ymlSchemaM)
+	} else if specSchemaDT == DataTypeArray {
+		specItems = spec.parseArrayItems(name, ymlSchemaM)
 	}
 
 	return &Schema{
 		Name:        name,
-		DataType:    schemaDT,
-		Description: istring(ymlSchemaM["description"]),
-		Example:     istring(ymlSchemaM["example"]),
-		Properties:  props,
-		Items:       items,
+		DataType:    specSchemaDT,
+		Description: isstring(ymlSchemaM["description"]),
+		Example:     isstring(ymlSchemaM["example"]),
+		Properties:  specProps,
+		Items:       specItems,
 	}
 }
 
@@ -372,20 +375,21 @@ func (spec SpecV3) parseObjectProperties(name string, ymlSchemaM imap) *[]Proper
 		return false
 	}
 
-	propmap := func(propName string, p imap) (prop Property) {
-		prop.Name = propName
+	propmap := func(propName string, p imap) (specProp Property) {
+		specProp.Name = propName
 
 		if p["description"] != nil {
-			prop.Description = p["description"].(string)
+			specProp.Description = p["description"].(string)
 		}
 
-		prop.Schema = spec.parseSchema(propName, p)
-		prop.Required = isRequired(propName)
+		specProp.Schema = spec.parseSchema(propName, p)
+		specProp.Required = isRequired(propName)
+		//TODO: the rest of validation rules
 		return
 	}
 
-	props := mapPropsMap(ymlSchemaM["properties"].(imap), propmap)
-	return &props
+	specProps := mapPropsMap(ymlSchemaM["properties"].(imap), propmap)
+	return &specProps
 }
 
 func (spec SpecV3) parseArrayItems(name string, ymlSchemaM imap) *Schema {

@@ -60,15 +60,19 @@ func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
 
 	resp, _ := client.Do(probeReq)
 
-	if len(resp.Header["Www-Authenticate"]) > 0 {
-		authMap := sec.ParseWWWAuthenticate(resp.Header["Www-Authenticate"][0])
+	if resp != nil {
+		if resp.Header["Www-Authenticate"] != nil && len(resp.Header["Www-Authenticate"]) > 0 {
+			authMap := sec.ParseWWWAuthenticate(resp.Header["Www-Authenticate"][0])
 
-		auth = WWWAuthenticate{
-			Realm:  authMap["realm"],
-			Nonce:  authMap["nonce"],
-			CNonce: authMap["cnonce"],
-			QoP:    WWWAuthenticateQoP(authMap["qop"]),
+			auth = WWWAuthenticate{
+				Realm:  authMap["realm"],
+				Nonce:  authMap["nonce"],
+				CNonce: authMap["cnonce"],
+				QoP:    WWWAuthenticateQoP(authMap["qop"]),
+			}
 		}
+	} else {
+		fmt.Printf("No response from the %s URL\n", req.URL.String())
 	}
 
 	return

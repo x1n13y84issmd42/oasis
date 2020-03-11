@@ -42,47 +42,47 @@ type DataFormat = string
 
 // Types of security mechanisms
 const (
-	SecurityTypeHTTP   = "http"
-	SecurityTypeAPIKey = "apiKey"
-	SecurityTypeOAuth2 = "oauth2"
-	SecurityTypeOpenID = "openIdConnect"
+	SecurityTypeHTTP   = SecurityType("http")
+	SecurityTypeAPIKey = SecurityType("apiKey")
+	SecurityTypeOAuth2 = SecurityType("oauth2")
+	SecurityTypeOpenID = SecurityType("openIdConnect")
 )
 
 // Subtypes of security mechanisms
 const (
-	SecuritySchemeBasic       = "basic"
-	SecuritySchemeDigest      = "digest"
-	SecuritySchemeBearer      = "bearer"
-	SecuritySchemeHoba        = "hoba"
-	SecuritySchemeMutual      = "mutual"
-	SecuritySchemeNegotiate   = "negotiate"
-	SecuritySchemeOauth       = "oauth"
-	SecuritySchemeScramSHA1   = "scram-sha-1"
-	SecuritySchemeScramSHA256 = "scram-sha-256"
-	SecuritySchemeVapid       = "vapid"
+	SecuritySchemeBasic       = SecurityScheme("basic")
+	SecuritySchemeDigest      = SecurityScheme("digest")
+	SecuritySchemeBearer      = SecurityScheme("bearer")
+	SecuritySchemeHoba        = SecurityScheme("hoba")
+	SecuritySchemeMutual      = SecurityScheme("mutual")
+	SecuritySchemeNegotiate   = SecurityScheme("negotiate")
+	SecuritySchemeOauth       = SecurityScheme("oauth")
+	SecuritySchemeScramSHA1   = SecurityScheme("scram-sha-1")
+	SecuritySchemeScramSHA256 = SecurityScheme("scram-sha-256")
+	SecuritySchemeVapid       = SecurityScheme("vapid")
 )
 
 // Parameter locations
 const (
-	ParameterLocationQuery  = "query"
-	ParameterLocationHeader = "header"
-	ParameterLocationCookie = "cookie"
+	ParameterLocationQuery  = ParameterLocation("query")
+	ParameterLocationHeader = ParameterLocation("header")
+	ParameterLocationCookie = ParameterLocation("cookie")
 )
 
 // Data types
 const (
-	DataTypeString  = "string"
-	DataTypeObject  = "object"
-	DataTypeArray   = "array"
-	DataTypeBoolean = "boolean"
-	DataTypeNumber  = "number"
-	DataTypeInteger = "integer"
+	DataTypeString  = DataType("string")
+	DataTypeObject  = DataType("object")
+	DataTypeArray   = DataType("array")
+	DataTypeBoolean = DataType("boolean")
+	DataTypeNumber  = DataType("number")
+	DataTypeInteger = DataType("integer")
 )
 
 // Data formats
 const (
-	DataFormatDate     = "date"
-	DataFormatDateTime = "date-time"
+	DataFormatDate     = DataFormat("date")
+	DataFormatDateTime = DataFormat("date-time")
 )
 
 type AuthFlow struct {
