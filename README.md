@@ -21,14 +21,9 @@ Work in progress.
 Goasis can be used either in manual mode, which allows to test one opration at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
 
 ### Manual mode
-`goasis --spec=spec/oasis.yaml  --op="List visits"`
+`goasis from spec/oasis.yaml test list-visits`
 
-`goasis --spec=spec/oasis.yaml  --op="Meta Number Fail"`
-
-### Alternative humane syntax
-> (TODO)
-
-`goasis from spec/oasis.yaml test "Meta Number Fail" expect status 200 CT application/json`
+`goasis from spec/oasis.yaml test meta-number-fail expect status 200 CT "*"`
 
 ### Script mode
 Coming soon.

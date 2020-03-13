@@ -14,6 +14,7 @@ type Spec interface {
 // Operation is an operation description.
 type Operation struct {
 	Name      string
+	ID        string
 	Path      string
 	Method    string
 	Headers   *HeaderBag

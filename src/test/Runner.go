@@ -60,7 +60,11 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 func (runner Runner) printOperations() {
 	fmt.Println("The following operations are available:")
 	for _, op := range runner.Spec.GetOperations() {
-		fmt.Printf("\t%s\n", op.Name)
+		if op.ID != "" {
+			fmt.Printf("\t%s [%s]\n", op.Name, op.ID)
+		} else {
+			fmt.Printf("\t%s\n", op.Name)
+		}
 		fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path)
 	}
 }

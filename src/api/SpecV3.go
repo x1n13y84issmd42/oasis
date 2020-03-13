@@ -106,6 +106,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 
 					return &Operation{
 						Name:      ymlOpM["summary"].(string),
+						ID:        isstring(ymlOpM["operationId"]),
 						Path:      spec.assemblePath(ymlOpM, ymlPathDataM, ymlPath.(string)),
 						Method:    strings.ToUpper(method),
 						Security:  specSecurity,
@@ -239,12 +240,16 @@ func (spec SpecV3) GetOperations() []Operation {
 
 	ymlPaths := spec.data["paths"].(imap)
 	for ymlPath, ymlPathData := range ymlPaths {
-		for ymlMethod, ymlOp := range ymlPathData.(imap) {
-			specOps = append(specOps, Operation{
-				Name:   ymlOp.(imap)["summary"].(string),
-				Path:   ymlPath.(string),
-				Method: ymlMethod.(string),
-			})
+		for _, method := range []string{"get", "post", "put", "delete", "patch", "options", "trace", "head"} {
+			ymlOp := ymlPathData.(imap)[method]
+			if ymlOp != nil {
+				specOps = append(specOps, Operation{
+					Name:   ymlOp.(imap)["summary"].(string),
+					ID:     ymlOp.(imap)["operationId"].(string),
+					Path:   ymlPath.(string),
+					Method: method,
+				})
+			}
 		}
 	}
 
