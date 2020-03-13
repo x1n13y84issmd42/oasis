@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/x1n13y84issmd42/goasis/src/utility/CLIQL.go (98.4%)</option>
+				
+				<option value="file1">github.com/x1n13y84issmd42/goasis/src/utility/Context.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package utility
+
+// CLIQLArgs is a pair of argument list and an index of a current argument.
+type CLIQLArgs struct {
+        Args []string
+        I    int
+}
+
+func (args *CLIQLArgs) Clone() *CLIQLArgs <span class="cov8" title="1">{
+        return &amp;CLIQLArgs{
+                Args: args.Tail(),
+        }
+}</span>
+
+func (args *CLIQLArgs) Tail() []string <span class="cov8" title="1">{
+        if args.I &gt;= len(args.Args) </span><span class="cov0" title="0">{
+                return []string{}
+        }</span>
+
+        <span class="cov8" title="1">return args.Args[args.I:]</span>
+}
+
+func (args *CLIQLArgs) Get() string <span class="cov8" title="1">{
+        if args.I &gt;= len(args.Args) </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">return args.Args[args.I]</span>
+}
+
+func (args *CLIQLArgs) Len() int <span class="cov8" title="1">{
+        return len(args.Args)
+}</span>
+
+func (args *CLIQLArgs) Left() int <span class="cov8" title="1">{
+        return len(args.Args) - args.I
+}</span>
+
+func (args *CLIQLArgs) Add(v int) <span class="cov8" title="1">{
+        args.I += v
+}</span>
+
+type ExpressionParser func(*CLIQLArgs) bool
+
+// CLIQLParser is a parser for a CLI Query language.
+type CLIQLParser struct {
+        ExpressionParsers []ExpressionParser
+        Progress          int
+        Complete          bool
+        L                 string
+}
+
+// CLIQL creates a new CLIQLParser instance.
+func CLIQL() *CLIQLParser <span class="cov8" title="1">{
+        return &amp;CLIQLParser{
+                ExpressionParsers: []ExpressionParser{},
+        }
+}</span>
+
+// CLIQLn creates a new CLIQLParser instance.
+func CLIQLn(n string) *CLIQLParser <span class="cov8" title="1">{
+        return &amp;CLIQLParser{
+                ExpressionParsers: []ExpressionParser{},
+                L:                 n,
+        }
+}</span>
+
+// Parse --
+func (cliql *CLIQLParser) Parse(args []string) *CLIQLParser <span class="cov8" title="1">{
+        return cliql.actualParse(&amp;CLIQLArgs{Args: args})
+}</span>
+
+func (cliql *CLIQLParser) actualParse(args *CLIQLArgs) *CLIQLParser <span class="cov8" title="1">{
+
+        cliql.Complete = false
+        cliql.Progress = 0
+
+        if args.Left() &lt;= 0 </span><span class="cov8" title="1">{
+                // fmt.Printf("aP (%s): Nothing left (%#v)\n", cliql.L, args)
+                return cliql
+        }</span>
+
+        <span class="cov8" title="1">cpI := 0
+        curParser := cliql.ExpressionParsers[cpI]
+
+        // fmt.Printf("aP (%s): Parsing the args %#v\n", cliql.L, args.Tail())
+
+        for curParser(args) </span><span class="cov8" title="1">{
+                cpI++
+                cliql.Progress = args.I
+                if cpI &gt;= len(cliql.ExpressionParsers) </span><span class="cov8" title="1">{
+                        // fmt.Printf("aP (%s): Complete, args.I %d\n", cliql.L, args.I)
+                        cliql.Complete = true
+                        break</span>
+                }
+
+                <span class="cov8" title="1">if args.I &gt;= args.Len() </span>{<span class="cov8" title="1">
+                        // fmt.Printf("aP (%s): Out of input\n", cliql.L)
+                }</span>
+
+                <span class="cov8" title="1">curParser = cliql.ExpressionParsers[cpI]</span>
+        }
+
+        // fmt.Printf("aP (%s): Done parsing, Complete is %#v, Progress is %d\n", cliql.L, cliql.Complete, cliql.Progress)
+
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// Flag --
+func (cliql *CLIQLParser) Flag(f string) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+                // fmt.Printf("\tFlag('%s') argument '%s'\n", f, args.Get())
+                res := f == args.Get()
+                if res </span><span class="cov8" title="1">{
+                        args.Add(1)
+                }</span>
+                <span class="cov8" title="1">return res</span>
+        })
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// Capture --
+func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+                // fmt.Printf("\tCapturing the argument '%s'\n", args.Get())
+                *v = args.Get()
+                args.Add(1)
+                return true
+        }</span>)
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// Any --
+func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+                // fmt.Printf("  Trying one of few parsers\n")
+
+                for _, parser := range parsers </span><span class="cov8" title="1">{
+                        args2 := args.Clone()
+                        // fmt.Printf("  Any parser #%d:\n", pI)
+                        parser.actualParse(args2)
+                        // fmt.Printf("  Any parser #%d Progress is %d\n", pI, parser.Progress)
+                        if parser.Complete </span><span class="cov8" title="1">{
+                                // fmt.Printf("  Any parser #%d is complete\n", pI)
+                                // args.Add(parser.Progress)
+                                args.Add(args2.I)
+                                // args.I = args2.I
+                                // fmt.Printf("  Any parser #%d args.I %d\n", pI, args.I)
+                                return true
+                        }</span>
+                }
+
+                <span class="cov8" title="1">return false</span>
+        })
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// Repeat --
+func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+                complete := uint(0)
+                progress := 0
+                // fmt.Printf("    Repeating from %d to %d, args.I %d\n", min, max, args.I)
+                args2 := args.Clone()
+                for i := uint(0); i &lt; max; i++ </span><span class="cov8" title="1">{
+                        // fmt.Printf("    Repeat #%d in, args2.I %d\n", i, args2.I)
+                        parser.actualParse(args2)
+                        if parser.Complete </span><span class="cov8" title="1">{
+                                // fmt.Printf("    Repeat #%d Complete, Progress %d\n", i, parser.Progress)
+                                complete++
+                                progress += parser.Progress
+                                // args2.Add(parser.Progress)
+                                // fmt.Printf("    Repeat #%d out, args2.I %d, progress %d\n", i, args2.I, progress)
+                        }</span>
+                }
+
+                // fmt.Printf("    Succesful repeats: %d\n", complete)
+                <span class="cov8" title="1">res := complete &gt;= min &amp;&amp; complete &lt;= max
+
+                if res </span><span class="cov8" title="1">{
+                        // args.Add(progress)
+                        args.Add(args2.I)
+                        // args.I = args2.I
+                }</span>
+
+                <span class="cov8" title="1">return res</span>
+        })
+        <span class="cov8" title="1">return cliql</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package utility
+
+import (
+        "fmt"
+        "reflect"
+        "strings"
+)
+
+// Context represents the current path when validating nested data structures.
+type Context struct {
+        Path []string
+        V    interface{}
+}
+
+func NewContext(n string) *Context <span class="cov0" title="0">{
+        return &amp;Context{
+                Path: []string{n},
+        }
+}</span>
+
+// PushIndex creates a new Context with an added array index value to the path.
+func (ctx Context) PushIndex(i int, v interface{}) *Context <span class="cov0" title="0">{
+        return &amp;Context{append(ctx.Path, fmt.Sprintf("[%d]", i)), v}
+}</span>
+
+// PushProperty creates a new Context with an added object property value to the path.
+func (ctx Context) PushProperty(s string, v interface{}) *Context <span class="cov0" title="0">{
+        return &amp;Context{append(ctx.Path, fmt.Sprintf(".%s", s)), v}
+}</span>
+
+func (ctx Context) String() string <span class="cov0" title="0">{
+        return strings.Join(ctx.Path, "")
+}</span>
+
+// CurrentValueType return the underlying type of V.
+func (ctx Context) CurrentValueType() string <span class="cov0" title="0">{
+        if ctx.V != nil </span><span class="cov0" title="0">{
+                t := reflect.TypeOf(ctx.V)
+                return t.Name()
+        }</span>
+
+        <span class="cov0" title="0">return "null"</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

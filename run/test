@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# The script finds all test files and builds a list
+# of uniqe packages containing them, then runs go test
+# against those packages.
+
+declare -A TEST_PACKAGES
+
+for FILE in $(find -name *_test.go); do
+    TEST_PACKAGES[${FILE%/*}]="1"
+done
+
+echo "Running unit tests..."
+gotest ${!TEST_PACKAGES[@]} -v -coverprofile=build/coverage ${@}
+
+echo "Generating a code coverage report..."
+go tool cover -html=build/coverage -o=build/coverage.html
