@@ -54,11 +54,11 @@ func TestFlag(t *testing.T) {
 	for _, input := range inputs {
 		parser := NewBuilder().SetFlags(input.Flags).Parse(input.Args)
 
-		if parser.Complete == input.ExpComplete &&
-			parser.Progress == input.ExpProgress {
-			t.Log("FINE")
-		} else {
+		if parser.Complete != input.ExpComplete {
 			t.Errorf("FAILED Expected Complete to be %#v but got %#v", input.ExpComplete, parser.Complete)
+		}
+
+		if parser.Progress != input.ExpProgress {
 			t.Errorf("FAILED Expected Progress to be %d but got %d", input.ExpProgress, parser.Progress)
 		}
 	}
