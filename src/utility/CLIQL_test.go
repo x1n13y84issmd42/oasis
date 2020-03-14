@@ -65,23 +65,69 @@ func TestFlag(t *testing.T) {
 }
 
 type ParserCtor = func() *CLIQLParser
+type Expectation = func() bool
 
 type TestInput struct {
 	Init        ParserCtor
 	Args        []string
 	ExpComplete bool
 	ExpProgress int
+	Expect      []Expectation
+}
+
+func ExpectString(t *testing.T, actual *string, expected string, msg string) Expectation {
+	return func() bool {
+		res := *actual == expected
+		if !res {
+			t.Errorf("FAILED %s", msg)
+			t.Errorf("       Expected %s", expected)
+			t.Errorf("       Actual %s", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectBool(t *testing.T, actual *bool, expected bool, msg string) Expectation {
+	return func() bool {
+		res := *actual == expected
+		if !res {
+			t.Errorf("FAILED %s", msg)
+			t.Errorf("       Expected %#v", expected)
+			t.Errorf("       Actual %#v", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectInt64(t *testing.T, actual *int64, expected int64, msg string) Expectation {
+	return func() bool {
+		res := *actual == expected
+		if !res {
+			t.Errorf("FAILED %s", msg)
+			t.Errorf("       Expected %d", expected)
+			t.Errorf("       Actual %d", *actual)
+		}
+		return res
+	}
 }
 
 func genericTest(t *testing.T, inputs []TestInput) {
 	for _, input := range inputs {
 		parser := input.Init().Parse(input.Args)
 
-		if parser.Complete == input.ExpComplete &&
-			parser.Progress == input.ExpProgress {
-			t.Log("FINE")
-		} else {
+		result := true
+
+		if len(input.Expect) > 0 {
+			for _, expectation := range input.Expect {
+				result = result && expectation()
+			}
+		}
+
+		if parser.Complete != input.ExpComplete {
 			t.Errorf("FAILED Expected Complete to be %#v but got %#v", input.ExpComplete, parser.Complete)
+		}
+
+		if parser.Progress != input.ExpProgress {
 			t.Errorf("FAILED Expected Progress to be %d but got %d", input.ExpProgress, parser.Progress)
 		}
 	}
@@ -210,12 +256,27 @@ func TestCapture(t *testing.T) {
 			Args:        []string{"yeet", "you"},
 			ExpComplete: true,
 			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectString(t, &v, "you", "Expected the 'you' string value to get captured."),
+			},
 		},
 	})
+}
 
-	if v == "you" {
-		t.Log("FINE")
-	} else {
-		t.Errorf("FAILURE Expected the 'you' value to get captured.")
-	}
+func TestCaptureInt64(t *testing.T) {
+	var v int64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *CLIQLParser {
+				return CLIQL().Flag("answer").CaptureInt64(&v)
+			},
+			Args:        []string{"answer", "42"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectInt64(t, &v, 42, "Expected the '42' int64 value to get captured."),
+			},
+		},
+	})
 }

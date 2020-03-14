@@ -1,5 +1,9 @@
 package utility
 
+import (
+	"strconv"
+)
+
 // CLIQLArgs is a pair of argument list and an index of a current argument.
 type CLIQLArgs struct {
 	Args []string
@@ -112,11 +116,25 @@ func (cliql *CLIQLParser) Flag(f string) *CLIQLParser {
 	return cliql
 }
 
-// Capture --
+// Capture stores the current item in the provided string pointer.
 func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser {
 	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
 		*v = args.Get()
 		args.Add(1)
+		return true
+	})
+	return cliql
+}
+
+// CaptureInt64 tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (cliql *CLIQLParser) CaptureInt64(v *int64) *CLIQLParser {
+	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
+		i, ierr := strconv.ParseInt(args.Get(), 10, 64)
+		if ierr == nil {
+			*v = i
+			args.Add(1)
+		}
 		return true
 	})
 	return cliql

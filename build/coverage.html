@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/x1n13y84issmd42/goasis/src/utility/CLIQL.go (98.4%)</option>
+				<option value="file0">github.com/x1n13y84issmd42/goasis/src/utility/CLIQL.go (98.6%)</option>
 				
 				<option value="file1">github.com/x1n13y84issmd42/goasis/src/utility/Context.go (0.0%)</option>
 				
@@ -71,6 +71,10 @@
 		<div id="content">
 		
 		<pre class="file" id="file0" style="display: none">package utility
+
+import (
+        "strconv"
+)
 
 // CLIQLArgs is a pair of argument list and an index of a current argument.
 type CLIQLArgs struct {
@@ -184,13 +188,27 @@ func (cliql *CLIQLParser) Flag(f string) *CLIQLParser <span class="cov8" title="
         <span class="cov8" title="1">return cliql</span>
 }
 
-// Capture --
+// Capture stores the current item in the provided string pointer.
 func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser <span class="cov8" title="1">{
         cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
                 *v = args.Get()
                 args.Add(1)
                 return true
         }</span>)
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// CaptureInt64 tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (cliql *CLIQLParser) CaptureInt64(v *int64) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+                i, ierr := strconv.ParseInt(args.Get(), 10, 64)
+                if ierr == nil </span><span class="cov8" title="1">{
+                        *v = i
+                        args.Add(1)
+                }</span>
+                <span class="cov8" title="1">return true</span>
+        })
         <span class="cov8" title="1">return cliql</span>
 }
 

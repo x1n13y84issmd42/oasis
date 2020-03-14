@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
@@ -13,35 +12,19 @@ import (
 
 func main() {
 	//	Command line args
-	var fSpec string
-	var fScript string
-	var fHost string
-	var fOp string
-	var fReqCT string = "*"
-	var fRespCT string = "*"
-	var fRespStatus int64 = 0
-
-	/* flag.StringVar(&fSpec, "spec", "", "A `path` to an OAS file.")
-	flag.StringVar(&fScript, "script", "", "A `path` to a test script file.")
-	flag.StringVar(&fHost, "host", "", "A `hostname` from the spec file.")
-	flag.StringVar(&fOp, "op", "", "An `operation` name from the spec file.")
-	flag.StringVar(&fReqCT, "reqCT", "*", "A request `Content-Type` to use for test.")
-	flag.StringVar(&fRespCT, "respCT", "*", "A response `Content-Type` to test against.")
-	flag.Int64Var(&fRespStatus, "respStatus", 0, "An expected response status `code`. (by default any works)")
-	flag.Parse()
-
-	if fSpec == "" && fScript == "" {
-		flag.Usage()
-		os.Exit(255)
-	} */
-
-	var expCT string
-	var expStatus string
+	var inSpec string
+	var inScript string
+	var inHost string
+	var inOp string
+	var useCT string = "*"
 	var useSecurity string
+	var expCT string = "*"
+	var expStatus int64 = 0
 
-	expFrom := utility.CLIQL().Flag("from").Capture(&fSpec)
-	expTest := utility.CLIQL().Flag("test").Capture(&fOp)
-	expHost := utility.CLIQL().Flag("@").Capture(&fHost)
+	expExecute := utility.CLIQL().Flag("execute").Capture(&inScript)
+	expFrom := utility.CLIQL().Flag("from").Capture(&inSpec)
+	expTest := utility.CLIQL().Flag("test").Capture(&inOp)
+	expHost := utility.CLIQL().Flag("@").Capture(&inHost)
 
 	expUse := utility.CLIQL().Flag("use").Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
 		utility.CLIQL().Flag("security").Capture(&useSecurity),
@@ -49,10 +32,11 @@ func main() {
 
 	expExpect := utility.CLIQL().Flag("expect").Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
 		utility.CLIQL().Flag("CT").Capture(&expCT),
-		utility.CLIQL().Flag("status").Capture(&expStatus),
+		utility.CLIQL().Flag("status").CaptureInt64(&expStatus),
 	}), 0, 2)
 
 	utility.CLIQL().Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
+		expExecute,
 		expFrom,
 		expTest,
 		expUse,
@@ -60,15 +44,12 @@ func main() {
 		expHost,
 	}), 1, 4).Parse(os.Args[1:])
 
-	fRespStatus, _ = strconv.ParseInt(expStatus, 10, 64)
-	fRespCT = expCT
-
-	if fScript != "" {
+	if inScript != "" {
 		//	Executing a test script
 		//	TODO
-	} else if fSpec != "" {
+	} else if inSpec != "" {
 		//	Running a single test
-		spec, specErr := api.Load(fSpec)
+		spec, specErr := api.Load(inSpec)
 
 		if specErr == nil {
 			runner := test.Runner{
@@ -76,7 +57,7 @@ func main() {
 				Log:  log.Simple{},
 			}
 
-			testResult := runner.Test(fHost, fOp, fReqCT, int(fRespStatus), fRespCT)
+			testResult := runner.Test(inHost, inOp, useCT, int(expStatus), expCT)
 			if !testResult {
 				os.Exit(255)
 			}
