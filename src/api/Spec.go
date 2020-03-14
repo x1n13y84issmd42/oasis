@@ -11,18 +11,6 @@ type Spec interface {
 	GetSchema(name string) *Schema
 }
 
-// Operation is an operation description.
-type Operation struct {
-	Name      string
-	ID        string
-	Path      string
-	Method    string
-	Headers   *HeaderBag
-	Security  *Security
-	Requests  *[]Request
-	Responses *[]Response
-}
-
 // ProjectInfo is a generic project information.
 type ProjectInfo struct {
 	Title       string
@@ -70,6 +58,7 @@ const (
 
 // Parameter locations
 const (
+	ParameterLocationPath   = ParameterLocation("path")
 	ParameterLocationQuery  = ParameterLocation("query")
 	ParameterLocationHeader = ParameterLocation("header")
 	ParameterLocationCookie = ParameterLocation("cookie")
@@ -91,7 +80,21 @@ const (
 	DataFormatDateTime = DataFormat("date-time")
 )
 
+// AuthFlow describes an OAuth authentication flow.
 type AuthFlow struct {
+}
+
+// Operation is an operation description.
+type Operation struct {
+	Name       string
+	ID         string
+	Path       Path
+	Method     string
+	Headers    *HeaderBag
+	Security   *Security
+	Requests   *[]Request
+	Responses  *[]Response
+	Parameters []Parameter
 }
 
 // Security is a description of a security mechanism used on some Operation.
@@ -104,7 +107,22 @@ type Security struct {
 	Example        string
 }
 
-// Host is an API host desciption.
+// Parameter is a description of a URL parameter.
+type Parameter struct {
+	Name        string
+	In          ParameterLocation
+	Description string
+	Example     string
+	Schema      *Schema
+}
+
+// Path represents an operation path from OAS spec.
+type Path struct {
+	Path       string
+	Parameters []Parameter
+}
+
+// Host is an API host description.
 type Host struct {
 	Name        string
 	URL         string
@@ -131,8 +149,10 @@ type Property struct {
 	Required    bool
 }
 
+// ParameterStyle defines parameter serialization styles from OAS.
 type ParameterStyle string
 
+// OAS parameter serialization styles.
 const (
 	ParameterStyleMatrix         = ParameterStyle("matrix")
 	ParameterStyleLabel          = ParameterStyle("label")

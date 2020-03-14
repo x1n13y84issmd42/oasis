@@ -12,10 +12,10 @@
 			"program": "${workspaceFolder}/src",
 			"env": {},
 			"args": [
-				"--spec",
+				"from",
 				"../spec/oasis.yaml",
-				"--op",
-				"Redirect"
+				"test",
+				"get-user"
 			]
 		},
 

@@ -228,7 +228,7 @@ paths:
         - composite
         - example
         - failure
-      operationId: single-user-failing
+      operationId: get-user-failing
       summary: Single user failing
       description: Responds wih a malformed single User object.
       parameters:
@@ -252,7 +252,7 @@ paths:
         - public
         - composite
         - example
-      operationId: single-user
+      operationId: get-user
       summary: Single user
       description: Responds wih a single User object.
       parameters:
@@ -262,7 +262,7 @@ paths:
           required: true
           schema:
             type: string
-          example: '345'
+          no_example_for_you: '345'
       responses:
         '200':
           description: Status 200

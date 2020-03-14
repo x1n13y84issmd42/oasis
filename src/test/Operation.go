@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
@@ -53,11 +54,39 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 }
 
 func (test Operation) createRequest(CT string) *http.Request {
-	URL := fmt.Sprintf("%s%s", test.Host.URL, test.Operation.Path)
+	URL := test.createURL()
 	test.Log.Requesting(URL)
 	req, _ := http.NewRequest(test.Operation.Method, URL, nil)
 	//TODO: use req body & CT when applicable
 	return req
+}
+
+func (test Operation) createURL() string {
+	path := test.Operation.Path.Path
+
+	useParameters := func(specParams []api.Parameter, container string) {
+		for _, specP := range specParams {
+			if specP.In != api.ParameterLocationPath {
+				continue
+			}
+
+			RX, _ := regexp.Compile("\\{" + specP.Name + "\\}")
+
+			if RX.Match([]byte(path)) {
+				if specP.Example != "" {
+					path = string(RX.ReplaceAll([]byte(path), []byte(specP.Example)))
+					test.Log.UsingParameterExample(&specP, container)
+				} else {
+					test.Log.ParameterHasNoExample(&specP, container)
+				}
+			}
+		}
+	}
+
+	useParameters(test.Operation.Parameters, "operation")
+	useParameters(test.Operation.Path.Parameters, "path")
+
+	return fmt.Sprintf("%s%s", test.Host.URL, path)
 }
 
 func (test Operation) getResponse(status int, CT string) *api.Response {

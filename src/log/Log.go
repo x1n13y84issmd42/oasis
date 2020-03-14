@@ -22,6 +22,9 @@ type ILogger interface {
 	Overriding(what string)
 	Requesting(url string)
 
+	ParameterHasNoExample(param *api.Parameter, container string)
+	UsingParameterExample(param *api.Parameter, container string)
+
 	PropertyHasNoValue(prop *api.Property, ctx *utility.Context)
 	PropertyHasWrongType(prop *api.Property, ctx *utility.Context)
 	HeaderHasNoValue(schema *api.Header)

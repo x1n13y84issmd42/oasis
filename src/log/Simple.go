@@ -156,6 +156,16 @@ func (log Simple) UsingSecurity(sec *api.Security) {
 	fmt.Printf("\tUsing the \"%s\" security settings.\n", sec.Name)
 }
 
+// ParameterHasNoExample --
+func (log Simple) ParameterHasNoExample(param *api.Parameter, container string) {
+	fmt.Printf("\tThe %s parameter %s has no example value to use.\n", container, param.Name)
+}
+
+// UsingParameterExample --
+func (log Simple) UsingParameterExample(param *api.Parameter, container string) {
+	fmt.Printf("\tUsing the %s parameter %s example.\n", container, param.Name)
+}
+
 // PropertyHasNoValue --
 func (log Simple) PropertyHasNoValue(prop *api.Property, ctx *utility.Context) {
 	fmt.Printf("\t%s: property is required but is not present.\n", ctx.String())
@@ -178,5 +188,5 @@ func (log Simple) UsingHost(host *api.Host) {
 
 // TestingOperation --
 func (log Simple) TestingOperation(res *api.Operation) {
-	fmt.Printf("Testing the \"%s\" operation @ %s %s\n", res.Name, strings.ToUpper(res.Method), res.Path)
+	fmt.Printf("Testing the \"%s\" operation @ %s %s\n", res.Name, strings.ToUpper(res.Method), res.Path.Path)
 }

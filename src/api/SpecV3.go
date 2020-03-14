@@ -104,13 +104,20 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						}
 					}
 
+					var specParams []Parameter
+
+					if ymlOpM["parameters"] != nil {
+						specParams = spec.mapParameters(ymlOpM["parameters"].(iarray))
+					}
+
 					return &Operation{
-						Name:      ymlOpM["summary"].(string),
-						ID:        isstring(ymlOpM["operationId"]),
-						Path:      spec.assemblePath(ymlOpM, ymlPathDataM, ymlPath.(string)),
-						Method:    strings.ToUpper(method),
-						Security:  specSecurity,
-						Responses: &specResponses,
+						Name:       isstring(ymlOpM["summary"]),
+						ID:         isstring(ymlOpM["operationId"]),
+						Path:       spec.makePath(ymlPath.(string), ymlPathDataM),
+						Method:     strings.ToUpper(method),
+						Security:   specSecurity,
+						Responses:  &specResponses,
+						Parameters: specParams,
 					}
 				}
 			}
@@ -118,6 +125,36 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 	}
 
 	return nil
+}
+
+func (spec SpecV3) makePath(ymlPath string, ymlPathData imap) (path Path) {
+	path.Path = ymlPath
+	if ymlPathData["parameters"] != nil {
+		path.Parameters = spec.mapParameters(ymlPathData["parameters"].(iarray))
+	}
+	return
+}
+
+func (spec SpecV3) mapParameters(ymlParameters iarray) []Parameter {
+	res := []Parameter{}
+
+	for _, ymlPI := range ymlParameters {
+		ymlP := ymlPI.(imap)
+		specP := Parameter{
+			Name:        isstring(ymlP["name"]),
+			In:          spec.mapParameterLocation(isstring(ymlP["in"])),
+			Description: isstring(ymlP["description"]),
+			Example:     isstring(ymlP["example"]),
+		}
+
+		if ymlP["schema"] != nil {
+			specP.Schema = spec.parseSchema(specP.Name, ymlP["schema"].(imap))
+		}
+
+		res = append(res, specP)
+	}
+
+	return res
 }
 
 func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
@@ -129,34 +166,6 @@ func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 		// Example: string,
 		// Value: string
 	}
-}
-
-func (spec SpecV3) assemblePath(ymlOp imap, ymlPath imap, p string) (path string) {
-	path = p
-
-	useParameters := func(ymlParams iarray, container string) {
-		for _, ymlIP := range ymlParams {
-			ymlP := ymlIP.(imap)
-			RX, _ := regexp.Compile("\\{" + ymlP["name"].(string) + "\\}")
-			if RX.Match([]byte(path)) {
-				if ymlP["example"] != nil {
-					path = string(RX.ReplaceAll([]byte(path), []byte(ymlP["example"].(string))))
-				} else {
-					fmt.Printf("The %s parameter %s has no example value to use.\n", container, ymlP["name"].(string))
-				}
-			}
-		}
-	}
-
-	if ymlOp["parameters"] != nil {
-		useParameters(ymlOp["parameters"].(iarray), "operation")
-	}
-
-	if ymlPath["parameters"] != nil {
-		useParameters(ymlPath["parameters"].(iarray), "path")
-	}
-
-	return
 }
 
 func (spec SpecV3) makeResponse(ymlCT string, ymlStatus string, ymlResp imap, specHeaders HeaderBag) Response {
@@ -204,6 +213,22 @@ func (spec SpecV3) mapDataType(ymlDT string) DataType {
 	return dt
 }
 
+func (spec SpecV3) mapParameterLocation(ymlIn string) DataType {
+	pLoc := map[string]ParameterLocation{
+		"path":   ParameterLocationPath,
+		"query":  ParameterLocationQuery,
+		"header": ParameterLocationHeader,
+		"cookie": ParameterLocationCookie,
+	}[ymlIn]
+
+	if pLoc == "" {
+		fmt.Printf("\"%s\" is an unknown parameter location.\n", ymlIn)
+		pLoc = ymlIn
+	}
+
+	return pLoc
+}
+
 func (spec SpecV3) mapSchemaDataType(ymlRespSchema imap) DataType {
 	typesMap := map[string]DataType{
 		"array":  DataTypeArray,
@@ -246,7 +271,7 @@ func (spec SpecV3) GetOperations() []Operation {
 				specOps = append(specOps, Operation{
 					Name:   ymlOp.(imap)["summary"].(string),
 					ID:     ymlOp.(imap)["operationId"].(string),
-					Path:   ymlPath.(string),
+					Path:   Path{Path: ymlPath.(string)},
 					Method: method,
 				})
 			}
@@ -304,28 +329,12 @@ func (spec SpecV3) GetSecurity(name string) *Security {
 		return nil
 	}
 
-	var specParamLoc ParameterLocation
-
-	//	Parameter location.
-	if ymlSchemeM["in"] != nil {
-		pLoc := map[string]ParameterLocation{
-			"query":  ParameterLocationQuery,
-			"header": ParameterLocationHeader,
-			"cookie": ParameterLocationCookie,
-		}[ymlSchemeM["in"].(string)]
-
-		if len(pLoc) == 0 {
-			fmt.Printf("\"%s\" is an unknown parameter location.", ymlSchemeM["in"])
-			return nil
-		}
-	}
-
 	return &Security{
 		Name:           name,
 		SecurityType:   ymlSchemeM["type"].(SecurityType),
 		SecurityScheme: ymlSchemeM["scheme"].(SecurityScheme),
 		ParamName:      isstring(ymlSchemeM["name"]),
-		In:             specParamLoc,
+		In:             spec.mapParameterLocation(isstring(ymlSchemeM["in"])),
 		Example:        ymlExample.(string),
 	}
 }
