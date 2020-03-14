@@ -14,6 +14,7 @@ type ResponseHeader struct {
 	APIHeaders []api.Header
 }
 
+// NewResponseHeader ceates a new ResponseHeader test instance.
 func NewResponseHeader(apiHdrs []api.Header, log log.ILogger) ResponseHeader {
 	return ResponseHeader{
 		Log:        log,
@@ -21,6 +22,8 @@ func NewResponseHeader(apiHdrs []api.Header, log log.ILogger) ResponseHeader {
 	}
 }
 
+// Test validates header values against their shemas
+// and applies addition validation as per OAS spec.
 func (test ResponseHeader) Test(respHeaderValues []string) bool {
 	OK := true
 

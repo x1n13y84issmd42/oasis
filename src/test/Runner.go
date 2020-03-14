@@ -65,6 +65,6 @@ func (runner Runner) printOperations() {
 		} else {
 			fmt.Printf("\t%s\n", op.Name)
 		}
-		fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path)
+		fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path.Path)
 	}
 }
