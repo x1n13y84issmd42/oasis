@@ -15,7 +15,7 @@
 				"from",
 				"../spec/oasis.yaml",
 				"test",
-				"get-user"
+				"post-user"
 			]
 		},
 

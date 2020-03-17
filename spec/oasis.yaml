@@ -228,7 +228,7 @@ paths:
         - composite
         - example
         - failure
-      operationId: get-user-failing
+      operationId: single-user-failing
       summary: Single user failing
       description: Responds wih a malformed single User object.
       parameters:
@@ -262,7 +262,7 @@ paths:
           required: true
           schema:
             type: string
-          no_example_for_you: '345'
+          example: '345'
       responses:
         '200':
           description: Status 200
@@ -270,6 +270,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              examples: {}
     parameters:
       - schema:
           type: string
@@ -279,6 +280,30 @@ paths:
         description: |
           A user ID to retrieve.
         example: '123'
+    post:
+      summary: Create user
+      operationId: post-user
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      description: Creates a new User instance.
+      security:
+        - HTTP Basic: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples:
+              op-level-example:
+                value:
+                  name: John Doe
+                  email: johnny@doe.com
+        description: Complete User data goes as a request body.
   /api/public/array/users/fail:
     get:
       tags:
@@ -307,13 +332,26 @@ paths:
       description: Responds with an array of User objects.
       responses:
         '200':
-          description: Successful response
+          description: Success
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+      requestBody: {}
+    post:
+      summary: ''
+      operationId: create-user
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      description: Adds a new user record.
   /api/public/array/numbers:
     get:
       tags:
@@ -354,7 +392,7 @@ paths:
         - public
         - primitive
         - format
-      operationId: 'get-date-time'
+      operationId: get-date-time
       summary: 'Get date & time'
       description: Responds with a string in DateTime format.
       responses:
@@ -464,8 +502,9 @@ components:
           type: string
       example: "{\r\n\"name\": \"Seamus Gulgowski\",\r\n\"email\": \"Eldridge87@hotmail.com\",\r\n\"createdAt\": \"2019-03-01T21:58:16.596Z\",\r\n\"token\": \"f5f8cf46-7ed9-465c-827a-3c39470b178b\"\r\n}"
       x-examples:
-        example-1:
-          name: John
+        model-level-example:
+          name: Petra The African Gray Parrot
+          email: petra@afri.ca
   securitySchemes:
     API Key - Query:
       name: apikey

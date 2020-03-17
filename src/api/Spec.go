@@ -1,5 +1,11 @@
 package api
 
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+)
+
 // Spec is an interface to access specification data.
 type Spec interface {
 	GetProjectInfo() *ProjectInfo
@@ -19,23 +25,42 @@ type ProjectInfo struct {
 }
 
 // ParameterLocation describes a parameter location in requests and security settings.
-type ParameterLocation = string
+type ParameterLocation string
 
 // SecurityType is a type of security mechanism used.
-type SecurityType = string
+type SecurityType string
 
 // SecurityScheme is specific exclusively to the http security type
 // and describes the HTTP authentication mechanism used.
-type SecurityScheme = string
+type SecurityScheme string
 
 // DataType is a schema data type, FFS.
-type DataType = string
+type DataType string
 
 // DataFormat is an additional rule, specific for each type (string can be emails, as well as dates).
-type DataFormat = string
+type DataFormat string
 
 // ExampleList is a map of maps to keep request example data in.
-type ExampleList = map[string]map[string]interface{}
+type ExampleList map[string]ExampleObject
+
+// ExampleObject --
+type ExampleObject map[interface{}]interface{}
+
+// MarshalJSON encodes an example map from the OAS spec as a JSON string.
+func (ex ExampleObject) MarshalJSON() ([]byte, error) {
+	props := []string{}
+
+	for propKey, propVal := range ex {
+		jp, err := json.Marshal(propVal)
+		if err != nil {
+			return nil, err
+		}
+
+		props = append(props, fmt.Sprintf("\"%s\":%s", propKey, jp))
+	}
+
+	return []byte(fmt.Sprintf("{%s}", strings.Join(props, ","))), nil
+}
 
 // Types of security mechanisms
 const (

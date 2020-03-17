@@ -32,6 +32,14 @@ type SpecV3 struct {
 	data imap
 }
 
+// MediaType describes a Media Type Object.
+// Used as an internal intermediary type during parsing of requests & responses.
+type MediaType struct {
+	Schema   *Schema
+	Example  string
+	Examples ExampleList
+}
+
 // GetProjectInfo returns project info.
 func (spec SpecV3) GetProjectInfo() *ProjectInfo {
 	id := spec.data["info"].(imap)
@@ -68,6 +76,24 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						for osn := range ymlOpSec.(iarray)[0].(imap) {
 							specSecurity = spec.GetSecurity(osn.(string))
 							break
+						}
+					}
+
+					// Loading the requests.
+					var specRequests []Request
+					if ymlOpM["requestBody"] != nil {
+						if ymlOpM["requestBody"].(imap)["content"] != nil {
+							ymlReqContents := ymlOpM["requestBody"].(imap)["content"].(imap)
+							for ymlReqCT, ymlReqContent := range ymlReqContents {
+								specMT := spec.parseMediaType(ymlReqContent.(imap))
+
+								specRequests = append(specRequests, Request{
+									ContentType: ymlReqCT.(string),
+									Schema:      specMT.Schema,
+									Examples:    specMT.Examples,
+								})
+							}
+
 						}
 					}
 
@@ -116,6 +142,7 @@ func (spec SpecV3) GetOperation(name string) *Operation {
 						Path:       spec.makePath(ymlPath.(string), ymlPathDataM),
 						Method:     strings.ToUpper(method),
 						Security:   specSecurity,
+						Requests:   &specRequests,
 						Responses:  &specResponses,
 						Parameters: specParams,
 					}
@@ -168,19 +195,29 @@ func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 	}
 }
 
-func (spec SpecV3) makeResponse(ymlCT string, ymlStatus string, ymlResp imap, specHeaders HeaderBag) Response {
-	ymlRespExample := ""
-	var specRespSchema *Schema = nil
-
-	if ymlResp != nil {
-		ymlRespSchema := ymlResp["schema"].(imap)
-
-		if ymlResp["example"] != nil {
-			ymlRespExample = ymlResp["example"].(string)
+func (spec SpecV3) parseMediaType(ymlMT imap) (specMT MediaType) {
+	if ymlMT != nil {
+		if ymlMT["schema"] != nil {
+			specMT.Schema = spec.parseSchema("unnamed", ymlMT["schema"].(imap))
 		}
 
-		specRespSchema = spec.parseSchema("unnamed", ymlRespSchema)
+		if ymlMT["example"] != nil {
+			specMT.Example = ymlMT["example"].(string)
+		}
+
+		if ymlMT["examples"] != nil {
+			specMT.Examples = ExampleList{}
+			for ymlExampleName, ymlExample := range ymlMT["examples"].(imap) {
+				specMT.Examples[ymlExampleName.(string)] = ExampleObject(ymlExample.(imap)["value"].(imap))
+			}
+		}
 	}
+
+	return
+}
+
+func (spec SpecV3) makeResponse(ymlCT string, ymlStatus string, ymlResp imap, specHeaders HeaderBag) Response {
+	specMT := spec.parseMediaType(ymlResp)
 
 	specStatus, specStatusErr := strconv.ParseInt(ymlStatus, 10, 64)
 	if specStatusErr != nil {
@@ -189,9 +226,9 @@ func (spec SpecV3) makeResponse(ymlCT string, ymlStatus string, ymlResp imap, sp
 
 	return Response{
 		ContentType: ymlCT,
-		Example:     ymlRespExample,
+		Example:     specMT.Example,
 		Headers:     specHeaders,
-		Schema:      specRespSchema,
+		Schema:      specMT.Schema,
 		StatusCode:  int(specStatus),
 	}
 }
@@ -207,7 +244,8 @@ func (spec SpecV3) mapDataType(ymlDT string) DataType {
 	}[ymlDT]
 
 	if dt == "" {
-		dt = ymlDT
+		fmt.Printf("\"%s\" is an unknown data type.\n", ymlDT)
+		//TODO: error?
 	}
 
 	return dt
@@ -220,6 +258,7 @@ func (spec SpecV3) mapSecurityType(ymlST string) SecurityType {
 	}[ymlST]
 
 	if dt == "" {
+		fmt.Printf("\"%s\" is an unknown security type.\n", ymlST)
 		//TODO: error?
 	}
 
@@ -234,13 +273,14 @@ func (spec SpecV3) mapSecurityScheme(ymlSS string) SecurityScheme {
 	}[ymlSS]
 
 	if dt == "" {
+		fmt.Printf("\"%s\" is an unknown security scheme.\n", ymlSS)
 		//TODO: error?
 	}
 
 	return dt
 }
 
-func (spec SpecV3) mapParameterLocation(ymlIn string) DataType {
+func (spec SpecV3) mapParameterLocation(ymlIn string) ParameterLocation {
 	pLoc := map[string]ParameterLocation{
 		"path":   ParameterLocationPath,
 		"query":  ParameterLocationQuery,
@@ -250,7 +290,6 @@ func (spec SpecV3) mapParameterLocation(ymlIn string) DataType {
 
 	if pLoc == "" {
 		fmt.Printf("\"%s\" is an unknown parameter location.\n", ymlIn)
-		pLoc = ymlIn
 	}
 
 	return pLoc

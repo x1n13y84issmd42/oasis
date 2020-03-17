@@ -72,7 +72,7 @@ func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
 			}
 		}
 	} else {
-		fmt.Printf("No response from the %s URL\n", req.URL.String())
+		// fmt.Printf("No response from the %s URL\n", req.URL.String())
 	}
 
 	return

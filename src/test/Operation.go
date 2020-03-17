@@ -1,6 +1,8 @@
 package test
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -35,6 +37,8 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 		security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
 	}
 
+	test.Log.Requesting(req.URL.String())
+
 	response, err := client.Do(req)
 
 	if err != nil {
@@ -55,10 +59,39 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
-	test.Log.Requesting(URL)
-	req, _ := http.NewRequest(test.Operation.Method, URL, nil)
-	//TODO: use req body & CT when applicable
-	return req
+
+	predRequestCT := func(specCT string) bool {
+		return specCT == CT
+	}
+
+	if CT == "*" {
+		predRequestCT = func(specCT string) bool { return true }
+	}
+
+	for _, specReq := range *test.Operation.Requests {
+		if predRequestCT(specReq.ContentType) {
+			var reqBody *bytes.Buffer = nil
+			for specReqExampleName, specReqExample := range specReq.Examples {
+				jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
+
+				if jsonReqExampleErr == nil {
+					fmt.Printf("\tUsing the \"%s\" example as request data.\n", specReqExampleName)
+					reqBody = bytes.NewBuffer(jsonReqExample)
+				} else {
+					fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
+				}
+			}
+
+			req, _ := http.NewRequest(test.Operation.Method, URL, reqBody)
+			req.Header.Add("Content-Type", CT)
+
+			return req
+		}
+	}
+
+	fmt.Printf("Couldn't find a request, wtf?\n%#v", test.Operation)
+
+	return nil
 }
 
 func (test Operation) createURL() string {
