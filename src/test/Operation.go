@@ -57,6 +57,20 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 	return tResp.Test(response)
 }
 
+func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
+	for specReqExampleName, specReqExample := range examples {
+		jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
+
+		if jsonReqExampleErr == nil {
+			return jsonReqExample, specReqExampleName
+		} else {
+			fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
+		}
+	}
+
+	return nil, ""
+}
+
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
 
@@ -71,18 +85,28 @@ func (test Operation) createRequest(CT string) *http.Request {
 	for _, specReq := range *test.Operation.Requests {
 		if predRequestCT(specReq.ContentType) {
 			var reqBody *bytes.Buffer = nil
-			for specReqExampleName, specReqExample := range specReq.Examples {
-				jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
-
-				if jsonReqExampleErr == nil {
-					fmt.Printf("\tUsing the \"%s\" example as request data.\n", specReqExampleName)
-					reqBody = bytes.NewBuffer(jsonReqExample)
-				} else {
-					fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
+			// Trying to find example data in the request first.
+			specReqExample, specReqExampleName := test.pickExample(specReq.Examples)
+			if specReqExample != nil {
+				fmt.Printf("\tUsing the \"%s\" example (from operation) as request data.\n", specReqExampleName)
+				reqBody = bytes.NewBuffer(specReqExample)
+			} else if specReq.Schema != nil {
+				specReqExample, specReqExampleName := test.pickExample(specReq.Schema.Examples)
+				if specReqExample != nil {
+					fmt.Printf("\tUsing the \"%s\" example (from schema) as request data.\n", specReqExampleName)
+					reqBody = bytes.NewBuffer(specReqExample)
 				}
 			}
 
-			req, _ := http.NewRequest(test.Operation.Method, URL, reqBody)
+			var req *http.Request
+
+			if reqBody != nil {
+				req, _ = http.NewRequest(test.Operation.Method, URL, reqBody)
+			} else {
+				fmt.Printf("\tNo request body is available.\n")
+				req, _ = http.NewRequest(test.Operation.Method, URL, nil)
+			}
+
 			req.Header.Add("Content-Type", CT)
 
 			return req

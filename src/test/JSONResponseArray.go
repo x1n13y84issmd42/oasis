@@ -18,21 +18,28 @@ type JSONResponseArray struct {
 
 // Test tests.
 func (test JSONResponseArray) Test(response *http.Response) bool {
-	//TODO: HTTPReponse{}.Test(response)
+	HTTPOK := HTTPResponse{
+		Log:         test.Log,
+		APIResponse: test.APIResponse,
+	}.Test(response)
 	responseBody, _ := ioutil.ReadAll(response.Body)
 
-	var mJSON []interface{}
-	errJSON := json.Unmarshal(responseBody, &mJSON)
+	if HTTPOK {
+		var mJSON []interface{}
+		errJSON := json.Unmarshal(responseBody, &mJSON)
 
-	if errJSON != nil {
-		test.Log.ResponseExpectedArray(test.APIResponse)
-		test.Log.Error(errJSON)
-		return false
+		if errJSON != nil {
+			test.Log.ResponseExpectedArray(test.APIResponse)
+			test.Log.Error(errJSON)
+			return false
+		}
+
+		ctx := &utility.Context{
+			Path: []string{"Response"},
+		}
+
+		return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
 	}
 
-	ctx := &utility.Context{
-		Path: []string{"Response"},
-	}
-
-	return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
+	return false
 }

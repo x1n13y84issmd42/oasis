@@ -2,6 +2,7 @@ package test
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
@@ -70,7 +71,10 @@ func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
 // Test checks basic response properties such as status code and headers.
 func (test HTTPResponse) Test(resp *http.Response) bool {
 	statusOK := test.APIResponse.StatusCode == resp.StatusCode
-	CTOK := (test.APIResponse.ContentType == "") || (test.APIResponse.ContentType == resp.Header.Get("Content-Type"))
+
+	//FIXME: this is to get rid of the "; charset=utf-8" part.
+	respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+	CTOK := (test.APIResponse.ContentType == "") || (test.APIResponse.ContentType == respCT)
 
 	headersOK := true
 	for apiHeaderName, apiHeaderValues := range test.APIResponse.Headers {

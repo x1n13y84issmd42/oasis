@@ -21,20 +21,28 @@ type JSONMap = map[string]interface{}
 
 // Test tests.
 func (test JSONResponseObject) Test(response *http.Response) bool {
-	//TODO: HTTPReponse{}.Test(response)
-	responseBody, _ := ioutil.ReadAll(response.Body)
-	mJSON := make(JSONMap)
-	errJSON := json.Unmarshal(responseBody, &mJSON)
+	HTTPOK := HTTPResponse{
+		Log:         test.Log,
+		APIResponse: test.APIResponse,
+	}.Test(response)
 
-	if errJSON != nil {
-		test.Log.ResponseExpectedObject(test.APIResponse)
-		test.Log.Error(errJSON)
-		return false
+	if HTTPOK {
+		responseBody, _ := ioutil.ReadAll(response.Body)
+		mJSON := make(JSONMap)
+		errJSON := json.Unmarshal(responseBody, &mJSON)
+
+		if errJSON != nil {
+			test.Log.ResponseExpectedObject(test.APIResponse)
+			test.Log.Error(errJSON)
+			return false
+		}
+
+		ctx := &utility.Context{
+			Path: []string{"Response"},
+		}
+
+		return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
 	}
 
-	ctx := &utility.Context{
-		Path: []string{"Response"},
-	}
-
-	return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
+	return false
 }
