@@ -63,9 +63,9 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 
 		if jsonReqExampleErr == nil {
 			return jsonReqExample, specReqExampleName
-		} else {
-			fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
 		}
+
+		fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
 	}
 
 	return nil, ""
