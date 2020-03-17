@@ -213,6 +213,33 @@ func (spec SpecV3) mapDataType(ymlDT string) DataType {
 	return dt
 }
 
+func (spec SpecV3) mapSecurityType(ymlST string) SecurityType {
+	dt := map[string]SecurityType{
+		"http":   SecurityTypeHTTP,
+		"apiKey": SecurityTypeAPIKey,
+	}[ymlST]
+
+	if dt == "" {
+		//TODO: error?
+	}
+
+	return dt
+}
+
+func (spec SpecV3) mapSecurityScheme(ymlSS string) SecurityScheme {
+	dt := map[string]SecurityScheme{
+		"basic":  SecuritySchemeBasic,
+		"digest": SecuritySchemeDigest,
+		"bearer": SecuritySchemeBearer,
+	}[ymlSS]
+
+	if dt == "" {
+		//TODO: error?
+	}
+
+	return dt
+}
+
 func (spec SpecV3) mapParameterLocation(ymlIn string) DataType {
 	pLoc := map[string]ParameterLocation{
 		"path":   ParameterLocationPath,
@@ -331,8 +358,8 @@ func (spec SpecV3) GetSecurity(name string) *Security {
 
 	return &Security{
 		Name:           name,
-		SecurityType:   ymlSchemeM["type"].(SecurityType),
-		SecurityScheme: ymlSchemeM["scheme"].(SecurityScheme),
+		SecurityType:   spec.mapSecurityType(ymlSchemeM["type"].(string)),
+		SecurityScheme: spec.mapSecurityScheme(ymlSchemeM["scheme"].(string)),
 		ParamName:      isstring(ymlSchemeM["name"]),
 		In:             spec.mapParameterLocation(isstring(ymlSchemeM["in"])),
 		Example:        ymlExample.(string),

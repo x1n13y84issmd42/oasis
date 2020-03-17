@@ -34,26 +34,29 @@ type DataType = string
 // DataFormat is an additional rule, specific for each type (string can be emails, as well as dates).
 type DataFormat = string
 
+// ExampleList is a map of maps to keep request example data in.
+type ExampleList = map[string]map[string]interface{}
+
 // Types of security mechanisms
 const (
 	SecurityTypeHTTP   = SecurityType("http")
 	SecurityTypeAPIKey = SecurityType("apiKey")
-	SecurityTypeOAuth2 = SecurityType("oauth2")
-	SecurityTypeOpenID = SecurityType("openIdConnect")
+	// SecurityTypeOAuth2 = SecurityType("oauth2")
+	// SecurityTypeOpenID = SecurityType("openIdConnect")
 )
 
 // Subtypes of security mechanisms
 const (
-	SecuritySchemeBasic       = SecurityScheme("basic")
-	SecuritySchemeDigest      = SecurityScheme("digest")
-	SecuritySchemeBearer      = SecurityScheme("bearer")
-	SecuritySchemeHoba        = SecurityScheme("hoba")
-	SecuritySchemeMutual      = SecurityScheme("mutual")
-	SecuritySchemeNegotiate   = SecurityScheme("negotiate")
-	SecuritySchemeOauth       = SecurityScheme("oauth")
-	SecuritySchemeScramSHA1   = SecurityScheme("scram-sha-1")
-	SecuritySchemeScramSHA256 = SecurityScheme("scram-sha-256")
-	SecuritySchemeVapid       = SecurityScheme("vapid")
+	SecuritySchemeBasic  = SecurityScheme("basic")
+	SecuritySchemeDigest = SecurityScheme("digest")
+	SecuritySchemeBearer = SecurityScheme("bearer")
+	// SecuritySchemeHoba        = SecurityScheme("hoba")
+	// SecuritySchemeMutual      = SecurityScheme("mutual")
+	// SecuritySchemeNegotiate   = SecurityScheme("negotiate")
+	// SecuritySchemeOauth       = SecurityScheme("oauth")
+	// SecuritySchemeScramSHA1   = SecurityScheme("scram-sha-1")
+	// SecuritySchemeScramSHA256 = SecurityScheme("scram-sha-256")
+	// SecuritySchemeVapid       = SecurityScheme("vapid")
 )
 
 // Parameter locations
@@ -79,10 +82,6 @@ const (
 	DataFormatDate     = DataFormat("date")
 	DataFormatDateTime = DataFormat("date-time")
 )
-
-// AuthFlow describes an OAuth authentication flow.
-type AuthFlow struct {
-}
 
 // Operation is an operation description.
 type Operation struct {
@@ -139,6 +138,7 @@ type Schema struct {
 	Properties  *[]Property
 	Items       *Schema
 	Example     string
+	Examples    ExampleList
 }
 
 // Property describes a property of an object being described by a Schema.
@@ -179,11 +179,12 @@ type Header struct {
 // HeaderBag is a set of headers to used in requests and responses.
 type HeaderBag = map[string][]Header
 
-// Request describes a generic HTTP request.
+// Request describes a requestBody item from the OAS spec.
 type Request struct {
 	ContentType string
 	Headers     HeaderBag
 	Schema      *Schema
+	Examples    ExampleList
 }
 
 // Response describes a generic HTTP response.
