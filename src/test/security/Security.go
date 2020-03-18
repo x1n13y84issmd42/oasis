@@ -6,7 +6,8 @@ import (
 
 	"github.com/x1n13y84issmd42/goasis/src/api"
 	"github.com/x1n13y84issmd42/goasis/src/log"
-	"github.com/x1n13y84issmd42/goasis/src/test/security/HTTP"
+	APIKey "github.com/x1n13y84issmd42/goasis/src/test/security/APIKey"
+	HTTP "github.com/x1n13y84issmd42/goasis/src/test/security/http"
 )
 
 // Security implements the OAS security mechanisms.
@@ -15,6 +16,7 @@ type Security struct {
 	Log         log.ILogger
 }
 
+// NewSecurity creates a new Security instance.
 func NewSecurity(apiSec *api.Security, log log.ILogger) Security {
 	return Security{
 		APISecurity: apiSec,
@@ -27,7 +29,10 @@ func NewSecurity(apiSec *api.Security, log log.ILogger) Security {
 func (sec Security) Secure(req *http.Request) {
 	switch sec.APISecurity.SecurityType {
 	case api.SecurityTypeHTTP:
-		HTTP.HTTPSecurity{APISecurity: sec.APISecurity, Log: sec.Log}.Secure(req)
+		HTTP.Security{APISecurity: sec.APISecurity, Log: sec.Log}.Secure(req)
+
+	case api.SecurityTypeAPIKey:
+		APIKey.Security{APISecurity: sec.APISecurity, Log: sec.Log}.Secure(req)
 
 	default:
 		fmt.Printf("Unknown security type '%s'\n", sec.APISecurity.SecurityType)

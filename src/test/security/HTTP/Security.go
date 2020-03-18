@@ -1,4 +1,4 @@
-package HTTP
+package http
 
 import (
 	"fmt"
@@ -9,14 +9,17 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/log"
 )
 
-// HTTPSecurity implements the 'http' security type.
-type HTTPSecurity struct {
+// Security implements the 'http' security type.
+type Security struct {
 	APISecurity *api.Security
 	Log         log.ILogger
 }
 
+// WWWAuthenticateQoP is a type for the Quality of Protection value.
+// Used in the HTTP Digest auth.
 type WWWAuthenticateQoP string
 
+// QoP types.
 const (
 	WWWAuthenticateQoPAuth     = "auth"
 	WWWAuthenticateQoPAuthIntl = "auth-intl"
@@ -31,7 +34,7 @@ type WWWAuthenticate struct {
 }
 
 // Secure adds an example value from the API spec to the Authorization request header.
-func (sec HTTPSecurity) Secure(req *http.Request) {
+func (sec Security) Secure(req *http.Request) {
 	auth := sec.Probe(req)
 
 	switch sec.APISecurity.SecurityScheme {
@@ -46,10 +49,10 @@ func (sec HTTPSecurity) Secure(req *http.Request) {
 	}
 }
 
-// Probe makes a GET request to a URL which is (supposedly) protected
+// Probe makes a request to a URL which is (supposedly) protected
 // by an HTTP Basic or Digest authentication scheme in order to obtain an authentication
 // request from the server.
-func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
+func (sec Security) Probe(req *http.Request) (auth WWWAuthenticate) {
 	client := http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -82,7 +85,7 @@ func (sec HTTPSecurity) Probe(req *http.Request) (auth WWWAuthenticate) {
 // A typical header looks something like this:
 // Digest realm="Oasis",nonce="61b6948856629ad7fd3da9d6179393ec",qop="auth,auth-int",opaque="f9a0f11abf3f6710d22c5a2aa65e19036"
 // The function returns these 'realm', 'nonce' and other directives as a map.
-func (sec HTTPSecurity) ParseWWWAuthenticate(header string) map[string]string {
+func (sec Security) ParseWWWAuthenticate(header string) map[string]string {
 	directives := strings.Split(header, ",")
 
 	res := make(map[string]string)

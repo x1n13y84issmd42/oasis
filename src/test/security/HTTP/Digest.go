@@ -1,4 +1,4 @@
-package HTTP
+package http
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/log"
 )
 
-// Digest implements a Digest HTTP authentication.
+// Digest implements a Digest http authentication.
 type Digest struct {
 	APISecurity *api.Security
 	Log         log.ILogger

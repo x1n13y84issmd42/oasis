@@ -40,9 +40,8 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 		security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
 	}
 
-	test.Log.Requesting(req.URL.String())
-
 	// Requesting.
+	test.Log.Requesting(req.URL.String())
 	response, err := client.Do(req)
 
 	if err != nil {
@@ -76,7 +75,7 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 	return nil, ""
 }
 
-// createRequest creates a Request instace and configures it with
+// createRequest creates a Request instance and configures it with
 // needed headers & a request body.
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
@@ -89,16 +88,18 @@ func (test Operation) createRequest(CT string) *http.Request {
 		predRequestCT = func(specCT string) bool { return true }
 	}
 
+	// Choosing a request body.
+	var reqBody *bytes.Buffer = nil
+
 	for _, specReq := range *test.Operation.Requests {
 		if predRequestCT(specReq.ContentType) {
-			var reqBody *bytes.Buffer = nil
 			// Trying to find example data in the request first.
 			specReqExample, specReqExampleName := test.pickExample(specReq.Examples)
 			if specReqExample != nil {
 				fmt.Printf("\tUsing the \"%s\" example (from operation) as request data.\n", specReqExampleName)
 				reqBody = bytes.NewBuffer(specReqExample)
 			} else if specReq.Schema != nil {
-				// Then in the request schema, if present.
+				// Then in the request body schema, if present.
 				specReqExample, specReqExampleName := test.pickExample(specReq.Schema.Examples)
 				if specReqExample != nil {
 					fmt.Printf("\tUsing the \"%s\" example (from schema) as request data.\n", specReqExampleName)
@@ -106,25 +107,25 @@ func (test Operation) createRequest(CT string) *http.Request {
 				}
 			}
 
-			var req *http.Request
-
 			if reqBody != nil {
-				req, _ = http.NewRequest(test.Operation.Method, URL, reqBody)
-			} else {
-				//TODO: check the op method name to see if body is necessary?..
-				fmt.Printf("\tNo request body is available.\n")
-				req, _ = http.NewRequest(test.Operation.Method, URL, nil)
+				break
 			}
-
-			req.Header.Add("Content-Type", CT)
-
-			return req
 		}
 	}
 
-	fmt.Printf("Couldn't find a request, wtf?\n%#v", test.Operation)
+	var req *http.Request
 
-	return nil
+	if reqBody != nil {
+		req, _ = http.NewRequest(test.Operation.Method, URL, reqBody)
+	} else {
+		//TODO: check the op method name to see if body is necessary?..
+		fmt.Printf("\tNo request body is available.\n")
+		req, _ = http.NewRequest(test.Operation.Method, URL, nil)
+	}
+
+	req.Header.Add("Content-Type", CT)
+
+	return req
 }
 
 // createURL creates a fully qualified URL by joining

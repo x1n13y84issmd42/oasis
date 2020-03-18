@@ -402,10 +402,15 @@ func (spec SpecV3) GetSecurity(name string) *Security {
 		return nil
 	}
 
+	var specSecurityScheme SecurityScheme
+	if ymlSchemeM["scheme"] != nil {
+		specSecurityScheme = spec.mapSecurityScheme(isstring(ymlSchemeM["scheme"]))
+	}
+
 	return &Security{
 		Name:           name,
 		SecurityType:   spec.mapSecurityType(ymlSchemeM["type"].(string)),
-		SecurityScheme: spec.mapSecurityScheme(ymlSchemeM["scheme"].(string)),
+		SecurityScheme: specSecurityScheme,
 		ParamName:      isstring(ymlSchemeM["name"]),
 		In:             spec.mapParameterLocation(isstring(ymlSchemeM["in"])),
 		Example:        ymlExample.(string),

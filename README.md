@@ -4,7 +4,6 @@ Open API Specification Intelligence Services. Or in a less fancy way, a tool to 
 Work in progress.
 - [Usage](#usage)
   - [Manual mode](#manual-mode)
-  - [Alternative humane syntax](#alternative-humane-syntax)
   - [Script mode](#script-mode)
 - [How it works](#how-it-works)
   - [Operation request data](#operation-request-data)
