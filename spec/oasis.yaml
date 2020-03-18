@@ -17,6 +17,7 @@ tags:
   - name: get
   - name: post
   - name: user
+  - name: apikey
 servers:
   - url: 'http://localhost'
     description: Localhost
@@ -28,7 +29,7 @@ paths:
         - primitive
       operationId: secure-http-basic
       summary: Secure HTTP Basic
-      description: 'Requires A Basic HTTP Security & responds with a 200 status.'
+      description: 'Requires a Basic HTTP Security & responds with a 200 status.'
       responses:
         '200':
           description: OK
@@ -129,7 +130,6 @@ paths:
               description: 'A wrong answer to the ultimate question of life, universe and everything.'
       security:
         - HTTP Basic: []
-        - API Key - Query: []
   /api/public/meta/headers/integer:
     get:
       tags:
@@ -513,6 +513,34 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
         description: Complete user data.
+      tags:
+        - failure
+        - metadata
+        - composite
+  /api/secure/apikey-header/get:
+    get:
+      summary: Get a secured resource
+      tags:
+        - secure
+        - apikey
+      responses:
+        '200':
+          description: OK
+      operationId: secure-apikey-header
+      security:
+        - API Key - Header: []
+      description: Requests a resource which requires an API key in a header.
+  /api/secure/apikey-query/get:
+    get:
+      summary: Get a secured resource
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: secure-apikey-query
+      security:
+        - API Key - Query: []
+      description: Requests a resource which requires an API key in a query string.
 components:
   schemas:
     User:
@@ -538,15 +566,6 @@ components:
           name: Petra The African Gray Parrot
           email: petra@afri.ca
   securitySchemes:
-    API Key - Query:
-      name: apikey
-      type: apiKey
-      in: query
-    API Key - Header:
-      name: X-APIKey
-      type: apiKey
-      in: header
-      example: 0o1liloi1l0o1i0ol1il01oli10o0l1liolli0o1i0lliol1l1oiio0
     HTTP Basic:
       type: http
       scheme: basic
@@ -557,38 +576,18 @@ components:
     HTTP Bearer:
       type: http
       scheme: bearer
-    HTTP HOBA:
-      type: http
-      scheme: hoba
-    API Key - 1:
-      type: http
-      scheme: mutual
-    API Key - 2:
-      type: http
-      scheme: negotiate
-    API Key - 3:
-      type: http
-      scheme: oauth
-    API Key - 4:
-      type: http
-      scheme: scram-sha-1
-    API Key - 5:
-      type: http
-      scheme: scram-sha-256
-    API Key - 6:
-      type: http
-      scheme: vapid
-    OAuth2:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: ''
-          refreshUrl: ''
-          scopes: {}
-        password:
-          tokenUrl: ''
-          refreshUrl: ''
-          scopes: {}
-    OpenID:
-      type: openIdConnect
-      openIdConnectUrl: 'https://foo.com'
+    API Key - Query:
+      name: key
+      type: apiKey
+      in: query
+      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
+    API Key - Header:
+      name: x-api-key
+      type: apiKey
+      in: header
+      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
+    API Key - Cookie:
+      name: api_key
+      type: apiKey
+      in: cookie
+      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
