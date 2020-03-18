@@ -13,7 +13,8 @@ import (
 )
 
 // Operation performs a test of an operation by requesting a path
-// and validating thereceived response headers & content.
+// and validating the received response headers & content against
+// the definitions founds in an OAS spec file.
 type Operation struct {
 	Log       log.ILogger
 	Host      *api.Host
@@ -25,6 +26,7 @@ type Operation struct {
 func (test Operation) Run(requestContentType string, responseStatus int, responseContentType string) bool {
 	test.Log.TestingOperation(test.Operation)
 
+	// Creating a request.
 	client := http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -32,6 +34,7 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 	}
 	req := test.createRequest(requestContentType)
 
+	// Applying a security.
 	if test.Operation.Security != nil {
 		test.Log.UsingSecurity(test.Operation.Security)
 		security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
@@ -39,6 +42,7 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 
 	test.Log.Requesting(req.URL.String())
 
+	// Requesting.
 	response, err := client.Do(req)
 
 	if err != nil {
@@ -46,13 +50,14 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 		return false
 	}
 
+	// Getting the response spec.
 	apiResp := test.getResponse(responseStatus, responseContentType)
 	if apiResp == nil {
 		test.Log.ResponseNotFound(responseContentType, responseStatus)
 		return false
 	}
 
-	//	Testing the response.
+	//	Testing the response against the spec.
 	tResp := NewResponse(apiResp, test.Log)
 	return tResp.Test(response)
 }
@@ -71,6 +76,8 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 	return nil, ""
 }
 
+// createRequest creates a Request instace and configures it with
+// needed headers & a request body.
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
 
@@ -91,6 +98,7 @@ func (test Operation) createRequest(CT string) *http.Request {
 				fmt.Printf("\tUsing the \"%s\" example (from operation) as request data.\n", specReqExampleName)
 				reqBody = bytes.NewBuffer(specReqExample)
 			} else if specReq.Schema != nil {
+				// Then in the request schema, if present.
 				specReqExample, specReqExampleName := test.pickExample(specReq.Schema.Examples)
 				if specReqExample != nil {
 					fmt.Printf("\tUsing the \"%s\" example (from schema) as request data.\n", specReqExampleName)
@@ -103,6 +111,7 @@ func (test Operation) createRequest(CT string) *http.Request {
 			if reqBody != nil {
 				req, _ = http.NewRequest(test.Operation.Method, URL, reqBody)
 			} else {
+				//TODO: check the op method name to see if body is necessary?..
 				fmt.Printf("\tNo request body is available.\n")
 				req, _ = http.NewRequest(test.Operation.Method, URL, nil)
 			}
@@ -118,6 +127,9 @@ func (test Operation) createRequest(CT string) *http.Request {
 	return nil
 }
 
+// createURL creates a fully qualified URL by joining
+// the server host name with an operation path
+// and replaceing path parameters with actual values from `example`.
 func (test Operation) createURL() string {
 	path := test.Operation.Path.Path
 
@@ -146,6 +158,7 @@ func (test Operation) createURL() string {
 	return fmt.Sprintf("%s%s", test.Host.URL, path)
 }
 
+// getResponse finds a response spec object to validate an actual response against.
 func (test Operation) getResponse(status int, CT string) *api.Response {
 	filterCT := func(apiResp api.Response) bool {
 		return apiResp.ContentType == CT

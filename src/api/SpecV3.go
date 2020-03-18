@@ -332,7 +332,7 @@ func (spec SpecV3) resolveShemaRef(ymlSchemaRef string) string {
 	return ymlSchemaName
 }
 
-// GetOperations -
+// GetOperations returns a list of all the operations available in the spec file.
 func (spec SpecV3) GetOperations() []Operation {
 	specOps := []Operation{}
 

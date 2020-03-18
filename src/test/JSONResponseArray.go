@@ -10,21 +10,23 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// JSONResponseArray --
+// JSONResponseArray represents an array JSON response.
 type JSONResponseArray struct {
 	Log         log.ILogger
 	APIResponse *api.Response
 }
 
-// Test tests.
+// Test attempts to unmarshal a response body as a JSON array
+// and validate it's items.
 func (test JSONResponseArray) Test(response *http.Response) bool {
+	// Testing the basic HTTP response props first.
 	HTTPOK := HTTPResponse{
 		Log:         test.Log,
 		APIResponse: test.APIResponse,
 	}.Test(response)
-	responseBody, _ := ioutil.ReadAll(response.Body)
 
 	if HTTPOK {
+		responseBody, _ := ioutil.ReadAll(response.Body)
 		var mJSON []interface{}
 		errJSON := json.Unmarshal(responseBody, &mJSON)
 

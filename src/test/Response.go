@@ -19,7 +19,7 @@ type IResponse interface {
 // Aggregate types use api.Schema to validate their contents against.
 type IJSONResponse interface{}
 
-// HTTPResponse --
+// HTTPResponse tests basic response properties, such as status code & headers.
 type HTTPResponse struct {
 	Log         log.ILogger
 	APIResponse *api.Response

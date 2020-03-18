@@ -10,7 +10,7 @@ import (
 	"github.com/x1n13y84issmd42/goasis/src/utility"
 )
 
-// JSONResponseObject --
+// JSONResponseObject represents a JSON object response.
 type JSONResponseObject struct {
 	Log         log.ILogger
 	APIResponse *api.Response
@@ -19,8 +19,10 @@ type JSONResponseObject struct {
 // JSONMap is a map to unmarshal JSONs into.
 type JSONMap = map[string]interface{}
 
-// Test tests.
+// Test attempts to unmarshal a response body as a JSON array
+// and validate it's items.
 func (test JSONResponseObject) Test(response *http.Response) bool {
+	// Testing the basic HTTP response props first.
 	HTTPOK := HTTPResponse{
 		Log:         test.Log,
 		APIResponse: test.APIResponse,
