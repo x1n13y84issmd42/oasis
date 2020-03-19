@@ -633,6 +633,50 @@ paths:
                   - prop_p1
                   - prop_p2
     parameters: []
+  /api/public/meta/headers/echo/body:
+    get:
+      summary: Echo headers to body
+      tags:
+        - metadata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prop_header:
+                    type: string
+                  prop_armer:
+                    type: integer
+                  prop_legger:
+                    type: string
+                required:
+                  - prop_header
+                  - prop_armer
+      operationId: meta-headers-echo-body
+      description: Echoes all the incoming headers in response as a JSON object properties.
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: x-header
+          required: true
+          description: A required string header.
+          example: "(-_-)"
+        - schema:
+            type: integer
+          in: header
+          name: x-armer
+          required: true
+          description: A required integer header.
+          example: "9060"
+        - schema:
+            type: boolean
+          in: header
+          name: x-legger
+          description: An optional boolean header.
 components:
   schemas:
     User:

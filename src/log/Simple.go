@@ -158,12 +158,12 @@ func (log Simple) UsingSecurity(sec *api.Security) {
 
 // ParameterHasNoExample --
 func (log Simple) ParameterHasNoExample(param *api.Parameter, container string) {
-	fmt.Printf("\tThe %s parameter \"%s\" has no example value to use.\n", container, param.Name)
+	fmt.Printf("\tThe %s parameter \"%s\" (from %s) has no example value to use.\n", param.In, param.Name, container)
 }
 
 // UsingParameterExample --
 func (log Simple) UsingParameterExample(param *api.Parameter, container string) {
-	fmt.Printf("\tUsing the %s parameter \"%s\" example.\n", container, param.Name)
+	fmt.Printf("\tUsing the %s parameter \"%s\" (from %s) example.\n", param.In, param.Name, container)
 }
 
 // PropertyHasNoValue --

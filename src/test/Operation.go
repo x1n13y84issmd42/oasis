@@ -127,6 +127,7 @@ func (test Operation) createRequest(CT string) *http.Request {
 	req.Header.Add("Content-Type", CT)
 
 	test.addQueryParameters(req)
+	test.addHeaders(req)
 
 	return req
 }
@@ -158,12 +159,49 @@ func (test Operation) addQueryParameters(req *http.Request) {
 
 			if hasExample {
 				q.Add(specP.Name, reqParamValue)
-				fmt.Printf("\tAdded a \"%s\" header '%s'.\n", specP.Name, reqParamValue)
+				fmt.Printf("\tAdded a \"%s\" query parameter \"%s\".\n", specP.Name, reqParamValue)
 			} else {
 				test.Log.ParameterHasNoExample(&specP, container)
 			}
 		}
 		req.URL.RawQuery = q.Encode()
+	}
+
+	useParameters(test.Operation.Parameters, "operation")
+	useParameters(test.Operation.Path.Parameters, "path")
+}
+
+func (test Operation) addHeaders(req *http.Request) {
+	useParameters := func(specParams []api.Parameter, container string) {
+		for _, specP := range specParams {
+			if specP.In != api.ParameterLocationHeader {
+				continue
+			}
+
+			if !specP.Required {
+				continue
+			}
+
+			var reqHeaderValue string
+			hasExample := false
+			if specP.Example != "" {
+				reqHeaderValue = specP.Example
+				hasExample = true
+			} else if specP.Schema != nil {
+				bytes, _ := test.pickExample(specP.Schema.Examples)
+				if bytes != nil {
+					reqHeaderValue = string(bytes)
+					hasExample = true
+				}
+			}
+
+			if hasExample {
+				req.Header.Add(specP.Name, reqHeaderValue)
+				fmt.Printf("\tAdded a \"%s\" header \"%s\".\n", specP.Name, reqHeaderValue)
+			} else {
+				test.Log.ParameterHasNoExample(&specP, container)
+			}
+		}
 	}
 
 	useParameters(test.Operation.Parameters, "operation")
