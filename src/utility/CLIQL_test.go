@@ -79,9 +79,9 @@ func ExpectString(t *testing.T, actual *string, expected string, msg string) Exp
 	return func() bool {
 		res := *actual == expected
 		if !res {
-			t.Errorf("FAILED %s", msg)
-			t.Errorf("       Expected %s", expected)
-			t.Errorf("       Actual %s", *actual)
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %s\n", expected)
+			t.Errorf("       Actual %s\n", *actual)
 		}
 		return res
 	}
@@ -91,9 +91,9 @@ func ExpectBool(t *testing.T, actual *bool, expected bool, msg string) Expectati
 	return func() bool {
 		res := *actual == expected
 		if !res {
-			t.Errorf("FAILED %s", msg)
-			t.Errorf("       Expected %#v", expected)
-			t.Errorf("       Actual %#v", *actual)
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %#v\n", expected)
+			t.Errorf("       Actual %#v\n", *actual)
 		}
 		return res
 	}
@@ -103,9 +103,28 @@ func ExpectInt64(t *testing.T, actual *int64, expected int64, msg string) Expect
 	return func() bool {
 		res := *actual == expected
 		if !res {
-			t.Errorf("FAILED %s", msg)
-			t.Errorf("       Expected %d", expected)
-			t.Errorf("       Actual %d", *actual)
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %d\n", expected)
+			t.Errorf("       Actual %d\n", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectStringSlice(t *testing.T, actual *[]string, expected []string, msg string) Expectation {
+	return func() bool {
+		res := len(*actual) == len(expected)
+
+		if res {
+			for aI, a := range *actual {
+				res = (a == expected[aI])
+			}
+		}
+
+		if !res {
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %#v\n", expected)
+			t.Errorf("       Actual %#v\n", *actual)
 		}
 		return res
 	}
@@ -277,6 +296,38 @@ func TestCaptureInt64(t *testing.T) {
 			Expect: []Expectation{
 				ExpectInt64(t, &v, 42, "Expected the '42' int64 value to get captured."),
 			},
+		},
+	})
+}
+
+func TestCaptureStringSlice(t *testing.T) {
+	var v []string
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *CLIQLParser {
+				return CLIQL().Flag("things").CaptureStringSlice(&v)
+			},
+			Args:        []string{"things", "item,object,gizmo,article"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectStringSlice(t, &v, []string{
+					"item",
+					"object",
+					"gizmo",
+					"article",
+				}, "Expected the '42' int64 value to get captured."),
+			},
+		},
+
+		TestInput{
+			Init: func() *CLIQLParser {
+				return CLIQL().Flag("things").CaptureStringSlice(&v)
+			},
+			Args:        []string{"things"},
+			ExpComplete: false,
+			ExpProgress: 1,
 		},
 	})
 }

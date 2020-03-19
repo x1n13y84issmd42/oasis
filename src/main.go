@@ -15,7 +15,8 @@ func main() {
 	var inSpec string
 	var inScript string
 	var inHost string
-	var inOp string
+	// var inOp string
+	var inOps []string
 	var useCT string = "*"
 	var useSecurity string
 	var expCT string = "*"
@@ -23,7 +24,8 @@ func main() {
 
 	expExecute := utility.CLIQL().Flag("execute").Capture(&inScript)
 	expFrom := utility.CLIQL().Flag("from").Capture(&inSpec)
-	expTest := utility.CLIQL().Flag("test").Capture(&inOp)
+	expTest := utility.CLIQL().Flag("test").CaptureStringSlice(&inOps)
+	// expTest := utility.CLIQL().Flag("test").Capture(&inOp)
 	expHost := utility.CLIQL().Flag("@").Capture(&inHost)
 
 	expUse := utility.CLIQL().Flag("use").Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
@@ -57,8 +59,17 @@ func main() {
 				Log:  log.Simple{},
 			}
 
-			testResult := runner.Test(inHost, inOp, useCT, int(expStatus), expCT)
-			if !testResult {
+			runner.Log.TestingProject(spec.GetProjectInfo())
+
+			if hostOK := runner.UseHost(inHost); hostOK {
+				testResult := true
+				for _, inOp := range inOps {
+					testResult = runner.Test(inOp, useCT, int(expStatus), expCT) && testResult
+				}
+				if !testResult {
+					os.Exit(255)
+				}
+			} else {
 				os.Exit(255)
 			}
 		} else {

@@ -17,12 +17,23 @@ Work in progress.
 - [Security Object Schema](#security-object-schema)
 
 ## Usage
-Goasis can be used either in manual mode, which allows to test one opration at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
+Goasis can be used either in manual mode, which allows to test few operations at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
 
 ### Manual mode
-`goasis from spec/oasis.yaml test list-visits`
+`go run src/main.go from spec/oasis.yaml test secure-apikey-cookie,meta-query-echo-body,meta-query-echo-headers,meta-headers-echo-body`
 
 `goasis from spec/oasis.yaml test meta-number-fail expect status 200 CT "*"`
+
+#### Arguments
+Argument|Example|Description
+-|-|-
+`from [SPECFILE]`|`from spec/petstore.yml`|Specifies the OAS spec file to use
+`test [OPLIST]`|`test op1,op_two_,op_iii`|Specifies a comma-separated list of operations you want to test. Both operation IDs & names work.
+`use`|See below.|Specifies how you want your requests to be configured.
+`use security [NAME]`|`use security "APIKey - Header"`|Specifies which security scheme you want to use. This allows you to choose a security scheme when there are multiple defined for an operation.
+`expect`|See below.|Specifies you expectations as for the operation outcome, such as response status & content type. The values from here will be used to select a proper `Response` from the OAS spec.
+`expect CT [CT_NAME]`|`expect CT application/json`<br/>`expect CT "*"`|Makes Oasis choose a spec `Response` with the specified Content-Type. Asterisk means "use the first one in the spec", and is default dehavior.
+`expect status [STATUS_CODE]`|`expect status 201`|Makes Oasis choose a spec `Response` with the specified response status code.
 
 ### Script mode
 Coming soon.

@@ -54,7 +54,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/x1n13y84issmd42/goasis/src/utility/CLIQL.go (98.6%)</option>
+				<option value="file0">github.com/x1n13y84issmd42/goasis/src/utility/CLIQL.go (98.7%)</option>
 				
 				<option value="file1">github.com/x1n13y84issmd42/goasis/src/utility/Context.go (0.0%)</option>
 				
@@ -74,6 +74,7 @@
 
 import (
         "strconv"
+        "strings"
 )
 
 // CLIQLArgs is a pair of argument list and an index of a current argument.
@@ -82,12 +83,14 @@ type CLIQLArgs struct {
         I    int
 }
 
+// Clone creates a new CLIQLArgs instance which contains only unparsed items from args.
 func (args *CLIQLArgs) Clone() *CLIQLArgs <span class="cov8" title="1">{
         return &amp;CLIQLArgs{
                 Args: args.Tail(),
         }
 }</span>
 
+// Tail return a slice of unparsed items from args.
 func (args *CLIQLArgs) Tail() []string <span class="cov8" title="1">{
         if args.I &gt;= len(args.Args) </span><span class="cov0" title="0">{
                 return []string{}
@@ -96,6 +99,7 @@ func (args *CLIQLArgs) Tail() []string <span class="cov8" title="1">{
         <span class="cov8" title="1">return args.Args[args.I:]</span>
 }
 
+// Get returns the current argument.
 func (args *CLIQLArgs) Get() string <span class="cov8" title="1">{
         if args.I &gt;= len(args.Args) </span><span class="cov8" title="1">{
                 return ""
@@ -104,18 +108,23 @@ func (args *CLIQLArgs) Get() string <span class="cov8" title="1">{
         <span class="cov8" title="1">return args.Args[args.I]</span>
 }
 
+// Len returns length of the internal slice.
 func (args *CLIQLArgs) Len() int <span class="cov8" title="1">{
         return len(args.Args)
 }</span>
 
+// Left returns the number of items left unparsed yet.
 func (args *CLIQLArgs) Left() int <span class="cov8" title="1">{
         return len(args.Args) - args.I
 }</span>
 
-func (args *CLIQLArgs) Add(v int) <span class="cov8" title="1">{
+// Shift shifts the internal pointer so it points to the next item to parse.
+func (args *CLIQLArgs) Shift(v int) <span class="cov8" title="1">{
         args.I += v
 }</span>
 
+// ExpressionParser is a single parser function.
+// CLIQLParser instances contain multiple of these.
 type ExpressionParser func(*CLIQLArgs) bool
 
 // CLIQLParser is a parser for a CLI Query language.
@@ -141,7 +150,7 @@ func CLIQLn(n string) *CLIQLParser <span class="cov8" title="1">{
         }
 }</span>
 
-// Parse --
+// Parse starts the parsing process.
 func (cliql *CLIQLParser) Parse(args []string) *CLIQLParser <span class="cov8" title="1">{
         return cliql.actualParse(&amp;CLIQLArgs{Args: args})
 }</span>
@@ -176,12 +185,12 @@ func (cliql *CLIQLParser) actualParse(args *CLIQLArgs) *CLIQLParser <span class=
         <span class="cov8" title="1">return cliql</span>
 }
 
-// Flag --
+// Flag parses a single string value.
 func (cliql *CLIQLParser) Flag(f string) *CLIQLParser <span class="cov8" title="1">{
         cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
                 res := f == args.Get()
                 if res </span><span class="cov8" title="1">{
-                        args.Add(1)
+                        args.Shift(1)
                 }</span>
                 <span class="cov8" title="1">return res</span>
         })
@@ -192,7 +201,7 @@ func (cliql *CLIQLParser) Flag(f string) *CLIQLParser <span class="cov8" title="
 func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser <span class="cov8" title="1">{
         cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
                 *v = args.Get()
-                args.Add(1)
+                args.Shift(1)
                 return true
         }</span>)
         <span class="cov8" title="1">return cliql</span>
@@ -205,22 +214,23 @@ func (cliql *CLIQLParser) CaptureInt64(v *int64) *CLIQLParser <span class="cov8"
                 i, ierr := strconv.ParseInt(args.Get(), 10, 64)
                 if ierr == nil </span><span class="cov8" title="1">{
                         *v = i
-                        args.Add(1)
+                        args.Shift(1)
                 }</span>
                 <span class="cov8" title="1">return true</span>
         })
         <span class="cov8" title="1">return cliql</span>
 }
 
-// Any --
-func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser <span class="cov8" title="1">{
+// CaptureStringSlice tries to parse the current item as a list of string values
+// and store the result in the provided string slice pointer.
+func (cliql *CLIQLParser) CaptureStringSlice(v *[]string) *CLIQLParser <span class="cov8" title="1">{
         cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
-
-                for _, parser := range parsers </span><span class="cov8" title="1">{
-                        args2 := args.Clone()
-                        parser.actualParse(args2)
-                        if parser.Complete </span><span class="cov8" title="1">{
-                                args.Add(args2.I)
+                arg := args.Get()
+                if arg != "" </span><span class="cov8" title="1">{
+                        values := strings.Split(arg, ",")
+                        if len(values) &gt; 0 </span><span class="cov8" title="1">{
+                                *v = values
+                                args.Shift(1)
                                 return true
                         }</span>
                 }
@@ -230,7 +240,25 @@ func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser <span class="
         <span class="cov8" title="1">return cliql</span>
 }
 
-// Repeat --
+// Any attempts to execute one parser from the supplied list of parsers.
+func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser <span class="cov8" title="1">{
+        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+
+                for _, parser := range parsers </span><span class="cov8" title="1">{
+                        args2 := args.Clone()
+                        parser.actualParse(args2)
+                        if parser.Complete </span><span class="cov8" title="1">{
+                                args.Shift(args2.I)
+                                return true
+                        }</span>
+                }
+
+                <span class="cov8" title="1">return false</span>
+        })
+        <span class="cov8" title="1">return cliql</span>
+}
+
+// Repeat tries to execute the supplied parser at least min &amp; at most max times.
 func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQLParser <span class="cov8" title="1">{
         cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
                 complete := uint(0)
@@ -247,7 +275,7 @@ func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQL
                 <span class="cov8" title="1">res := complete &gt;= min &amp;&amp; complete &lt;= max
 
                 if res </span><span class="cov8" title="1">{
-                        args.Add(args2.I)
+                        args.Shift(args2.I)
                 }</span>
 
                 <span class="cov8" title="1">return res</span>
@@ -270,6 +298,7 @@ type Context struct {
         V    interface{}
 }
 
+// NewContext creates a new COntext instance.
 func NewContext(n string) *Context <span class="cov0" title="0">{
         return &amp;Context{
                 Path: []string{n},
@@ -286,6 +315,7 @@ func (ctx Context) PushProperty(s string, v interface{}) *Context <span class="c
         return &amp;Context{append(ctx.Path, fmt.Sprintf(".%s", s)), v}
 }</span>
 
+// String returns a string representation of ctx.
 func (ctx Context) String() string <span class="cov0" title="0">{
         return strings.Join(ctx.Path, "")
 }</span>

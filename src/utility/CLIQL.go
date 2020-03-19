@@ -2,6 +2,7 @@ package utility
 
 import (
 	"strconv"
+	"strings"
 )
 
 // CLIQLArgs is a pair of argument list and an index of a current argument.
@@ -10,12 +11,14 @@ type CLIQLArgs struct {
 	I    int
 }
 
+// Clone creates a new CLIQLArgs instance which contains only unparsed items from args.
 func (args *CLIQLArgs) Clone() *CLIQLArgs {
 	return &CLIQLArgs{
 		Args: args.Tail(),
 	}
 }
 
+// Tail return a slice of unparsed items from args.
 func (args *CLIQLArgs) Tail() []string {
 	if args.I >= len(args.Args) {
 		return []string{}
@@ -24,6 +27,7 @@ func (args *CLIQLArgs) Tail() []string {
 	return args.Args[args.I:]
 }
 
+// Get returns the current argument.
 func (args *CLIQLArgs) Get() string {
 	if args.I >= len(args.Args) {
 		return ""
@@ -32,18 +36,23 @@ func (args *CLIQLArgs) Get() string {
 	return args.Args[args.I]
 }
 
+// Len returns length of the internal slice.
 func (args *CLIQLArgs) Len() int {
 	return len(args.Args)
 }
 
+// Left returns the number of items left unparsed yet.
 func (args *CLIQLArgs) Left() int {
 	return len(args.Args) - args.I
 }
 
-func (args *CLIQLArgs) Add(v int) {
+// Shift shifts the internal pointer so it points to the next item to parse.
+func (args *CLIQLArgs) Shift(v int) {
 	args.I += v
 }
 
+// ExpressionParser is a single parser function.
+// CLIQLParser instances contain multiple of these.
 type ExpressionParser func(*CLIQLArgs) bool
 
 // CLIQLParser is a parser for a CLI Query language.
@@ -69,7 +78,7 @@ func CLIQLn(n string) *CLIQLParser {
 	}
 }
 
-// Parse --
+// Parse starts the parsing process.
 func (cliql *CLIQLParser) Parse(args []string) *CLIQLParser {
 	return cliql.actualParse(&CLIQLArgs{Args: args})
 }
@@ -104,12 +113,12 @@ func (cliql *CLIQLParser) actualParse(args *CLIQLArgs) *CLIQLParser {
 	return cliql
 }
 
-// Flag --
+// Flag parses a single string value.
 func (cliql *CLIQLParser) Flag(f string) *CLIQLParser {
 	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
 		res := f == args.Get()
 		if res {
-			args.Add(1)
+			args.Shift(1)
 		}
 		return res
 	})
@@ -120,7 +129,7 @@ func (cliql *CLIQLParser) Flag(f string) *CLIQLParser {
 func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser {
 	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
 		*v = args.Get()
-		args.Add(1)
+		args.Shift(1)
 		return true
 	})
 	return cliql
@@ -133,22 +142,23 @@ func (cliql *CLIQLParser) CaptureInt64(v *int64) *CLIQLParser {
 		i, ierr := strconv.ParseInt(args.Get(), 10, 64)
 		if ierr == nil {
 			*v = i
-			args.Add(1)
+			args.Shift(1)
 		}
 		return true
 	})
 	return cliql
 }
 
-// Any --
-func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser {
+// CaptureStringSlice tries to parse the current item as a list of string values
+// and store the result in the provided string slice pointer.
+func (cliql *CLIQLParser) CaptureStringSlice(v *[]string) *CLIQLParser {
 	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
-
-		for _, parser := range parsers {
-			args2 := args.Clone()
-			parser.actualParse(args2)
-			if parser.Complete {
-				args.Add(args2.I)
+		arg := args.Get()
+		if arg != "" {
+			values := strings.Split(arg, ",")
+			if len(values) > 0 {
+				*v = values
+				args.Shift(1)
 				return true
 			}
 		}
@@ -158,7 +168,25 @@ func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser {
 	return cliql
 }
 
-// Repeat --
+// Any attempts to execute one parser from the supplied list of parsers.
+func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser {
+	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
+
+		for _, parser := range parsers {
+			args2 := args.Clone()
+			parser.actualParse(args2)
+			if parser.Complete {
+				args.Shift(args2.I)
+				return true
+			}
+		}
+
+		return false
+	})
+	return cliql
+}
+
+// Repeat tries to execute the supplied parser at least min & at most max times.
 func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQLParser {
 	cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool {
 		complete := uint(0)
@@ -175,7 +203,7 @@ func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQL
 		res := complete >= min && complete <= max
 
 		if res {
-			args.Add(args2.I)
+			args.Shift(args2.I)
 		}
 
 		return res

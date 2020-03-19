@@ -11,12 +11,12 @@ import (
 type Runner struct {
 	Spec api.Spec
 	Log  log.ILogger
+	Host *api.Host
 }
 
-// Test --
-func (runner Runner) Test(hostName string, operationName string, requestContentType string, responseStatus int, responseContentType string) bool {
-	runner.Log.TestingProject(runner.Spec.GetProjectInfo())
-
+// UseHost selects a host to use for test.
+// Empty hostName means using a first one in the list as default.
+func (runner *Runner) UseHost(hostName string) bool {
 	//	Figuring out the host name.
 	//	Empty string means default host.
 	var host *api.Host
@@ -35,6 +35,13 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 		return false
 	}
 
+	runner.Host = host
+
+	return true
+}
+
+// Test --
+func (runner *Runner) Test(operationName string, requestContentType string, responseStatus int, responseContentType string) bool {
 	//	Getting the tested operation from the spec.
 	operation := runner.Spec.GetOperation(operationName)
 	result := false
@@ -43,7 +50,7 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 		//	Operation test.
 		tOp := Operation{
 			runner.Log,
-			host,
+			runner.Host,
 			operation,
 		}
 		//	Running the op test.
@@ -57,7 +64,7 @@ func (runner Runner) Test(hostName string, operationName string, requestContentT
 	return result
 }
 
-func (runner Runner) printOperations() {
+func (runner *Runner) printOperations() {
 	fmt.Println("The following operations are available:")
 	for _, op := range runner.Spec.GetOperations() {
 		if op.ID != "" {

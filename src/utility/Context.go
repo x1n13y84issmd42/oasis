@@ -12,6 +12,7 @@ type Context struct {
 	V    interface{}
 }
 
+// NewContext creates a new COntext instance.
 func NewContext(n string) *Context {
 	return &Context{
 		Path: []string{n},
@@ -28,6 +29,7 @@ func (ctx Context) PushProperty(s string, v interface{}) *Context {
 	return &Context{append(ctx.Path, fmt.Sprintf(".%s", s)), v}
 }
 
+// String returns a string representation of ctx.
 func (ctx Context) String() string {
 	return strings.Join(ctx.Path, "")
 }
