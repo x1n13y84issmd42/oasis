@@ -27,6 +27,14 @@ func isstring(i interface{}) (s string) {
 	return
 }
 
+func isbool(i interface{}) (s bool) {
+	if i != nil {
+		s = i.(bool)
+	}
+
+	return
+}
+
 // SpecV3 provides access to the spec data V3
 type SpecV3 struct {
 	data imap
@@ -171,7 +179,8 @@ func (spec SpecV3) mapParameters(ymlParameters iarray) []Parameter {
 			Name:        isstring(ymlP["name"]),
 			In:          spec.mapParameterLocation(isstring(ymlP["in"])),
 			Description: isstring(ymlP["description"]),
-			Example:     isstring(ymlP["example"]),
+			Example:     isstring(ymlP["example"]), //TODO: examples can be numbers!
+			Required:    isbool(ymlP["required"]),
 		}
 
 		if ymlP["schema"] != nil {
@@ -189,7 +198,7 @@ func (spec SpecV3) makeHeader(ymlHeaderName string, ymlHeader imap) Header {
 		Name:        ymlHeaderName,
 		Schema:      spec.parseSchema(ymlHeaderName, ymlHeader["schema"].(imap)),
 		Description: ymlHeader["description"].(string),
-		Required:    ymlHeader["required"].(bool),
+		Required:    isbool(ymlHeader["required"]),
 		// Example: string,
 		// Value: string
 	}

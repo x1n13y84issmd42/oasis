@@ -15,7 +15,7 @@
 				"from",
 				"../spec/oasis.yaml",
 				"test",
-				"post-user-fail-status"
+				"meta-query-echo-headers"
 			]
 		},
 

@@ -66,6 +66,7 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 		jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
 
 		if jsonReqExampleErr == nil {
+			fmt.Printf("\tThe example \"%s\" value: '%s'\n", specReqExampleName, jsonReqExample)
 			return jsonReqExample, specReqExampleName
 		}
 
@@ -76,7 +77,7 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 }
 
 // createRequest creates a Request instance and configures it with
-// needed headers & a request body.
+// needed headers, params & a request body.
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
 
@@ -125,7 +126,48 @@ func (test Operation) createRequest(CT string) *http.Request {
 
 	req.Header.Add("Content-Type", CT)
 
+	test.addQueryParameters(req)
+
 	return req
+}
+
+func (test Operation) addQueryParameters(req *http.Request) {
+	useParameters := func(specParams []api.Parameter, container string) {
+		q := req.URL.Query()
+		for _, specP := range specParams {
+			if specP.In != api.ParameterLocationQuery {
+				continue
+			}
+
+			if !specP.Required {
+				continue
+			}
+
+			var reqParamValue string
+			hasExample := false
+			if specP.Example != "" {
+				reqParamValue = specP.Example
+				hasExample = true
+			} else if specP.Schema != nil {
+				bytes, _ := test.pickExample(specP.Schema.Examples)
+				if bytes != nil {
+					reqParamValue = string(bytes)
+					hasExample = true
+				}
+			}
+
+			if hasExample {
+				q.Add(specP.Name, reqParamValue)
+				fmt.Printf("\tAdded a \"%s\" header '%s'.\n", specP.Name, reqParamValue)
+			} else {
+				test.Log.ParameterHasNoExample(&specP, container)
+			}
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+
+	useParameters(test.Operation.Parameters, "operation")
+	useParameters(test.Operation.Path.Parameters, "path")
 }
 
 // createURL creates a fully qualified URL by joining

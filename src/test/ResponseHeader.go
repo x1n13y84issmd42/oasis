@@ -26,12 +26,13 @@ func NewResponseHeader(apiHdrs []api.Header, log log.ILogger) ResponseHeader {
 // and applies addition validation as per OAS spec.
 func (test ResponseHeader) Test(respHeaderValues []string) bool {
 	OK := true
+	requiredOK := true
 
 	for _, apiHeader := range test.APIHeaders {
 		// Testing the 'required'.
 		// It is considered valid if respHeaderValues is not empty.
 		if apiHeader.Required {
-			requiredOK := (len(respHeaderValues) > 0)
+			requiredOK = (len(respHeaderValues) > 0)
 
 			if !requiredOK {
 				test.Log.HeaderHasNoValue(&apiHeader)
@@ -41,10 +42,10 @@ func (test ResponseHeader) Test(respHeaderValues []string) bool {
 		}
 
 		// Testing the schema.
-		if apiHeader.Schema != nil {
-			schemaOK := false
+		if requiredOK && apiHeader.Schema != nil {
+			schemaOK := true
 			for _, respHeader := range respHeaderValues {
-				schemaOK = schemaOK || Schema{apiHeader.Schema, test.Log}.Test(respHeader, utility.NewContext("Header"))
+				schemaOK = Schema{apiHeader.Schema, test.Log}.Test(respHeader, utility.NewContext("Header")) && schemaOK
 			}
 
 			if !schemaOK {

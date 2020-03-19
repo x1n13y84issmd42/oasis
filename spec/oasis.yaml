@@ -281,6 +281,7 @@ paths:
         in: path
         required: true
         description: A user ID to retrieve (path level).
+        example: '123'
     post:
       summary: Create user
       operationId: post-user
@@ -541,6 +542,97 @@ paths:
       security:
         - API Key - Query: []
       description: Requests a resource which requires an API key in a query string.
+  /api/public/meta/query/echo/headers:
+    get:
+      summary: Echo query to headers
+      tags:
+        - metadata
+      responses:
+        '200':
+          description: OK
+          headers:
+            x-p1:
+              schema:
+                type: string
+              description: A string value from the p1 query parameter.
+              required: true
+            x-p2:
+              schema:
+                type: number
+              description: A numeric value from the p2 query parameter.
+              required: true
+            x-p3:
+              schema:
+                type: string
+              description: An optional tring value from the p3 query parameter.
+      operationId: meta-query-echo-headers
+      description: Echoes all the passed query parameters as response header values.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          required: true
+          name: p1
+          description: A required string parameter.
+          example: "totally tested"
+        - schema:
+            type: number
+          in: query
+          name: p2
+          description: A required number parameter.
+          required: true
+          example: '3.1415'
+        - schema:
+            type: string
+          in: query
+          name: p3
+          description: An optional string parameter.
+    parameters: []
+  /api/public/meta/query/echo/body:
+    get:
+      summary: Echo query to body
+      tags:
+        - metadata
+      operationId: meta-query-echo-body
+      description: Echoes all the passed query parameters as a JSON object in response body.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          required: true
+          name: p1
+          description: A required string parameter.
+          example: "totally tested"
+        - schema:
+            type: number
+          in: query
+          name: p2
+          description: A required number parameter.
+          required: true
+          example: '3.1415'
+        - schema:
+            type: number
+          in: query
+          name: p3
+          description: An optional string parameter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prop_p1:
+                    type: string
+                  prop_p2:
+                    type: number
+                  prop_p3:
+                    type: number
+                required:
+                  - prop_p1
+                  - prop_p2
+    parameters: []
 components:
   schemas:
     User:

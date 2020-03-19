@@ -28,7 +28,7 @@ func (test SchemaObject) Test(v interface{}, ctx *utility.Context) bool {
 		propCtx := ctx.PushProperty(apiProp.Name, respProp)
 		hasValue := respProp != nil
 		requiredOK := (apiProp.Required && hasValue) || !apiProp.Required
-		testOK := Schema{apiProp.Schema, test.Log}.Test(respProp, propCtx)
+		testOK := (requiredOK && hasValue && Schema{apiProp.Schema, test.Log}.Test(respProp, propCtx)) || true
 		OK = OK && requiredOK && testOK
 
 		if !requiredOK {

@@ -77,8 +77,8 @@ func (test HTTPResponse) Test(resp *http.Response) bool {
 	CTOK := (test.APIResponse.ContentType == "") || (test.APIResponse.ContentType == respCT)
 
 	headersOK := true
-	for apiHeaderName, apiHeaderValues := range test.APIResponse.Headers {
-		headersOK = headersOK && NewResponseHeader(apiHeaderValues, test.Log).Test(resp.Header.Values(apiHeaderName))
+	for specHeaderName, specHeaderValues := range test.APIResponse.Headers {
+		headersOK = NewResponseHeader(specHeaderValues, test.Log).Test(resp.Header.Values(specHeaderName)) && headersOK
 	}
 
 	if !statusOK {

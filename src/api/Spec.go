@@ -138,6 +138,7 @@ type Parameter struct {
 	Description string
 	Example     string
 	Schema      *Schema
+	Required    bool
 }
 
 // Path represents an operation path from OAS spec.
