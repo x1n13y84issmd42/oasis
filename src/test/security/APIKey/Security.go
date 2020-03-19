@@ -23,7 +23,10 @@ func (sec Security) Secure(req *http.Request) {
 	case api.ParameterLocationQuery:
 		Query{Log: sec.Log, APISecurity: *sec.APISecurity}.Secure(req)
 
+	case api.ParameterLocationCookie:
+		Cookie{Log: sec.Log, APISecurity: *sec.APISecurity}.Secure(req)
+
 	default:
-		fmt.Printf("Unknown API key location \"%s\"", sec.APISecurity.In)
+		fmt.Printf("\tUnknown API key location \"%s\"\n", sec.APISecurity.In)
 	}
 }

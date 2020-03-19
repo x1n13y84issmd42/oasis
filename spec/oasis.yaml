@@ -574,7 +574,7 @@ paths:
           required: true
           name: p1
           description: A required string parameter.
-          example: "totally tested"
+          example: totally tested
         - schema:
             type: number
           in: query
@@ -602,7 +602,7 @@ paths:
           required: true
           name: p1
           description: A required string parameter.
-          example: "totally tested"
+          example: totally tested
         - schema:
             type: number
           in: query
@@ -664,19 +664,31 @@ paths:
           name: x-header
           required: true
           description: A required string header.
-          example: "(-_-)"
+          example: (-_-)
         - schema:
             type: integer
           in: header
           name: x-armer
           required: true
           description: A required integer header.
-          example: "9060"
+          example: '9060'
         - schema:
             type: boolean
           in: header
           name: x-legger
           description: An optional boolean header.
+  /api/secure/apikey-cookie/get:
+    get:
+      summary: Get a secure resource
+      tags:
+        - secure
+      responses:
+        '200':
+          description: OK
+      operationId: secure-apikey-cookie
+      security:
+        - API Key - Cookie: []
+      description: Requests a resource which requires an API key in a cookie.
 components:
   schemas:
     User:
