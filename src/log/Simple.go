@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/utility"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // Simple - a simple test execution logger

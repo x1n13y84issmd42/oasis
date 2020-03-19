@@ -1,4 +1,4 @@
-# GOASIS
+# OASIS
 Open API Specification Intelligence Services. Or in a less fancy way, a tool to test APIs which uses OAS/Swagger spec files as a test suite.
 
 Work in progress.
@@ -17,12 +17,12 @@ Work in progress.
 - [Security Object Schema](#security-object-schema)
 
 ## Usage
-Goasis can be used either in manual mode, which allows to test few operations at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
+Oasis can be used either in manual mode, which allows to test few operations at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
 
 ### Manual mode
-`go run src/main.go from spec/oasis.yaml test secure-apikey-cookie,meta-query-echo-body,meta-query-echo-headers,meta-headers-echo-body`
+`oasis from spec/oasis.yaml test secure-apikey-cookie,meta-query-echo-body,meta-query-echo-headers,meta-headers-echo-body`
 
-`goasis from spec/oasis.yaml test meta-number-fail expect status 200 CT "*"`
+`oasis from spec/oasis.yaml test meta-number-fail expect status 200 CT "*"`
 
 #### Arguments
 Argument|Example|Description
@@ -42,7 +42,7 @@ Coming soon.
 It reads an OAS specification YML file, collects information about endpoints, request & response properties (path & query parameters, headers & request bodies), data & security schemas, makes requests to the API and validates responses.
 
 ### Operation request data
-In order to make make valid requests, Goasis uses example data where available for path & query parameters, request headers & request bodies.
+In order to make make valid requests, Oasis uses example data where available for path & query parameters, request headers & request bodies.
 
 Some components of the OAS spec have been extended with additional Oasis-specific example fields to gain more control over requests. See the [Schema extensions](#schema-extensions) part.
 

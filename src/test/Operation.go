@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
-	"github.com/x1n13y84issmd42/goasis/src/test/security"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/test/security"
 )
 
 // Operation performs a test of an operation by requesting a path

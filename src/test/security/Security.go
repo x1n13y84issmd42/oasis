@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
-	APIKey "github.com/x1n13y84issmd42/goasis/src/test/security/APIKey"
-	HTTP "github.com/x1n13y84issmd42/goasis/src/test/security/http"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
+	APIKey "github.com/x1n13y84issmd42/oasis/src/test/security/APIKey"
+	HTTP "github.com/x1n13y84issmd42/oasis/src/test/security/http"
 )
 
 // Security implements the OAS security mechanisms.

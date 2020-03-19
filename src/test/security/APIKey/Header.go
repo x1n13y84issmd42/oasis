@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 // Header represents an API token security which expects a token as a header value.

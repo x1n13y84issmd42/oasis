@@ -1,8 +1,8 @@
 package log
 
 import (
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/utility"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // ILogger - interface for execution loggers

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
-	"github.com/x1n13y84issmd42/goasis/src/test"
-	"github.com/x1n13y84issmd42/goasis/src/utility"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/test"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 func main() {
@@ -79,6 +79,6 @@ func main() {
 	} else {
 		fmt.Println("Please specify at least a spec file & an operation to test.")
 		fmt.Println("Example:")
-		fmt.Println("goasis from path/to/oas_spec.yaml test operation_id")
+		fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
 	}
 }

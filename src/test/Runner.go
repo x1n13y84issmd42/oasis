@@ -3,8 +3,8 @@ package test
 import (
 	"fmt"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 // Runner runs a test for a single operation

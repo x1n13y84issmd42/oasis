@@ -1,9 +1,9 @@
 package test
 
 import (
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
-	"github.com/x1n13y84issmd42/goasis/src/utility"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // SchemaString asserts that the provided data is a string.

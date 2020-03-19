@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/x1n13y84issmd42/goasis/src/api"
-	"github.com/x1n13y84issmd42/goasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 // IResponse is an interface for HTTP response testers.
