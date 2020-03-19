@@ -20,18 +20,18 @@ type SchemaBoolean struct {
 //			try to ParseBool() it
 //		2. a native value arrives (usually from a parsed JSON)
 //			just type cast it and see what happens
-func (test SchemaBoolean) Test(v interface{}, ctx *utility.Context) (isit bool) {
+func (test SchemaBoolean) Test(v interface{}, ctx *utility.Context) (isBool bool) {
 	sv, isstring := v.(string)
 	if isstring {
 		_, err := strconv.ParseBool(sv)
 		if err == nil {
-			isit = true
+			isBool = true
 		}
 	} else {
-		_, isit = v.(bool)
+		_, isBool = v.(bool)
 	}
 
-	if !isit {
+	if !isBool {
 		test.Log.SchemaExpectedBoolean(test.APISchema, v)
 	}
 

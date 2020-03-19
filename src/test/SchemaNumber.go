@@ -20,18 +20,18 @@ type SchemaNumber struct {
 //			try to ParseFloat() it
 //		2. a native value arrives (usually from a parsed JSON)
 //			just type cast it and see what happens
-func (test SchemaNumber) Test(v interface{}, ctx *utility.Context) (isit bool) {
+func (test SchemaNumber) Test(v interface{}, ctx *utility.Context) (isNumber bool) {
 	sv, isstring := v.(string)
 	if isstring {
 		_, err := strconv.ParseFloat(sv, 64)
 		if err == nil {
-			isit = true
+			isNumber = true
 		}
 	} else {
-		_, isit = v.(float64)
+		_, isNumber = v.(float64)
 	}
 
-	if !isit {
+	if !isNumber {
 		test.Log.SchemaExpectedNumber(test.APISchema, v)
 	}
 

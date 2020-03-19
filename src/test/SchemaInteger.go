@@ -20,18 +20,19 @@ type SchemaInteger struct {
 //			try to ParseInt() it
 //		2. a native value arrives (usually from a parsed JSON)
 //			just type cast it and see what happens
-func (test SchemaInteger) Test(v interface{}, ctx *utility.Context) (isit bool) {
-	sv, isstring := v.(string)
-	if isstring {
-		_, err := strconv.ParseInt(sv, 10, 64)
+func (test SchemaInteger) Test(v interface{}, ctx *utility.Context) (isInt bool) {
+	switch v.(type) {
+	case string:
+		_, err := strconv.ParseInt(v.(string), 10, 64)
 		if err == nil {
-			isit = true
+			isInt = true
 		}
-	} else {
-		_, isit = v.(int64)
+
+	default:
+		_, isInt = v.(int64)
 	}
 
-	if !isit {
+	if !isInt {
 		test.Log.SchemaExpectedInteger(test.APISchema, v)
 	}
 

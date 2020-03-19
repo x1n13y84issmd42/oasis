@@ -13,10 +13,10 @@ type SchemaString struct {
 }
 
 // Test tests.
-func (test SchemaString) Test(v interface{}, ctx *utility.Context) (isit bool) {
-	_, isit = v.(string)
+func (test SchemaString) Test(v interface{}, ctx *utility.Context) (isString bool) {
+	_, isString = v.(string)
 
-	if !isit {
+	if !isString {
 		test.Log.SchemaExpectedString(test.APISchema, v)
 	}
 
