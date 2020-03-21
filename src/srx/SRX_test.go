@@ -1,18 +1,18 @@
-package utility
+package srx
 
 import "testing"
 
-type CLIQLBuilder struct {
-	Parser *CLIQLParser
+type SRXBuilder struct {
+	Parser *SRX
 }
 
-func NewBuilder() *CLIQLBuilder {
-	return &CLIQLBuilder{
-		Parser: CLIQL(),
+func NewBuilder() *SRXBuilder {
+	return &SRXBuilder{
+		Parser: NewSRX(),
 	}
 }
 
-func (builder *CLIQLBuilder) SetFlags(flags []string) *CLIQLParser {
+func (builder *SRXBuilder) SetFlags(flags []string) *SRX {
 	for _, f := range flags {
 		builder.Parser.Flag(f)
 	}
@@ -64,7 +64,7 @@ func TestFlag(t *testing.T) {
 	}
 }
 
-type ParserCtor = func() *CLIQLParser
+type ParserCtor = func() *SRX
 type Expectation = func() bool
 
 type TestInput struct {
@@ -152,11 +152,11 @@ func genericTest(t *testing.T, inputs []TestInput) {
 	}
 }
 
-func TestAny(t *testing.T) {
-	parserCtor1 := func() *CLIQLParser {
-		return CLIQL().Any([]*CLIQLParser{
-			CLIQL().Flag("foo").Flag("bar").Flag("qeq"),
-			CLIQL().Flag("one").Flag("two").Flag("three").Flag("four"),
+func TestOneOf(t *testing.T) {
+	parserCtor1 := func() *SRX {
+		return OneOf([]*SRX{
+			Flag("foo").Flag("bar").Flag("qeq"),
+			Flag("one").Flag("two").Flag("three").Flag("four"),
 		})
 	}
 
@@ -206,14 +206,14 @@ func TestAny(t *testing.T) {
 }
 
 func TestRepeat(t *testing.T) {
-	ctor1 := func() *CLIQLParser {
-		return CLIQL().Repeat(CLIQL().Flag("yolo"), 0, 1)
+	ctor1 := func() *SRX {
+		return Repeat(Flag("yolo"), 0, 1)
 	}
 
-	ctor2 := func() *CLIQLParser {
-		return CLIQLn("repeat").Repeat(CLIQLn("any").Any([]*CLIQLParser{
-			CLIQLn("f00").Flag("f00"),
-			CLIQLn("b4r").Flag("b4r"),
+	ctor2 := func() *SRX {
+		return Repeat(OneOf([]*SRX{
+			Flag("f00"),
+			Flag("b4r"),
 		}), 3, 5)
 	}
 
@@ -264,13 +264,13 @@ func TestRepeat(t *testing.T) {
 	genericTest(t, inputs)
 }
 
-func TestCapture(t *testing.T) {
+func TestCaptureString(t *testing.T) {
 	var v string
 
 	genericTest(t, []TestInput{
 		TestInput{
-			Init: func() *CLIQLParser {
-				return CLIQL().Flag("yeet").Capture(&v)
+			Init: func() *SRX {
+				return Flag("yeet").CaptureString(&v)
 			},
 			Args:        []string{"yeet", "you"},
 			ExpComplete: true,
@@ -287,8 +287,8 @@ func TestCaptureInt64(t *testing.T) {
 
 	genericTest(t, []TestInput{
 		TestInput{
-			Init: func() *CLIQLParser {
-				return CLIQL().Flag("answer").CaptureInt64(&v)
+			Init: func() *SRX {
+				return Flag("answer").CaptureInt64(&v)
 			},
 			Args:        []string{"answer", "42"},
 			ExpComplete: true,
@@ -305,8 +305,8 @@ func TestCaptureStringSlice(t *testing.T) {
 
 	genericTest(t, []TestInput{
 		TestInput{
-			Init: func() *CLIQLParser {
-				return CLIQL().Flag("things").CaptureStringSlice(&v)
+			Init: func() *SRX {
+				return Flag("things").CaptureStringSlice(&v)
 			},
 			Args:        []string{"things", "item,object,gizmo,article"},
 			ExpComplete: true,
@@ -322,8 +322,8 @@ func TestCaptureStringSlice(t *testing.T) {
 		},
 
 		TestInput{
-			Init: func() *CLIQLParser {
-				return CLIQL().Flag("things").CaptureStringSlice(&v)
+			Init: func() *SRX {
+				return Flag("things").CaptureStringSlice(&v)
 			},
 			Args:        []string{"things"},
 			ExpComplete: false,

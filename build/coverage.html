@@ -54,9 +54,11 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/x1n13y84issmd42/oasis/src/utility/CLIQL.go (98.7%)</option>
+				<option value="file0">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/utility/Context.go (0.0%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/srx/Fns.go (50.0%)</option>
+				
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -70,28 +72,23 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">package utility
+		<pre class="file" id="file0" style="display: none">package srx
 
-import (
-        "strconv"
-        "strings"
-)
-
-// CLIQLArgs is a pair of argument list and an index of a current argument.
-type CLIQLArgs struct {
+// Cursor is a pair of argument list and an index of a current argument.
+type Cursor struct {
         Args []string
         I    int
 }
 
-// Clone creates a new CLIQLArgs instance which contains only unparsed items from args.
-func (args *CLIQLArgs) Clone() *CLIQLArgs <span class="cov8" title="1">{
-        return &amp;CLIQLArgs{
+// Clone creates a new Cursor instance which contains only unparsed items from args.
+func (args *Cursor) Clone() *Cursor <span class="cov8" title="1">{
+        return &amp;Cursor{
                 Args: args.Tail(),
         }
 }</span>
 
 // Tail return a slice of unparsed items from args.
-func (args *CLIQLArgs) Tail() []string <span class="cov8" title="1">{
+func (args *Cursor) Tail() []string <span class="cov8" title="1">{
         if args.I &gt;= len(args.Args) </span><span class="cov0" title="0">{
                 return []string{}
         }</span>
@@ -100,7 +97,7 @@ func (args *CLIQLArgs) Tail() []string <span class="cov8" title="1">{
 }
 
 // Get returns the current argument.
-func (args *CLIQLArgs) Get() string <span class="cov8" title="1">{
+func (args *Cursor) Get() string <span class="cov8" title="1">{
         if args.I &gt;= len(args.Args) </span><span class="cov8" title="1">{
                 return ""
         }</span>
@@ -109,163 +106,203 @@ func (args *CLIQLArgs) Get() string <span class="cov8" title="1">{
 }
 
 // Len returns length of the internal slice.
-func (args *CLIQLArgs) Len() int <span class="cov8" title="1">{
+func (args *Cursor) Len() int <span class="cov8" title="1">{
         return len(args.Args)
 }</span>
 
 // Left returns the number of items left unparsed yet.
-func (args *CLIQLArgs) Left() int <span class="cov8" title="1">{
+func (args *Cursor) Left() int <span class="cov8" title="1">{
         return len(args.Args) - args.I
 }</span>
 
 // Shift shifts the internal pointer so it points to the next item to parse.
-func (args *CLIQLArgs) Shift(v int) <span class="cov8" title="1">{
+func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
         args.I += v
 }</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package srx
 
-// ExpressionParser is a single parser function.
-// CLIQLParser instances contain multiple of these.
-type ExpressionParser func(*CLIQLArgs) bool
-
-// CLIQLParser is a parser for a CLI Query language.
-type CLIQLParser struct {
-        ExpressionParsers []ExpressionParser
-        Progress          int
-        Complete          bool
-        L                 string
-}
-
-// CLIQL creates a new CLIQLParser instance.
-func CLIQL() *CLIQLParser <span class="cov8" title="1">{
-        return &amp;CLIQLParser{
-                ExpressionParsers: []ExpressionParser{},
-        }
+// Flag is a shorthand function to create a Flag() expression.
+func Flag(f string) *SRX <span class="cov8" title="1">{
+        return NewSRX().Flag(f)
 }</span>
 
-// CLIQLn creates a new CLIQLParser instance.
-func CLIQLn(n string) *CLIQLParser <span class="cov8" title="1">{
-        return &amp;CLIQLParser{
-                ExpressionParsers: []ExpressionParser{},
-                L:                 n,
+// CaptureString is a shorthand function to create a CaptureString() expression.
+func CaptureString(v *string) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureString(v)
+}</span>
+
+// CaptureInt64 is a shorthand function to create a CaptureInt64() expression.
+func CaptureInt64(v *int64) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureInt64(v)
+}</span>
+
+// CaptureStringSlice is a shorthand function to create a CaptureStringSlice() expression.
+func CaptureStringSlice(v *[]string) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureStringSlice(v)
+}</span>
+
+// OneOf is a shorthand function to create a OneOf() expression.
+func OneOf(parsers []*SRX) *SRX <span class="cov8" title="1">{
+        return NewSRX().OneOf(parsers)
+}</span>
+
+// Repeat is a shorthand function to create a Repeat() expression.
+func Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
+        return NewSRX().Repeat(parser, min, max)
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package srx
+
+import (
+        "strconv"
+        "strings"
+)
+
+// ExpressionFn is a single parser function.
+// SRX instances contain multiple of these.
+type ExpressionFn func(*Cursor) bool
+
+// SRX is regular expression on slices.
+// It allows to parse slices containing structured or patterned data and extract that.
+// For example, if you have a slice of strings:
+//                inputSlice := []string{"er", "er", "er", "er", "yolo", "1,2,3,4"}
+// you can make an expression for it:
+//                rx := srx.Repeat(srx.Flag("er"), 2, 200).CaptureString(&amp;theYoloString).CaptureStringSlice(&amp;the1234StringSlice)
+//                rx.Parse(inputSlice)
+// then you can parse your slice and, first, make sure it fits the pattern, and second extract the "yolo" string
+// and a slice of "1", "2", "3" &amp; "4" strings.
+type SRX struct {
+        Expressions []ExpressionFn
+        Progress    int
+        Complete    bool
+}
+
+// NewSRX creates a new SRX instance.
+func NewSRX() *SRX <span class="cov8" title="1">{
+        return &amp;SRX{
+                Expressions: []ExpressionFn{},
         }
 }</span>
 
 // Parse starts the parsing process.
-func (cliql *CLIQLParser) Parse(args []string) *CLIQLParser <span class="cov8" title="1">{
-        return cliql.actualParse(&amp;CLIQLArgs{Args: args})
+func (srx *SRX) Parse(args []string) *SRX <span class="cov8" title="1">{
+        return srx.actualParse(&amp;Cursor{Args: args})
 }</span>
 
-func (cliql *CLIQLParser) actualParse(args *CLIQLArgs) *CLIQLParser <span class="cov8" title="1">{
+func (srx *SRX) actualParse(cursor *Cursor) *SRX <span class="cov8" title="1">{
 
-        cliql.Complete = false
-        cliql.Progress = 0
+        srx.Complete = false
+        srx.Progress = 0
 
-        if args.Left() &lt;= 0 </span><span class="cov8" title="1">{
-                return cliql
+        if cursor.Left() &lt;= 0 </span><span class="cov8" title="1">{
+                return srx
         }</span>
 
         <span class="cov8" title="1">cpI := 0
-        curParser := cliql.ExpressionParsers[cpI]
+        curParser := srx.Expressions[cpI]
 
-        for curParser(args) </span><span class="cov8" title="1">{
+        for curParser(cursor) </span><span class="cov8" title="1">{
                 cpI++
-                cliql.Progress = args.I
-                if cpI &gt;= len(cliql.ExpressionParsers) </span><span class="cov8" title="1">{
-                        cliql.Complete = true
+                srx.Progress = cursor.I
+                if cpI &gt;= len(srx.Expressions) </span><span class="cov8" title="1">{
+                        srx.Complete = true
                         break</span>
                 }
 
-                <span class="cov8" title="1">if args.I &gt;= args.Len() </span>{<span class="cov8" title="1">
+                <span class="cov8" title="1">if cursor.I &gt;= cursor.Len() </span>{<span class="cov8" title="1">
                         // Consumed entire input.
                 }</span>
 
-                <span class="cov8" title="1">curParser = cliql.ExpressionParsers[cpI]</span>
+                <span class="cov8" title="1">curParser = srx.Expressions[cpI]</span>
         }
 
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
 // Flag parses a single string value.
-func (cliql *CLIQLParser) Flag(f string) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
-                res := f == args.Get()
+func (srx *SRX) Flag(f string) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                res := f == cursor.Get()
                 if res </span><span class="cov8" title="1">{
-                        args.Shift(1)
+                        cursor.Shift(1)
                 }</span>
                 <span class="cov8" title="1">return res</span>
         })
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
-// Capture stores the current item in the provided string pointer.
-func (cliql *CLIQLParser) Capture(v *string) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
-                *v = args.Get()
-                args.Shift(1)
+// CaptureString stores the current item in the provided string pointer.
+func (srx *SRX) CaptureString(v *string) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                *v = cursor.Get()
+                cursor.Shift(1)
                 return true
         }</span>)
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
 // CaptureInt64 tries to parse the current item as integer value
 // and store the result in the provided string pointer.
-func (cliql *CLIQLParser) CaptureInt64(v *int64) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
-                i, ierr := strconv.ParseInt(args.Get(), 10, 64)
+func (srx *SRX) CaptureInt64(v *int64) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                i, ierr := strconv.ParseInt(cursor.Get(), 10, 64)
                 if ierr == nil </span><span class="cov8" title="1">{
                         *v = i
-                        args.Shift(1)
+                        cursor.Shift(1)
                 }</span>
                 <span class="cov8" title="1">return true</span>
         })
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
 // CaptureStringSlice tries to parse the current item as a list of string values
 // and store the result in the provided string slice pointer.
-func (cliql *CLIQLParser) CaptureStringSlice(v *[]string) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
-                arg := args.Get()
-                if arg != "" </span><span class="cov8" title="1">{
-                        values := strings.Split(arg, ",")
+func (srx *SRX) CaptureStringSlice(v *[]string) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                item := cursor.Get()
+                if item != "" </span><span class="cov8" title="1">{
+                        values := strings.Split(item, ",")
                         if len(values) &gt; 0 </span><span class="cov8" title="1">{
                                 *v = values
-                                args.Shift(1)
+                                cursor.Shift(1)
                                 return true
                         }</span>
                 }
 
                 <span class="cov8" title="1">return false</span>
         })
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
-// Any attempts to execute one parser from the supplied list of parsers.
-func (cliql *CLIQLParser) Any(parsers []*CLIQLParser) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+// OneOf attempts to execute one parser from the supplied list of parsers.
+func (srx *SRX) OneOf(parsers []*SRX) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
 
                 for _, parser := range parsers </span><span class="cov8" title="1">{
-                        args2 := args.Clone()
-                        parser.actualParse(args2)
+                        cursor2 := cursor.Clone()
+                        parser.actualParse(cursor2)
                         if parser.Complete </span><span class="cov8" title="1">{
-                                args.Shift(args2.I)
+                                cursor.Shift(cursor2.I)
                                 return true
                         }</span>
                 }
 
                 <span class="cov8" title="1">return false</span>
         })
-        <span class="cov8" title="1">return cliql</span>
+        <span class="cov8" title="1">return srx</span>
 }
 
 // Repeat tries to execute the supplied parser at least min &amp; at most max times.
-func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQLParser <span class="cov8" title="1">{
-        cliql.ExpressionParsers = append(cliql.ExpressionParsers, func(args *CLIQLArgs) bool </span><span class="cov8" title="1">{
+func (srx *SRX) Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
                 complete := uint(0)
                 progress := 0
-                args2 := args.Clone()
+                cursor2 := cursor.Clone()
                 for i := uint(0); i &lt; max; i++ </span><span class="cov8" title="1">{
-                        parser.actualParse(args2)
+                        parser.actualParse(cursor2)
                         if parser.Complete </span><span class="cov8" title="1">{
                                 complete++
                                 progress += parser.Progress
@@ -275,59 +312,12 @@ func (cliql *CLIQLParser) Repeat(parser *CLIQLParser, min uint, max uint) *CLIQL
                 <span class="cov8" title="1">res := complete &gt;= min &amp;&amp; complete &lt;= max
 
                 if res </span><span class="cov8" title="1">{
-                        args.Shift(args2.I)
+                        cursor.Shift(cursor2.I)
                 }</span>
 
                 <span class="cov8" title="1">return res</span>
         })
-        <span class="cov8" title="1">return cliql</span>
-}
-</pre>
-		
-		<pre class="file" id="file1" style="display: none">package utility
-
-import (
-        "fmt"
-        "reflect"
-        "strings"
-)
-
-// Context represents the current path when validating nested data structures.
-type Context struct {
-        Path []string
-        V    interface{}
-}
-
-// NewContext creates a new COntext instance.
-func NewContext(n string) *Context <span class="cov0" title="0">{
-        return &amp;Context{
-                Path: []string{n},
-        }
-}</span>
-
-// PushIndex creates a new Context with an added array index value to the path.
-func (ctx Context) PushIndex(i int, v interface{}) *Context <span class="cov0" title="0">{
-        return &amp;Context{append(ctx.Path, fmt.Sprintf("[%d]", i)), v}
-}</span>
-
-// PushProperty creates a new Context with an added object property value to the path.
-func (ctx Context) PushProperty(s string, v interface{}) *Context <span class="cov0" title="0">{
-        return &amp;Context{append(ctx.Path, fmt.Sprintf(".%s", s)), v}
-}</span>
-
-// String returns a string representation of ctx.
-func (ctx Context) String() string <span class="cov0" title="0">{
-        return strings.Join(ctx.Path, "")
-}</span>
-
-// CurrentValueType return the underlying type of V.
-func (ctx Context) CurrentValueType() string <span class="cov0" title="0">{
-        if ctx.V != nil </span><span class="cov0" title="0">{
-                t := reflect.TypeOf(ctx.V)
-                return t.Name()
-        }</span>
-
-        <span class="cov0" title="0">return "null"</span>
+        <span class="cov8" title="1">return srx</span>
 }
 </pre>
 		

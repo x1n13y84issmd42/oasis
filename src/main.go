@@ -6,8 +6,8 @@ import (
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/srx"
 	"github.com/x1n13y84issmd42/oasis/src/test"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 func main() {
@@ -22,22 +22,21 @@ func main() {
 	var expCT string = "*"
 	var expStatus int64 = 0
 
-	expExecute := utility.CLIQL().Flag("execute").Capture(&inScript)
-	expFrom := utility.CLIQL().Flag("from").Capture(&inSpec)
-	expTest := utility.CLIQL().Flag("test").CaptureStringSlice(&inOps)
-	// expTest := utility.CLIQL().Flag("test").Capture(&inOp)
-	expHost := utility.CLIQL().Flag("@").Capture(&inHost)
+	expExecute := srx.Flag("execute").CaptureString(&inScript)
+	expFrom := srx.Flag("from").CaptureString(&inSpec)
+	expTest := srx.Flag("test").CaptureStringSlice(&inOps)
+	expHost := srx.Flag("@").CaptureString(&inHost)
 
-	expUse := utility.CLIQL().Flag("use").Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
-		utility.CLIQL().Flag("security").Capture(&useSecurity),
+	expUse := srx.Flag("use").Repeat(srx.OneOf([]*srx.SRX{
+		srx.Flag("security").CaptureString(&useSecurity),
 	}), 0, 1)
 
-	expExpect := utility.CLIQL().Flag("expect").Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
-		utility.CLIQL().Flag("CT").Capture(&expCT),
-		utility.CLIQL().Flag("status").CaptureInt64(&expStatus),
+	expExpect := srx.Flag("expect").Repeat(srx.OneOf([]*srx.SRX{
+		srx.Flag("CT").CaptureString(&expCT),
+		srx.Flag("status").CaptureInt64(&expStatus),
 	}), 0, 2)
 
-	utility.CLIQL().Repeat(utility.CLIQL().Any([]*utility.CLIQLParser{
+	srx.Repeat(srx.OneOf([]*srx.SRX{
 		expExecute,
 		expFrom,
 		expTest,
