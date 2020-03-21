@@ -2,6 +2,25 @@
 
 
 [[projects]]
+  digest = "1:7561f9ee6ad92bb3533286579dacc2d5aced91835358d39e2b69aa099ea5de2e"
+  name = "github.com/getkin/kin-openapi"
+  packages = [
+    "jsoninfo",
+    "openapi3",
+  ]
+  pruneopts = "UT"
+  revision = "989d00f2a3e831bd8fa14a4c2abd17a37d684f50"
+  version = "v0.3.0"
+
+[[projects]]
+  digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "github.com/go-yaml/yaml"
   packages = ["."]
@@ -9,9 +28,20 @@
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
   version = "v2.2.2"
 
+[[projects]]
+  digest = "1:55b110c99c5fdc4f14930747326acce56b52cfce60b24b1c03ef686ac0e46bb1"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "53403b58ad1b561927d19068c655246f2db79d48"
+  version = "v2.2.8"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/go-yaml/yaml"]
+  input-imports = [
+    "github.com/getkin/kin-openapi/openapi3",
+    "github.com/go-yaml/yaml",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
