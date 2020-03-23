@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"fmt"
 	"regexp"
@@ -511,3 +512,4 @@ func (spec SpecV3) parseArrayItems(name string, ymlSchemaM imap) *Schema {
 
 	return spec.parseSchema(name, ymlSchemaM["items"].(imap))
 }
+*/

@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 // Security implements the 'http' security type.
 type Security struct {
-	APISecurity *api.Security
+	APISecurity *openapi3.SecurityScheme
 	Log         log.ILogger
 }
 
@@ -37,15 +37,15 @@ type WWWAuthenticate struct {
 func (sec Security) Secure(req *http.Request) {
 	auth := sec.Probe(req)
 
-	switch sec.APISecurity.SecurityScheme {
-	case api.SecuritySchemeBasic:
+	switch sec.APISecurity.Scheme {
+	case "basic":
 		Basic{sec.APISecurity, sec.Log, auth}.Secure(req)
 
-	case api.SecuritySchemeDigest:
+	case "digest":
 		Digest{sec.APISecurity, sec.Log, auth}.Secure(req)
 
 	default:
-		fmt.Printf("Unknown security scheme '%s'\n", sec.APISecurity.SecurityScheme)
+		fmt.Printf("Unknown security scheme '%s'\n", sec.APISecurity.Scheme)
 	}
 }
 

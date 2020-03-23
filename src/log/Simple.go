@@ -2,14 +2,35 @@ package log
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // Simple - a simple test execution logger
 type Simple struct{}
+
+// Usage prints CLI usage information.
+func (log Simple) Usage() {
+	fmt.Println("Please specify at least a spec file & an operation to test.")
+	fmt.Println("Example:")
+	fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
+}
+
+// PrintOperations prints the list of available operations.
+func (log Simple) PrintOperations(ops []*api.Operation) {
+	for _, op := range ops {
+		if op.ID != "" {
+			fmt.Printf("\t%s [%s]\n", op.Name, op.ID)
+			if op.Description != "" {
+				fmt.Printf("\t%s\n", op.Description)
+			}
+		} else {
+			fmt.Printf("\t%s\n", op.Name)
+		}
+		// fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path.Path)
+		fmt.Printf("\n")
+	}
+}
 
 // UsingDefaultHost --
 func (log Simple) UsingDefaultHost() {
@@ -65,32 +86,32 @@ func (log Simple) ResponseHasWrongContentType(resp *api.Response, actualCT strin
 }
 
 // UsingRequest --
-func (log Simple) UsingRequest(req *api.Request) {
+/* func (log Simple) UsingRequest(req *api.Request) {
 	fmt.Printf("\tUsing the \"%s\" request.\n", req.ContentType)
-}
+} */
 
 // UsingResponse --
 func (log Simple) UsingResponse(resp *api.Response) {
-	if resp.Schema != nil {
-		fmt.Printf("\tTesting against the \"%s\" response.\n", resp.Schema.Name)
-	} else {
-		CT := resp.ContentType
-		if len(CT) == 0 {
-			CT = "*/*"
-		}
-		fmt.Printf("\tTesting against the %s @ %d response.\n", CT, resp.StatusCode)
+	// if resp.Schema != nil {
+	// 	fmt.Printf("\tTesting against the \"%s\" response.\n", resp.Schema.Name)
+	// } else {
+	CT := resp.ContentType
+	if len(CT) == 0 {
+		CT = "*/*"
 	}
+	fmt.Printf("\tTesting against the %s @ %d response.\n", CT, resp.StatusCode)
+	// }
 }
 
 // HeaderHasNoValue --
-func (log Simple) HeaderHasNoValue(hdr *api.Header) {
+/* func (log Simple) HeaderHasNoValue(hdr *api.Header) {
 	fmt.Printf("\tHeader \"%s\" is required but is not present.\n", hdr.Name)
-}
+} */
 
 // HeaderHasWrongType --
-func (log Simple) HeaderHasWrongType(hdr *api.Header) {
+/* func (log Simple) HeaderHasWrongType(hdr *api.Header) {
 	fmt.Printf("\tHeader \"%s\" has a wrong type.\n", hdr.Name)
-}
+} */
 
 // OperationOK --
 func (log Simple) OperationOK(res *api.Operation) {
@@ -108,73 +129,74 @@ func (log Simple) OperationNotFound(op string) {
 }
 
 // SchemaOK --
-func (log Simple) SchemaOK(schema *api.Schema) {
-}
+/* func (log Simple) SchemaOK(schema *api.Schema) {
+
+} */
 
 // SchemaFail --
-func (log Simple) SchemaFail(schema *api.Schema) {
+/* func (log Simple) SchemaFail(schema *api.Schema) {
 	fmt.Printf("\tSchema \"%s\" has errors.\n", schema.Name)
-}
+} */
 
 // UnknownSchemaDataType --
-func (log Simple) UnknownSchemaDataType(schema *api.Schema) {
+/* func (log Simple) UnknownSchemaDataType(schema *api.Schema) {
 	fmt.Printf("\tSchema \"%s\" has unknown data type \"%s\".\n", schema.Name, schema.DataType)
-}
+} */
 
 // SchemaExpectedBoolean --
-func (log Simple) SchemaExpectedBoolean(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedBoolean(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be a boolean type.\n", schema.Name, v)
-}
+} */
 
 // SchemaExpectedNumber --
-func (log Simple) SchemaExpectedNumber(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedNumber(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be a floating point number.\n", schema.Name, v)
-}
+} */
 
 // SchemaExpectedInteger --
-func (log Simple) SchemaExpectedInteger(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedInteger(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be an integer number.\n", schema.Name, v)
-}
+} */
 
 // SchemaExpectedString --
-func (log Simple) SchemaExpectedString(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedString(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be a string type.\n", schema.Name, v)
-}
+} */
 
 // SchemaExpectedArray --
-func (log Simple) SchemaExpectedArray(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedArray(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be an array type.\n", schema.Name, v)
-}
+} */
 
 // SchemaExpectedObject --
-func (log Simple) SchemaExpectedObject(schema *api.Schema, v interface{}) {
+/* func (log Simple) SchemaExpectedObject(schema *api.Schema, v interface{}) {
 	fmt.Printf("\tSchema \"%s\" expected %#v to be an object type.\n", schema.Name, v)
-}
+} */
 
 // UsingSecurity --
-func (log Simple) UsingSecurity(sec *api.Security) {
+/* func (log Simple) UsingSecurity(sec *api.Security) {
 	fmt.Printf("\tUsing the \"%s\" security settings.\n", sec.Name)
-}
+} */
 
 // ParameterHasNoExample --
-func (log Simple) ParameterHasNoExample(param *api.Parameter, container string) {
+/* func (log Simple) ParameterHasNoExample(param *api.Parameter, container string) {
 	fmt.Printf("\tThe %s parameter \"%s\" (from %s) has no example value to use.\n", param.In, param.Name, container)
-}
+} */
 
 // UsingParameterExample --
-func (log Simple) UsingParameterExample(param *api.Parameter, container string) {
+/* func (log Simple) UsingParameterExample(param *api.Parameter, container string) {
 	fmt.Printf("\tUsing the %s parameter \"%s\" (from %s) example.\n", param.In, param.Name, container)
-}
+} */
 
 // PropertyHasNoValue --
-func (log Simple) PropertyHasNoValue(prop *api.Property, ctx *utility.Context) {
+/* func (log Simple) PropertyHasNoValue(prop *api.Property, ctx *utility.Context) {
 	fmt.Printf("\t%s: property is required but is not present.\n", ctx.String())
-}
+} */
 
 // PropertyHasWrongType --
-func (log Simple) PropertyHasWrongType(prop *api.Property, ctx *utility.Context) {
+/* func (log Simple) PropertyHasWrongType(prop *api.Property, ctx *utility.Context) {
 	fmt.Printf("\t%s: property has wrong type. Expected %s, got %s.\n", ctx.String(), prop.Schema.DataType, ctx.CurrentValueType())
-}
+} */
 
 // TestingProject --
 func (log Simple) TestingProject(pi *api.ProjectInfo) {
@@ -188,5 +210,5 @@ func (log Simple) UsingHost(host *api.Host) {
 
 // TestingOperation --
 func (log Simple) TestingOperation(res *api.Operation) {
-	fmt.Printf("Testing the \"%s\" operation @ %s %s\n", res.Name, strings.ToUpper(res.Method), res.Path.Path)
+	// fmt.Printf("Testing the \"%s\" operation @ %s %s\n", res.Name, strings.ToUpper(res.Method), res.Path.Path)
 }
