@@ -9,15 +9,17 @@ import (
 // SRX instances contain multiple of these.
 type ExpressionFn func(*Cursor) bool
 
-// SRX is regular expression on slices.
-// It allows to parse slices containing structured or patterned data and extract that.
+// SRX is regular expression on string slices.
+// It allows to parse slices containing structured or patterned data
+// and extract that data into variables for further use.
+//
 // For example, if you have a slice of strings:
 //		inputSlice := []string{"er", "er", "er", "er", "yolo", "1,2,3,4"}
-// you can make an expression for it:
+// you can make an expression for it and parse your slice:
 //		rx := srx.Repeat(srx.Flag("er"), 2, 200).CaptureString(&theYoloString).CaptureStringSlice(&the1234StringSlice)
 //		rx.Parse(inputSlice)
-// then you can parse your slice and, first, make sure it fits the pattern, and second extract the "yolo" string
-// and a slice of "1", "2", "3" & "4" strings.
+// thus making sure it fits the pattern, and extracting the "yolo" string
+// and a list of "1", "2", "3" & "4" strings into variables.
 type SRX struct {
 	Expressions []ExpressionFn
 	Progress    int
@@ -36,6 +38,7 @@ func (srx *SRX) Parse(args []string) *SRX {
 	return srx.actualParse(&Cursor{Args: args})
 }
 
+// actualParse actually parses.
 func (srx *SRX) actualParse(cursor *Cursor) *SRX {
 
 	srx.Complete = false
@@ -102,8 +105,8 @@ func (srx *SRX) CaptureInt64(v *int64) *SRX {
 	return srx
 }
 
-// CaptureStringSlice tries to parse the current item as a list of string values
-// and store the result in the provided string slice pointer.
+// CaptureStringSlice tries to parse the current item as a comma-separated list
+// of string values and store the result in the provided string slice pointer.
 func (srx *SRX) CaptureStringSlice(v *[]string) *SRX {
 	srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool {
 		item := cursor.Get()
