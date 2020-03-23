@@ -3,7 +3,6 @@ package test
 import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // ResponseHeader tests HTTP response headers.
@@ -26,7 +25,7 @@ func NewResponseHeader(apiHdrs []api.Header, log log.ILogger) ResponseHeader {
 // and applies addition validation as per OAS spec.
 func (test ResponseHeader) Test(respHeaderValues []string) bool {
 	OK := true
-	requiredOK := true
+	/* requiredOK := true
 
 	for _, apiHeader := range test.APIHeaders {
 		// Testing the 'required'.
@@ -54,7 +53,7 @@ func (test ResponseHeader) Test(respHeaderValues []string) bool {
 
 			OK = OK && schemaOK
 		}
-	}
+	} */
 
 	return OK
 }

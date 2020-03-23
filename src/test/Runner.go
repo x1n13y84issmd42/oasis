@@ -1,8 +1,6 @@
 package test
 
 import (
-	"fmt"
-
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
@@ -42,7 +40,7 @@ func (runner *Runner) UseHost(hostName string) bool {
 
 // Test --
 func (runner *Runner) Test(operationName string, requestContentType string, responseStatus int, responseContentType string) bool {
-	//	Getting the tested operation from the spec.
+	/* //	Getting the tested operation from the spec.
 	operation := runner.Spec.GetOperation(operationName)
 	result := false
 
@@ -60,12 +58,12 @@ func (runner *Runner) Test(operationName string, requestContentType string, resp
 		runner.printOperations()
 	}
 
-	fmt.Println("")
-	return result
+	fmt.Println("") */
+	return false
 }
 
 func (runner *Runner) printOperations() {
-	fmt.Println("The following operations are available:")
+	/* fmt.Println("The following operations are available:")
 	for _, op := range runner.Spec.GetOperations() {
 		if op.ID != "" {
 			fmt.Printf("\t%s [%s]\n", op.Name, op.ID)
@@ -73,5 +71,5 @@ func (runner *Runner) printOperations() {
 			fmt.Printf("\t%s\n", op.Name)
 		}
 		fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path.Path)
-	}
+	} */
 }

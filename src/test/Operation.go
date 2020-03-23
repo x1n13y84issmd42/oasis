@@ -1,15 +1,9 @@
 package test
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"regexp"
-
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
-	"github.com/x1n13y84issmd42/oasis/src/test/security"
+	// "github.com/x1n13y84issmd42/oasis/src/test/security"
 )
 
 // Operation performs a test of an operation by requesting a path
@@ -27,20 +21,20 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 	test.Log.TestingOperation(test.Operation)
 
 	// Creating a request.
-	client := http.Client{
+	/* client := http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
-	}
-	req := test.createRequest(requestContentType)
+	} */
+	// req := test.createRequest(requestContentType)
 
 	// Applying a security.
-	if test.Operation.Security != nil {
-		test.Log.UsingSecurity(test.Operation.Security)
-		security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
-	}
+	// if test.Operation.Security != nil {
+	// 	test.Log.UsingSecurity(test.Operation.Security)
+	// 	security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
+	// }
 
-	// Requesting.
+	/* // Requesting.
 	test.Log.Requesting(req.URL.String())
 	response, err := client.Do(req)
 
@@ -58,10 +52,12 @@ func (test Operation) Run(requestContentType string, responseStatus int, respons
 
 	//	Testing the response against the spec.
 	tResp := NewResponse(apiResp, test.Log)
-	return tResp.Test(response)
+	return tResp.Test(response) */
+
+	return false
 }
 
-func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
+/* func (test Operation) pickExample(examples spec.ExampleList) ([]byte, string) {
 	for specReqExampleName, specReqExample := range examples {
 		jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
 
@@ -74,9 +70,9 @@ func (test Operation) pickExample(examples api.ExampleList) ([]byte, string) {
 	}
 
 	return nil, ""
-}
+} */
 
-// createRequest creates a Request instance and configures it with
+/* // createRequest creates a Request instance and configures it with
 // needed headers, params & a request body.
 func (test Operation) createRequest(CT string) *http.Request {
 	URL := test.createURL()
@@ -130,131 +126,24 @@ func (test Operation) createRequest(CT string) *http.Request {
 	test.addHeaders(req)
 
 	return req
-}
+} */
 
-func (test Operation) addQueryParameters(req *http.Request) {
-	useParameters := func(specParams []api.Parameter, container string) {
-		q := req.URL.Query()
-		for _, specP := range specParams {
-			if specP.In != api.ParameterLocationQuery {
-				continue
-			}
-
-			if !specP.Required {
-				continue
-			}
-
-			var reqParamValue string
-			hasExample := false
-			if specP.Example != "" {
-				reqParamValue = specP.Example
-				hasExample = true
-			} else if specP.Schema != nil {
-				bytes, _ := test.pickExample(specP.Schema.Examples)
-				if bytes != nil {
-					reqParamValue = string(bytes)
-					hasExample = true
-				}
-			}
-
-			if hasExample {
-				q.Add(specP.Name, reqParamValue)
-				fmt.Printf("\tAdded a \"%s\" query parameter \"%s\".\n", specP.Name, reqParamValue)
-			} else {
-				test.Log.ParameterHasNoExample(&specP, container)
-			}
-		}
-		req.URL.RawQuery = q.Encode()
-	}
-
-	useParameters(test.Operation.Parameters, "operation")
-	useParameters(test.Operation.Path.Parameters, "path")
-}
-
-func (test Operation) addHeaders(req *http.Request) {
-	useParameters := func(specParams []api.Parameter, container string) {
-		for _, specP := range specParams {
-			if specP.In != api.ParameterLocationHeader {
-				continue
-			}
-
-			if !specP.Required {
-				continue
-			}
-
-			var reqHeaderValue string
-			hasExample := false
-			if specP.Example != "" {
-				reqHeaderValue = specP.Example
-				hasExample = true
-			} else if specP.Schema != nil {
-				bytes, _ := test.pickExample(specP.Schema.Examples)
-				if bytes != nil {
-					reqHeaderValue = string(bytes)
-					hasExample = true
-				}
-			}
-
-			if hasExample {
-				req.Header.Add(specP.Name, reqHeaderValue)
-				fmt.Printf("\tAdded a \"%s\" header \"%s\".\n", specP.Name, reqHeaderValue)
-			} else {
-				test.Log.ParameterHasNoExample(&specP, container)
-			}
-		}
-	}
-
-	useParameters(test.Operation.Parameters, "operation")
-	useParameters(test.Operation.Path.Parameters, "path")
-}
-
-// createURL creates a fully qualified URL by joining
-// the server host name with an operation path
-// and replaceing path parameters with actual values from `example`.
-func (test Operation) createURL() string {
-	path := test.Operation.Path.Path
-
-	useParameters := func(specParams []api.Parameter, container string) {
-		for _, specP := range specParams {
-			if specP.In != api.ParameterLocationPath {
-				continue
-			}
-
-			RX, _ := regexp.Compile("\\{" + specP.Name + "\\}")
-
-			if RX.Match([]byte(path)) {
-				if specP.Example != "" {
-					path = string(RX.ReplaceAll([]byte(path), []byte(specP.Example)))
-					test.Log.UsingParameterExample(&specP, container)
-				} else {
-					test.Log.ParameterHasNoExample(&specP, container)
-				}
-			}
-		}
-	}
-
-	useParameters(test.Operation.Parameters, "operation")
-	useParameters(test.Operation.Path.Parameters, "path")
-
-	return fmt.Sprintf("%s%s", test.Host.URL, path)
-}
-
-// getResponse finds a response spec object to validate an actual response against.
+/* // getResponse finds a response spec object to validate an actual response against.
 func (test Operation) getResponse(status int, CT string) *api.Response {
-	filterCT := func(apiResp api.Response) bool {
+	filterCT := func(apiResp spec.Response) bool {
 		return apiResp.ContentType == CT
 	}
 
-	filterStatus := func(apiResp api.Response) bool {
+	filterStatus := func(apiResp spec.Response) bool {
 		return apiResp.StatusCode == status
 	}
 
 	if CT == "*" {
-		filterCT = func(api.Response) bool { return true }
+		filterCT = func(spec.Response) bool { return true }
 	}
 
 	if status == 0 {
-		filterStatus = func(api.Response) bool { return true }
+		filterStatus = func(spec.Response) bool { return true }
 	}
 
 	for _, resp := range *test.Operation.Responses {
@@ -264,4 +153,4 @@ func (test Operation) getResponse(status int, CT string) *api.Response {
 	}
 
 	return nil
-}
+} */

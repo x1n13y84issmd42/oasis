@@ -7,7 +7,6 @@ import (
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // JSONResponseArray represents an array JSON response.
@@ -36,11 +35,11 @@ func (test JSONResponseArray) Test(response *http.Response) bool {
 			return false
 		}
 
-		ctx := &utility.Context{
+		/* ctx := &utility.Context{
 			Path: []string{"Response"},
 		}
 
-		return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx)
+		return Schema{test.APIResponse.Schema, test.Log}.Test(mJSON, ctx) */
 	}
 
 	return false

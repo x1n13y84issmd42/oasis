@@ -8,7 +8,6 @@ import (
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // JSONResponseString represents a JSON string response.
@@ -36,7 +35,7 @@ func (test JSONResponseString) Test(response *http.Response) bool {
 		err = json.Unmarshal(responseBody, &v)
 
 		if err == nil {
-			return (SchemaString{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+			// return (SchemaString{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 		}
 		//TODO: log.FailedToParseJSONResponse(response, "string")
 
@@ -71,7 +70,7 @@ func (test JSONResponseNumber) Test(response *http.Response) bool {
 		err = json.Unmarshal(responseBody, &v)
 
 		if err == nil {
-			return (SchemaNumber{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+			// return (SchemaNumber{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 		}
 		//TODO: log.FailedToParseJSONResponse(response, "number")
 
@@ -106,7 +105,7 @@ func (test JSONResponseBoolean) Test(response *http.Response) bool {
 		err = json.Unmarshal(responseBody, &v)
 
 		if err == nil {
-			return (SchemaBoolean{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
+			// return (SchemaBoolean{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
 		}
 		//TODO: log.FailedToParseJSONResponse(response, "boolean")
 
