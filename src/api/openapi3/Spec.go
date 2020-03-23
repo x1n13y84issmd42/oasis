@@ -1,16 +1,16 @@
 package openapi3
 
 import (
-	"net/url"
-
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
 )
 
+// Spec is an OAS3-backed API test spec.
 type Spec struct {
 	OAS *openapi3.Swagger
 }
 
+// GetOperations returns a list of all available test operations from the spec.
 func (spec *Spec) GetOperations() []*api.Operation {
 	ops := []*api.Operation{}
 
@@ -36,25 +36,51 @@ func (spec *Spec) GetOperations() []*api.Operation {
 }
 
 func (spec *Spec) makeOperation(method string, oasOp *openapi3.Operation, oasPath string, oasPathItem *openapi3.PathItem) *api.Operation {
+	specPath := spec.CreatePath(oasPath, oasPathItem, oasOp)
+	specRequests := []*api.Request{}
+
+	if oasOp.RequestBody != nil && oasOp.RequestBody.Value != nil {
+		for oasCT, oasMT := range oasOp.RequestBody.Value.Content {
+			specRequests = append(specRequests, spec.MakeRequest(method, specPath, oasOp, oasPathItem, oasCT, oasMT))
+		}
+	} else {
+		specRequests = append(specRequests, spec.MakeRequest(method, specPath, oasOp, oasPathItem, "", nil))
+	}
+
 	return &api.Operation{
 		ID:          oasOp.OperationID,
 		Name:        oasOp.Summary,
 		Description: oasOp.Description,
-		Request: api.Request{
-			Method: method,
-			URL:    spec.createURL(oasPath, oasPathItem, oasOp),
-		},
+		Method:      method,
+		Path:        specPath,
+		Requests:    specRequests,
 	}
 }
 
-// createURL creates a fully qualified URL by joining
-// the server host name with an operation path
-// and replaceing path parameters with actual values from `example`.
-func (spec *Spec) createURL(oasPath string, oasPathItem *openapi3.PathItem, oasOp *openapi3.Operation) url.URL {
-	u, _ := url.Parse(oasPath)
-	return *u
+// MakeRequest creates an api.Rrequest instance from available operation spec data.
+func (spec *Spec) MakeRequest(
+	method string,
+	specPath string,
+	oasOp *openapi3.Operation,
+	oasPathItem *openapi3.PathItem,
+	oasCT string,
+	oasMT *openapi3.MediaType,
+) *api.Request {
+
+	specReq := &api.Request{}
+	specReq.Method = method
+	specReq.Path = specPath
+
+	return specReq
 }
 
+// CreatePath creates an operation path with parameters replaced by actual values from `example`.
+// Examples from operation-level parameters override examples from the path-level ones.
+func (spec *Spec) CreatePath(oasPath string, oasPathItem *openapi3.PathItem, oasOp *openapi3.Operation) string {
+	return oasPath
+}
+
+// GetProjectInfo returns project info from the spec.info object.
 func (spec *Spec) GetProjectInfo() *api.ProjectInfo {
 	return &api.ProjectInfo{
 		Title:       spec.OAS.Info.Title,
@@ -63,10 +89,29 @@ func (spec *Spec) GetProjectInfo() *api.ProjectInfo {
 	}
 }
 
+// GetHost returns an API host by requested description
+// from the spec.servers list.
 func (spec *Spec) GetHost(name string) *api.Host {
+	for _, oasServer := range spec.OAS.Servers {
+		if oasServer.Description == name {
+			return &api.Host{
+				Name:        "Default",
+				Description: oasServer.Description,
+				URL:         oasServer.URL,
+			}
+		}
+	}
 	return nil
 }
 
+// GetDefaultHost returns the fisr host from the spec.servers list as default.
 func (spec *Spec) GetDefaultHost() *api.Host {
+	if len(spec.OAS.Servers) > 0 {
+		return &api.Host{
+			Name:        "Default",
+			Description: spec.OAS.Servers[0].Description,
+			URL:         spec.OAS.Servers[0].URL,
+		}
+	}
 	return nil
 }

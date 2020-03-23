@@ -9,8 +9,10 @@ type Operation struct {
 	Name        string
 	Description string
 	ID          string
-	Request     Request
-	Response    Response
+	Method      string
+	Path        string
+	Requests    []*Request
+	Responses   Response
 }
 
 // CreateRequest creates a Request instance, already configured

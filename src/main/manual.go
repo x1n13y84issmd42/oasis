@@ -19,7 +19,7 @@ func Manual(args *Args, logger log.ILogger) {
 			Log:  logger,
 		}
 
-		runner.Log.TestingProject(spec.GetProjectInfo())
+		logger.TestingProject(spec.GetProjectInfo())
 		logger.PrintOperations(spec.GetOperations())
 
 		if hostOK := runner.UseHost(args.Host); hostOK {

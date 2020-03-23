@@ -27,7 +27,7 @@ func (log Simple) PrintOperations(ops []*api.Operation) {
 		} else {
 			fmt.Printf("\t%s\n", op.Name)
 		}
-		// fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path.Path)
+		fmt.Printf("\t%s @ %s\n\n", op.Method, op.Path)
 		fmt.Printf("\n")
 	}
 }
