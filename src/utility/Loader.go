@@ -8,10 +8,10 @@ import (
 )
 
 // Load loads an API spec file.
-func Load(path string) (api.Spec, error) {
+func Load(path string, params *api.OperationParameters) (api.Spec, error) {
 	fmt.Println(fmt.Sprintf("Loading %s", path))
 
-	spec, specErr := openapi3.Load(path)
+	spec, specErr := openapi3.Load(path, params)
 	if specErr != nil {
 		return nil, specErr
 	}

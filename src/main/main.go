@@ -1,12 +1,13 @@
 package main
 
 import (
+	"github.com/x1n13y84issmd42/oasis/src/env"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 func main() {
-	args := &Args{}
-	ParseArgs(args)
+	args := &env.Args{}
+	env.ParseArgs(args)
 
 	logger := &log.Simple{}
 

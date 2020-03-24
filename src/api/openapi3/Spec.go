@@ -7,7 +7,8 @@ import (
 
 // Spec is an OAS3-backed API test spec.
 type Spec struct {
-	OAS *openapi3.Swagger
+	OAS        *openapi3.Swagger
+	Parameters *api.OperationParameters
 }
 
 // GetOperations returns a list of all available test operations from the spec.

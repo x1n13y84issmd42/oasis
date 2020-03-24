@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/env"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // Manual is an entry point for manual testing mode.
-func Manual(args *Args, logger log.ILogger) {
-	spec, specErr := utility.Load(args.Spec)
+func Manual(args *env.Args, logger log.ILogger) {
+	params := &api.OperationParameters{}
+	params.LoadFromArgs(args)
+	spec, specErr := utility.Load(args.Spec, params)
 
 	if specErr == nil {
 		runner := test.Runner{
