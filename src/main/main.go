@@ -12,10 +12,8 @@ func main() {
 	logger := &log.Simple{}
 
 	if args.Script != "" {
-		//	Executing a test script.
 		Script(args, logger)
 	} else if args.Spec != "" {
-		//	Running a single test.
 		Manual(args, logger)
 	} else {
 		logger.Usage()
