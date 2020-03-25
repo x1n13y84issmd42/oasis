@@ -9,9 +9,10 @@ import (
 // Spec is an interface to access specification data.
 type Spec interface {
 	GetProjectInfo() *ProjectInfo
-	GetOperations() []*Operation
 	GetHost(name string) *Host
 	GetDefaultHost() *Host
+	GetOperations(params *OperationParameters) []*Operation
+	GetOperation(name string, params *OperationParameters) *Operation
 }
 
 // ProjectInfo is a generic project information.

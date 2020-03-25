@@ -179,14 +179,14 @@ func (log Simple) OperationNotFound(op string) {
 } */
 
 // ParameterHasNoExample --
-/* func (log Simple) ParameterHasNoExample(param *api.Parameter, container string) {
-	fmt.Printf("\tThe %s parameter \"%s\" (from %s) has no example value to use.\n", param.In, param.Name, container)
-} */
+func (log Simple) ParameterHasNoExample(paramName string, in string, container string) {
+	fmt.Printf("\tThe %s parameter \"%s\" (from %s) has no example value to use.\n", in, paramName, container)
+}
 
 // UsingParameterExample --
-/* func (log Simple) UsingParameterExample(param *api.Parameter, container string) {
-	fmt.Printf("\tUsing the %s parameter \"%s\" (from %s) example.\n", param.In, param.Name, container)
-} */
+func (log Simple) UsingParameterExample(paramName string, in string, container string) {
+	fmt.Printf("\tUsing the %s parameter \"%s\" (from %s) example.\n", in, paramName, container)
+}
 
 // PropertyHasNoValue --
 /* func (log Simple) PropertyHasNoValue(prop *api.Property, ctx *utility.Context) {

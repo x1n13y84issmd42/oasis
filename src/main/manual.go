@@ -15,7 +15,8 @@ import (
 func Manual(args *env.Args, logger log.ILogger) {
 	params := &api.OperationParameters{}
 	params.LoadFromArgs(args)
-	spec, specErr := utility.Load(args.Spec, params)
+
+	spec, specErr := utility.Load(args.Spec, logger)
 
 	if specErr == nil {
 		runner := test.Runner{
@@ -24,7 +25,7 @@ func Manual(args *env.Args, logger log.ILogger) {
 		}
 
 		logger.TestingProject(spec.GetProjectInfo())
-		logger.PrintOperations(spec.GetOperations())
+		logger.PrintOperations(spec.GetOperations(params))
 
 		if hostOK := runner.UseHost(args.Host); hostOK {
 			testResult := true
