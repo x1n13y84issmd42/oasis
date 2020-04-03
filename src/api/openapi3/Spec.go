@@ -1,6 +1,7 @@
 package openapi3
 
 import (
+	"encoding/json"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -184,12 +185,42 @@ func (spec *Spec) MakeHeader(
 	oasHeader *openapi3.Header,
 ) *api.Header {
 
+	var specSchema *api.Schema
+
+	if oasHeader.Schema != nil && oasHeader.Schema.Value != nil {
+		specSchema = spec.MakeSchema(oasHeader.Schema.Value)
+	}
+
 	return &api.Header{
 		Name:        oasHeaderName,
 		Description: oasHeader.Description,
 		Required:    oasHeader.Required,
-		//TODO: schema
+		Schema:      specSchema,
 	}
+}
+
+// MakeSchema creates an api.Schema instance from available operation spec data.
+func (spec *Spec) MakeSchema(
+	oasSchema *openapi3.Schema,
+) *api.Schema {
+
+	return &api.Schema{
+		JSONSchema: spec.MakeJSONSchema(oasSchema),
+	}
+}
+
+// MakeJSONSchema creates an api.Schema instance from available operation spec data.
+func (spec *Spec) MakeJSONSchema(
+	oasSchema *openapi3.Schema,
+) api.JSONSchema {
+	jsonSchema, jsonSchemaErr := json.Marshal(oasSchema)
+	if jsonSchemaErr == nil {
+		sch := make(api.JSONSchema)
+		json.Unmarshal(jsonSchema, &sch)
+		return sch
+	}
+
+	return nil
 }
 
 // CreatePath creates an operation path with parameters replaced by actual values from `example`.
