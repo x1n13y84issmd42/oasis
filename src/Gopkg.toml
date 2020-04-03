@@ -30,9 +30,9 @@
   unused-packages = true
 
 [[constraint]]
-  name = "github.com/go-yaml/yaml"
-  version = "2.2.2"
-
-[[constraint]]
   name = "github.com/getkin/kin-openapi"
   version = "0.3.0"
+
+[[constraint]]
+  name = "github.com/xeipuuv/gojsonschema"
+  version = "1.2.0"
