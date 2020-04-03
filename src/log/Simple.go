@@ -104,9 +104,9 @@ func (log Simple) UsingResponse(resp *api.Response) {
 }
 
 // HeaderHasNoValue --
-/* func (log Simple) HeaderHasNoValue(hdr *api.Header) {
+func (log Simple) HeaderHasNoValue(hdr *api.Header) {
 	fmt.Printf("\tHeader \"%s\" is required but is not present.\n", hdr.Name)
-} */
+}
 
 // HeaderHasWrongType --
 /* func (log Simple) HeaderHasWrongType(hdr *api.Header) {
@@ -129,14 +129,14 @@ func (log Simple) OperationNotFound(op string) {
 }
 
 // SchemaOK --
-/* func (log Simple) SchemaOK(schema *api.Schema) {
+func (log Simple) SchemaOK(schema *api.Schema) {
 
-} */
+}
 
 // SchemaFail --
-/* func (log Simple) SchemaFail(schema *api.Schema) {
+func (log Simple) SchemaFail(schema *api.Schema) {
 	fmt.Printf("\tSchema \"%s\" has errors.\n", schema.Name)
-} */
+}
 
 // UnknownSchemaDataType --
 /* func (log Simple) UnknownSchemaDataType(schema *api.Schema) {

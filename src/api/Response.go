@@ -1,10 +1,10 @@
 package api
 
-import "net/http"
-
 // Response describes a generic HTTP response.
 type Response struct {
-	StatusCode  int
+	Description string
+	StatusCode  uint64
 	ContentType string
-	Headers     http.Header
+	Headers     Headers
+	Schema      *Schema
 }

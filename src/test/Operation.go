@@ -1,6 +1,9 @@
 package test
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 	// "github.com/x1n13y84issmd42/oasis/src/test/security"
@@ -9,52 +12,76 @@ import (
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers & content against
 // the definitions founds in an OAS spec file.
-type Operation struct {
-	Log       log.ILogger
-	Host      *api.Host
-	Operation *api.Operation
-}
-
-// Run performs a test of an operation by making a requests to the operation URL with the operation method
-// and chosen Content-Type.
-func (test Operation) Run(requestContentType string, responseStatus int, responseContentType string) bool {
-	test.Log.TestingOperation(test.Operation)
-
+func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationParameters, logger log.ILogger) bool {
+	logger.TestingOperation(specOp)
 	// Creating a request.
-	/* client := http.Client{
+	client := http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
-	} */
-	// req := test.createRequest(requestContentType)
+	}
 
-	// Applying a security.
-	// if test.Operation.Security != nil {
-	// 	test.Log.UsingSecurity(test.Operation.Security)
-	// 	security.NewSecurity(test.Operation.Security, test.Log).Secure(req)
-	// }
+	specReq := SelectRequest(specOp, params)
+	specResp := SelectResponse(specOp, params)
 
-	/* // Requesting.
-	test.Log.Requesting(req.URL.String())
+	req := specReq.CreateRequest(specHost)
+
+	logger.Requesting(req.URL.String())
 	response, err := client.Do(req)
 
 	if err != nil {
-		test.Log.Error(err)
+		logger.Error(err)
 		return false
 	}
 
-	// Getting the response spec.
-	apiResp := test.getResponse(responseStatus, responseContentType)
-	if apiResp == nil {
-		test.Log.ResponseNotFound(responseContentType, responseStatus)
-		return false
+	fmt.Printf("Op response: %#v\n", response)
+
+	return Response(response, specResp, logger)
+}
+
+// SelectRequest ...
+func SelectRequest(specOp *api.Operation, params *api.OperationParameters) *api.Request {
+	filterCT := func(specReq *api.Request) bool { return true }
+
+	if params.Request.ContentTypeHint != "" {
+		filterCT = func(specReq *api.Request) bool {
+			return specReq.Headers.Get("Content-Type") == params.Request.ContentTypeHint
+		}
 	}
 
-	//	Testing the response against the spec.
-	tResp := NewResponse(apiResp, test.Log)
-	return tResp.Test(response) */
+	for _, specReq := range specOp.Requests {
+		if filterCT(specReq) {
+			return specReq
+		}
+	}
 
-	return false
+	return nil
+}
+
+// SelectResponse ...
+func SelectResponse(specOp *api.Operation, params *api.OperationParameters) *api.Response {
+	filterCT := func(specResp *api.Response) bool { return true }
+	filterStatus := func(specResp *api.Response) bool { return true }
+
+	if params.Response.ContentTypeHint != "" {
+		filterCT = func(specResp *api.Response) bool {
+			return specResp.ContentType == params.Response.ContentTypeHint
+		}
+	}
+
+	if params.Response.StatusHint != 0 {
+		filterCT = func(apiResp *api.Response) bool {
+			return apiResp.StatusCode == params.Response.StatusHint
+		}
+	}
+
+	for _, specResp := range specOp.Responses {
+		if filterCT(specResp) && filterStatus(specResp) {
+			return specResp
+		}
+	}
+
+	return nil
 }
 
 /* func (test Operation) pickExample(examples spec.ExampleList) ([]byte, string) {

@@ -26,7 +26,7 @@ type ILogger interface {
 
 	// PropertyHasNoValue(prop *api.Property, ctx *utility.Context)
 	// PropertyHasWrongType(prop *api.Property, ctx *utility.Context)
-	// HeaderHasNoValue(schema *api.Header)
+	HeaderHasNoValue(header *api.Header)
 	// HeaderHasWrongType(schema *api.Header)
 	ResponseHasWrongStatus(schema *api.Response, actualStatus int)
 	ResponseHasWrongContentType(schema *api.Response, actualCT string)
@@ -38,8 +38,8 @@ type ILogger interface {
 	OperationFail(res *api.Operation)
 	OperationNotFound(op string)
 
-	// SchemaOK(schema *api.Schema)
-	// SchemaFail(schema *api.Schema)
+	SchemaOK(schema *api.Schema)
+	SchemaFail(schema *api.Schema)
 	// UnknownSchemaDataType(schema *api.Schema)
 	// SchemaExpectedBoolean(schema *api.Schema, v interface{})
 	// SchemaExpectedNumber(schema *api.Schema, v interface{})

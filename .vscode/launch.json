@@ -9,11 +9,11 @@
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
-			"program": "${workspaceFolder}/src",
+			"program": "${workspaceFolder}/src/main",
 			"env": {},
 			"args": [
 				"from",
-				"../spec/oasis.yaml",
+				"../../spec/oasis.yaml",
 				"test",
 				"meta-query-echo-headers"
 			]

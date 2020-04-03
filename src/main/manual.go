@@ -19,23 +19,27 @@ func Manual(args *env.Args, logger log.ILogger) {
 	spec, specErr := utility.Load(args.Spec, logger)
 
 	if specErr == nil {
-		runner := test.Runner{
-			Spec: spec,
-			Log:  logger,
+		var specHost *api.Host
+
+		if params.Request.HostHint == "" {
+			specHost = spec.GetDefaultHost()
+			logger.UsingDefaultHost()
+		} else {
+			specHost = spec.GetHost(params.Request.HostHint)
 		}
 
-		logger.TestingProject(spec.GetProjectInfo())
-		logger.PrintOperations(spec.GetOperations(params))
-
-		if hostOK := runner.UseHost(args.Host); hostOK {
-			testResult := true
-			for _, inOp := range args.Ops {
-				testResult = runner.Test(inOp, args.Use.CT, int(args.Expect.Status), args.Expect.CT) && testResult
-			}
-			if !testResult {
-				os.Exit(255)
-			}
+		if specHost != nil {
+			logger.UsingHost(specHost)
 		} else {
+			logger.HostNotFound(params.Request.HostHint)
+		}
+
+		testResult := true
+		for _, inOp := range args.Ops {
+			specOp := spec.GetOperation(inOp, params)
+			testResult = test.Operation(specHost, specOp, params, logger) && testResult
+		}
+		if !testResult {
 			os.Exit(255)
 		}
 	} else {

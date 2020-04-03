@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-// Operation is an operation description.
+// Operation is an description of an API operation which is a subject to testing.
 type Operation struct {
 	Name        string
 	Description string
@@ -12,14 +12,7 @@ type Operation struct {
 	Method      string
 	Path        string
 	Requests    []*Request
-	Responses   Response
-}
-
-// CreateRequest creates a Request instance, already configured
-// to make requests to the operation URL.
-func (op *Operation) CreateRequest() *http.Request {
-	req := &http.Request{}
-	return req
+	Responses   []*Response
 }
 
 func (op *Operation) addQueryParameters(req *http.Request) {

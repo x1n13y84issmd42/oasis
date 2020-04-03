@@ -1,95 +1,56 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
-// IResponse is an interface for HTTP response testers.
-type IResponse interface {
-	Test(resp *http.Response) bool
+// HTTPResponse test checks basic response properties such as status code and headers.
+func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+	statusOK := specResp.StatusCode == uint64(resp.StatusCode)
+
+	//FIXME: this is to get rid of the "; charset=utf-8" part.
+	respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+	CTOK := (specResp.ContentType == "") || (specResp.ContentType == respCT)
+
+	headersOK := true
+	for specHeaderName, specHeaderValues := range specResp.Headers {
+		fmt.Printf("\tHeader: %s: %#v\n", specHeaderName, resp.Header.Values(specHeaderName))
+		headersOK = ResponseHeader(specHeaderName, specHeaderValues, resp.Header.Values(specHeaderName), logger) && headersOK
+	}
+
+	if !statusOK {
+		logger.ResponseHasWrongStatus(specResp, resp.StatusCode)
+	}
+
+	if !CTOK {
+		logger.ResponseHasWrongContentType(specResp, resp.Header.Get("Content-Type"))
+	}
+
+	return statusOK && CTOK && headersOK
 }
 
-// IJSONResponse is an interface to the parser of "top level" JSON data structure.
-// Arrays, Objects, as well as primitive types must be unmarshalled and validated differently,
-// so there is a separate unmarshaller/parser for each of those types.
-// Aggregate types use spec.Schema to validate their contents against.
-type IJSONResponse interface{}
+// Response test response bodies.
+func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+	httpOK := HTTPResponse(resp, specResp, logger)
+	contentOK := true
 
-// HTTPResponse tests basic response properties, such as status code & headers.
-type HTTPResponse struct {
-	Log         log.ILogger
-	APIResponse *api.Response
-}
+	if httpOK {
+		if specResp.ContentType != "" {
+			//TODO: test contents with content-specific tests.
+			switch specResp.ContentType {
+			case "application/json":
+				contentOK = JSONResponse(resp, specResp, logger)
 
-// NewResponse creates a new response test object. It can be either a basic HTTP response,
-// or one of the JSON family of response testers.
-func NewResponse(apiResp *api.Response, logger log.ILogger) IResponse {
-	/* if apiResp.ContentType == "application/json" {
-		switch apiResp.Schema.DataType {
-		case spec.DataTypeArray:
-			return JSONResponseArray{
-				Log:         logger,
-				APIResponse: apiResp,
-			}
-
-		case spec.DataTypeObject:
-			return JSONResponseObject{
-				Log:         logger,
-				APIResponse: apiResp,
-			}
-
-		case spec.DataTypeString:
-			return JSONResponseString{
-				Log:         logger,
-				APIResponse: apiResp,
-			}
-
-		case spec.DataTypeNumber:
-			return JSONResponseNumber{
-				Log:         logger,
-				APIResponse: apiResp,
-			}
-
-		case spec.DataTypeBoolean:
-			return JSONResponseBoolean{
-				Log:         logger,
-				APIResponse: apiResp,
+			default:
+				fmt.Printf("The Content-Type of '%s' is not supported.\n", specResp.ContentType)
 			}
 		}
 	}
 
-	return HTTPResponse{
-		Log:         logger,
-		APIResponse: apiResp,
-	} */
-
-	return HTTPResponse{}
-}
-
-// Test checks basic response properties such as status code and headers.
-func (test HTTPResponse) Test(resp *http.Response) bool {
-	/* statusOK := test.APIResponse.StatusCode == resp.StatusCode
-
-	//FIXME: this is to get rid of the "; charset=utf-8" part.
-	respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
-	CTOK := (test.APIResponse.ContentType == "") || (test.APIResponse.ContentType == respCT)
-
-	headersOK := true
-	for specHeaderName, specHeaderValues := range test.APIResponse.Headers {
-		headersOK = NewResponseHeader(specHeaderValues, test.Log).Test(resp.Header.Values(specHeaderName)) && headersOK
-	}
-
-	if !statusOK {
-		test.Log.ResponseHasWrongStatus(test.APIResponse, resp.StatusCode)
-	}
-
-	if !CTOK {
-		test.Log.ResponseHasWrongContentType(test.APIResponse, resp.Header.Get("Content-Type"))
-	}
-
-	return statusOK && CTOK && headersOK */
-	return false
+	return httpOK && contentOK
 }

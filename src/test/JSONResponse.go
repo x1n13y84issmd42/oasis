@@ -10,107 +10,87 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
-// JSONResponseString represents a JSON string response.
-type JSONResponseString struct {
-	Log         log.ILogger
-	APIResponse *api.Response
-}
+// JSONResponse test response bodies.
+func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+	respData, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("JSONResponseString body: ", string(respData))
+	fmt.Println("JSONResponseString status: ", resp.StatusCode)
 
-// Test attempts to unmarshal response bodies as JSON strings then validate their contents.
-func (test JSONResponseString) Test(response *http.Response) bool {
-	// Testing the basic HTTP response props first.
-	HTTPOK := HTTPResponse{
-		Log:         test.Log,
-		APIResponse: test.APIResponse,
-	}.Test(response)
+	var err error = nil
 
-	if HTTPOK {
-		var err error
-		responseBody, _ := ioutil.ReadAll(response.Body)
-
-		fmt.Println("JSONResponseString body: ", string(responseBody))
-		fmt.Println("JSONResponseString status: ", response.StatusCode)
-
-		var v string
-		err = json.Unmarshal(responseBody, &v)
-
-		if err == nil {
-			// return (SchemaString{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
-		}
-		//TODO: log.FailedToParseJSONResponse(response, "string")
-
-		test.Log.Error(err)
+	if res, err := tryJSONObjectResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
+
+	if res, err := tryJSONArrayResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
+	}
+
+	if res, err := tryJSONStringResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
+	}
+
+	if res, err := tryJSONNumberResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
+	}
+
+	if res, err := tryJSONBooleanResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
+	}
+
+	fmt.Printf("JSONResponse Error: %s", err.Error())
 
 	return false
 }
 
-// JSONResponseNumber represents a JSON number response.
-type JSONResponseNumber struct {
-	Log         log.ILogger
-	APIResponse *api.Response
+type (
+	// JSONMap is a map to unmarshal JSONs into.
+	JSONMap = map[string]interface{}
+
+	// JSONArray is an array to unmarshal JSONs into.
+	JSONArray = []interface{}
+)
+
+// tryJSONStringResponse tryes to unmarshal respData as a string.
+func tryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) {
+	err = json.Unmarshal(*respData, &res)
+	return
 }
 
-// Test attempts to unmarshal response bodies as JSON numbers then validate their contents.
-func (test JSONResponseNumber) Test(response *http.Response) bool {
-	// Testing the basic HTTP response props first.
-	HTTPOK := HTTPResponse{
-		Log:         test.Log,
-		APIResponse: test.APIResponse,
-	}.Test(response)
+// tryJSONNumberResponse tryes to unmarshal respData as a string.
+func tryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) {
+	err = json.Unmarshal(*respData, &res)
+	return
+}
 
-	if HTTPOK {
-		var err error
-		responseBody, _ := ioutil.ReadAll(response.Body)
+// tryJSONBooleanResponse tryes to unmarshal respData as a string.
+func tryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) {
+	err = json.Unmarshal(*respData, &res)
+	return
+}
 
-		fmt.Println("JSONResponseNumber body: ", string(responseBody))
-		fmt.Println("JSONResponseNumber status: ", response.StatusCode)
+// tryJSONObjectResponse tryes to unmarshal respData as a string.
+func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) {
+	v := make(JSONMap)
+	err = json.Unmarshal(*respData, &v)
 
-		var v int64
-		err = json.Unmarshal(responseBody, &v)
-
-		if err == nil {
-			// return (SchemaNumber{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
-		}
-		//TODO: log.FailedToParseJSONResponse(response, "number")
-
-		test.Log.Error(err)
+	if err != nil {
+		res = &v
+		return nil, err
 	}
 
-	return false
+	return
 }
 
-// JSONResponseBoolean represents a JSON boolean response.
-type JSONResponseBoolean struct {
-	Log         log.ILogger
-	APIResponse *api.Response
-}
+// tryJSONArrayResponse tryes to unmarshal respData as a string.
+func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) {
+	var v JSONArray
+	err = json.Unmarshal(*respData, &v)
 
-// Test attempts to unmarshal response bodies as JSON booleans then validate their contents.
-func (test JSONResponseBoolean) Test(response *http.Response) bool {
-	// Testing the basic HTTP response props first.
-	HTTPOK := HTTPResponse{
-		Log:         test.Log,
-		APIResponse: test.APIResponse,
-	}.Test(response)
-
-	if HTTPOK {
-		var err error
-		responseBody, _ := ioutil.ReadAll(response.Body)
-
-		fmt.Println("JSONResponseBoolean body: ", string(responseBody))
-		fmt.Println("JSONResponseBoolean status: ", response.StatusCode)
-
-		var v bool
-		err = json.Unmarshal(responseBody, &v)
-
-		if err == nil {
-			// return (SchemaBoolean{test.APIResponse.Schema, test.Log}).Test(v, &utility.Context{Path: []string{"Response"}})
-		}
-		//TODO: log.FailedToParseJSONResponse(response, "boolean")
-
-		test.Log.Error(err)
+	if err != nil {
+		res = &v
+		return nil, err
 	}
 
-	return false
+	return
 }
