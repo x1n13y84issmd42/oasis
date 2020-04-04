@@ -35,7 +35,7 @@ paths:
           description: OK
       security:
         - HTTP Basic: []
-  /api/public/meta/headers/boolean/fail:
+  /api/public/meta/headers/boolean/fail/schema:
     get:
       tags:
         - public

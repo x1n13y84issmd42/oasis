@@ -9,6 +9,8 @@ import (
 
 // ValidateJSONSchema uses the provided schema to validate the provided data against.
 func ValidateJSONSchema(data interface{}, schema *api.Schema) bool {
+	fmt.Printf("\tTesting %#v\n", data)
+
 	schemaLoader := gojsonschema.NewGoLoader(schema.JSONSchema)
 	dataLoader := gojsonschema.NewGoLoader(data)
 

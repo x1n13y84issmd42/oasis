@@ -35,10 +35,21 @@ func Manual(args *env.Args, logger log.ILogger) {
 		}
 
 		testResult := true
+		printOps := false
 		for _, inOp := range args.Ops {
 			specOp := spec.GetOperation(inOp, params)
-			testResult = test.Operation(specHost, specOp, params, logger) && testResult
+			if specOp != nil {
+				testResult = test.Operation(specHost, specOp, params, logger) && testResult
+			} else {
+				logger.OperationNotFound(inOp)
+				printOps = true
+			}
 		}
+
+		if printOps {
+			logger.PrintOperations(spec.GetOperations(params))
+		}
+
 		if !testResult {
 			os.Exit(255)
 		}

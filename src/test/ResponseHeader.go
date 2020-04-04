@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // ResponseHeader tests HTTP response headers.
@@ -28,7 +29,7 @@ func ResponseHeader(specHeaderName string, specHeader *api.Header, respHeaderVal
 	if requiredOK && specHeader.Schema != nil {
 		schemaOK := true
 		for _, respHeader := range respHeaderValues {
-			schemaOK = ValidateJSONSchema(respHeader, specHeader.Schema) && schemaOK
+			schemaOK = ValidateJSONSchema(utility.SchemaCast(respHeader, specHeader.Schema), specHeader.Schema) && schemaOK
 		}
 
 		if !schemaOK {
