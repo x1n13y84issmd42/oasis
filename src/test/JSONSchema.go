@@ -20,13 +20,13 @@ func ValidateJSONSchema(data interface{}, schema *api.Schema) bool {
 	}
 
 	if result.Valid() {
-		fmt.Printf("The document is valid\n")
+		fmt.Printf("\tOK\n")
 		return true
-	} else {
-		fmt.Printf("The document is not valid. see errors :\n")
-		for _, desc := range result.Errors() {
-			fmt.Printf("- %s\n", desc)
-		}
+	}
+
+	fmt.Printf("\tFAILURE:\n")
+	for _, desc := range result.Errors() {
+		fmt.Printf("\t - %s\n", desc)
 	}
 
 	return false

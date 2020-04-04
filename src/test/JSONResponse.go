@@ -18,24 +18,24 @@ func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
 
 	var err error = nil
 
-	if _, err := tryJSONObjectResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema("res", specResp.Schema)
+	if res, err := tryJSONObjectResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
 
-	if _, err := tryJSONArrayResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema("res", specResp.Schema)
+	if res, err := tryJSONArrayResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
 
-	if _, err := tryJSONStringResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema("res", specResp.Schema)
+	if res, err := tryJSONStringResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
 
-	if _, err := tryJSONNumberResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema("res", specResp.Schema)
+	if res, err := tryJSONNumberResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
 
-	if _, err := tryJSONBooleanResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema("res", specResp.Schema)
+	if res, err := tryJSONBooleanResponse(&respData, specResp, logger); err == nil {
+		return ValidateJSONSchema(res, specResp.Schema)
 	}
 
 	fmt.Printf("JSONResponse Error: %s", err.Error())
@@ -78,6 +78,8 @@ func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.
 		res = &v
 		return nil, err
 	}
+
+	res = &v
 
 	return
 }
