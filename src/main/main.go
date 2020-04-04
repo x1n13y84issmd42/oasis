@@ -6,10 +6,17 @@ import (
 )
 
 func main() {
-	args := &env.Args{}
+	args := &env.Args{
+		LogLevel: 2,
+	}
+
 	env.ParseArgs(args)
 
-	logger := &log.Simple{}
+	logger := &log.Simple{
+		Log: log.Log{
+			Level: args.LogLevel,
+		},
+	}
 
 	if args.Script != "" {
 		Script(args, logger)

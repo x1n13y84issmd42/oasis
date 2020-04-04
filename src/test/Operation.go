@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
@@ -34,7 +33,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 		return false
 	}
 
-	fmt.Printf("Op response: %#v\n", response)
+	// fmt.Printf("Op response: %#v\n", response)
 
 	return Response(response, specResp, logger)
 }

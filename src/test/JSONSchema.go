@@ -1,15 +1,14 @@
 package test
 
 import (
-	"fmt"
-
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 // ValidateJSONSchema uses the provided schema to validate the provided data against.
-func ValidateJSONSchema(data interface{}, schema *api.Schema) bool {
-	fmt.Printf("\tTesting %#v\n", data)
+func ValidateJSONSchema(data interface{}, schema *api.Schema, logger log.ILogger) bool {
+	logger.SchemaTesting(schema, data)
 
 	schemaLoader := gojsonschema.NewGoLoader(schema.JSONSchema)
 	dataLoader := gojsonschema.NewGoLoader(data)
@@ -20,14 +19,11 @@ func ValidateJSONSchema(data interface{}, schema *api.Schema) bool {
 	}
 
 	if result.Valid() {
-		fmt.Printf("\tOK\n")
+		logger.SchemaOK(schema)
 		return true
 	}
 
-	fmt.Printf("\tFAILURE:\n")
-	for _, desc := range result.Errors() {
-		fmt.Printf("\t - %s\n", desc)
-	}
+	logger.SchemaFail(schema, result.Errors())
 
 	return false
 }

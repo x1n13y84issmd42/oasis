@@ -29,11 +29,7 @@ func ResponseHeader(specHeaderName string, specHeader *api.Header, respHeaderVal
 	if requiredOK && specHeader.Schema != nil {
 		schemaOK := true
 		for _, respHeader := range respHeaderValues {
-			schemaOK = ValidateJSONSchema(utility.SchemaCast(respHeader, specHeader.Schema), specHeader.Schema) && schemaOK
-		}
-
-		if !schemaOK {
-			logger.SchemaFail(specHeader.Schema)
+			schemaOK = ValidateJSONSchema(utility.SchemaCast(respHeader, specHeader.Schema), specHeader.Schema, logger) && schemaOK
 		}
 
 		OK = OK && schemaOK

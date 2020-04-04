@@ -20,12 +20,13 @@ type ArgsExpect struct {
 
 // Args is a program arguments.
 type Args struct {
-	Script string
-	Spec   string
-	Host   string
-	Ops    []string
-	Use    ArgsUse
-	Expect ArgsExpect
+	Script   string
+	Spec     string
+	Host     string
+	Ops      []string
+	Use      ArgsUse
+	Expect   ArgsExpect
+	LogLevel int64
 }
 
 // ParseArgs parses command line arguments into the args struct.
@@ -44,6 +45,8 @@ func ParseArgs(args *Args) {
 		srx.Flag("status").CaptureInt64(&args.Expect.Status),
 	}), 0, 2)
 
+	expLog := srx.Flag("log").CaptureInt64(&args.LogLevel)
+
 	srx.Repeat(srx.OneOf([]*srx.SRX{
 		expExecute,
 		expFrom,
@@ -51,5 +54,6 @@ func ParseArgs(args *Args) {
 		expUse,
 		expExpect,
 		expHost,
+		expLog,
 	}), 1, 4).Parse(os.Args[1:])
 }

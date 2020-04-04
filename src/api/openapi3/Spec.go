@@ -162,7 +162,7 @@ func (spec *Spec) MakeResponses(
 		for oasRespContentType, oasRespContent := range oasResp.Content {
 			var specSchema *api.Schema
 			if oasRespContent.Schema != nil && oasRespContent.Schema.Value != nil {
-				specSchema = spec.MakeSchema(oasRespContent.Schema.Value)
+				specSchema = spec.MakeSchema("Response", oasRespContent.Schema.Value)
 			}
 			specResponses = append(specResponses, &api.Response{
 				Description: specDescription,
@@ -188,11 +188,10 @@ func (spec *Spec) MakeHeader(
 	oasHeaderName string,
 	oasHeader *openapi3.Header,
 ) *api.Header {
-
 	var specSchema *api.Schema
 
 	if oasHeader.Schema != nil && oasHeader.Schema.Value != nil {
-		specSchema = spec.MakeSchema(oasHeader.Schema.Value)
+		specSchema = spec.MakeSchema(oasHeaderName, oasHeader.Schema.Value)
 	}
 
 	return &api.Header{
@@ -205,11 +204,13 @@ func (spec *Spec) MakeHeader(
 
 // MakeSchema creates an api.Schema instance from available operation spec data.
 func (spec *Spec) MakeSchema(
+	name string,
 	oasSchema *openapi3.Schema,
 ) *api.Schema {
 
 	if oasSchema != nil {
 		return &api.Schema{
+			Name:       name,
 			JSONSchema: spec.MakeJSONSchema(oasSchema),
 		}
 	}
