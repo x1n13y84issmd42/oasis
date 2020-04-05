@@ -11,8 +11,8 @@ import (
 // ColorFn is a function to colorize strings before printing them.
 type ColorFn = func(...interface{}) string
 
-// Nice - a colorized test execution logger.
-type Nice struct {
+// Festive - a colorized test execution logger.
+type Festive struct {
 	Log
 	colorURL     ColorFn
 	colorOp      ColorFn
@@ -24,9 +24,9 @@ type Nice struct {
 	colorValue   ColorFn
 }
 
-// NewNice is a Nice logger constructor.
-func NewNice(level int64) *Nice {
-	return &Nice{
+// NewFestive is a Nice logger constructor.
+func NewFestive(level int64) *Festive {
+	return &Festive{
 		Log: Log{
 			Level: level,
 		},
@@ -43,24 +43,24 @@ func NewNice(level int64) *Nice {
 }
 
 // Usage prints CLI usage information.
-func (log Nice) Usage() {
+func (log Festive) Usage() {
 	fmt.Println("Please specify at least a spec file & an operation to test.")
 	fmt.Println("Example:")
 	fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
 }
 
 // Error --
-func (log Nice) Error(err error) {
+func (log Festive) Error(err error) {
 	log.Println(1, "\tSomething happened: %s", log.colorError(err.Error()))
 }
 
 // LoadingSpec --
-func (log Nice) LoadingSpec(path string) {
+func (log Festive) LoadingSpec(path string) {
 	log.Println(2, "Loading %s", log.colorURL(path))
 }
 
 // PrintOperations prints the list of available operations.
-func (log Nice) PrintOperations(ops []*api.Operation) {
+func (log Festive) PrintOperations(ops []*api.Operation) {
 	for _, op := range ops {
 		if op.ID != "" {
 			log.Println(1, "\t%s [%s]", log.colorOp(op.Name), log.colorOp(op.ID))
@@ -76,12 +76,12 @@ func (log Nice) PrintOperations(ops []*api.Operation) {
 }
 
 // UsingDefaultHost --
-func (log Nice) UsingDefaultHost() {
+func (log Festive) UsingDefaultHost() {
 	log.Println(2, "No host name has been specified, using the first one in the list.")
 }
 
 // HostNotFound ...
-func (log Nice) HostNotFound(h string) {
+func (log Festive) HostNotFound(h string) {
 	if h == "" {
 		log.Println(2, "No default host is found in the spec.")
 	} else {
@@ -90,27 +90,27 @@ func (log Nice) HostNotFound(h string) {
 }
 
 // Overriding --
-func (log Nice) Overriding(what string) {
+func (log Festive) Overriding(what string) {
 	log.Println(1, "\tOverriding %s.", what)
 }
 
 // Requesting --
-func (log Nice) Requesting(URL string) {
+func (log Festive) Requesting(URL string) {
 	log.Println(2, "\tRequesting %s", log.colorURL(URL))
 }
 
 // ResponseNotFound --
-func (log Nice) ResponseNotFound(CT string, status int) {
+func (log Festive) ResponseNotFound(CT string, status int) {
 	log.Println(1, "\tNo response for Status of %d & Content-Type of \"%s\"", status, CT)
 }
 
 // ResponseHasWrongStatus --
-func (log Nice) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
+func (log Festive) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
 	log.Println(1, "\tExpected the %d status in response, but got %d.", resp.StatusCode, actualStatus)
 }
 
 // ResponseHasWrongContentType --
-func (log Nice) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
+func (log Festive) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
 	log.Println(1, "\tExpected the \"%s\" Content-Type in response, but got \"%s\".", resp.ContentType, actualCT)
 }
 
@@ -120,7 +120,7 @@ func (log Nice) ResponseHasWrongContentType(resp *api.Response, actualCT string)
 } */
 
 // UsingResponse --
-func (log Nice) UsingResponse(resp *api.Response) {
+func (log Festive) UsingResponse(resp *api.Response) {
 	// if resp.Schema != nil {
 	// 	log.Println(1, "\tTesting against the \"%s\" response.", resp.Schema.Name)
 	// } else {
@@ -133,7 +133,7 @@ func (log Nice) UsingResponse(resp *api.Response) {
 }
 
 // HeaderHasNoValue --
-func (log Nice) HeaderHasNoValue(hdr *api.Header) {
+func (log Festive) HeaderHasNoValue(hdr *api.Header) {
 	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr.Name)
 }
 
@@ -143,43 +143,43 @@ func (log Nice) HeaderHasNoValue(hdr *api.Header) {
 } */
 
 // TestingOperation --
-func (log Nice) TestingOperation(op *api.Operation) {
+func (log Festive) TestingOperation(op *api.Operation) {
 	log.Print(1, "Testing the %s operation... ", log.colorOp(op.Name))
 	log.Print(2, "\n")
 }
 
 // OperationOK --
-func (log Nice) OperationOK(res *api.Operation) {
+func (log Festive) OperationOK(res *api.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.colorOK("SUCCESS"))
 	log.Print(2, "\n")
 }
 
 // OperationFail --
-func (log Nice) OperationFail(res *api.Operation) {
+func (log Festive) OperationFail(res *api.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.colorFailure("FAILURE"))
 	log.Print(2, "\n")
 }
 
 // OperationNotFound --
-func (log Nice) OperationNotFound(op string) {
+func (log Festive) OperationNotFound(op string) {
 	log.Println(1, "The operation \"%s\" isn't there.", op)
 }
 
 // SchemaTesting --
-func (log Nice) SchemaTesting(schema *api.Schema, data interface{}) {
+func (log Festive) SchemaTesting(schema *api.Schema, data interface{}) {
 	datas := log.colorValue(fmt.Sprintf("%#v", data))
 	log.Print(4, "\t%s: testing %s", log.colorID(schema.Name), datas)
 }
 
 // SchemaOK --
-func (log Nice) SchemaOK(schema *api.Schema) {
+func (log Festive) SchemaOK(schema *api.Schema) {
 	log.Println(4, log.colorSuccess(" - OK"))
 }
 
 // SchemaFail --
-func (log Nice) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
+func (log Festive) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
 	log.Println(4, log.colorError(" - FAILURE"))
 	// log.Println(4, "\tSchema \"%s\" has errors.", schema.Name)
 
@@ -229,12 +229,12 @@ func (log Nice) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError
 } */
 
 // ParameterHasNoExample --
-func (log Nice) ParameterHasNoExample(paramName string, in string, container string) {
+func (log Festive) ParameterHasNoExample(paramName string, in string, container string) {
 	log.Println(5, "\tThe %s parameter \"%s\" (from %s) has no example value to use.", in, paramName, container)
 }
 
 // UsingParameterExample --
-func (log Nice) UsingParameterExample(paramName string, in string, container string) {
+func (log Festive) UsingParameterExample(paramName string, in string, container string) {
 	log.Println(5, "\tUsing the %s parameter \"%s\" (from %s) example.", in, paramName, container)
 }
 
@@ -249,11 +249,11 @@ func (log Nice) UsingParameterExample(paramName string, in string, container str
 } */
 
 // TestingProject --
-func (log Nice) TestingProject(pi *api.ProjectInfo) {
+func (log Festive) TestingProject(pi *api.ProjectInfo) {
 	log.Println(1, "Testing the %s @ %s", log.colorOp(pi.Title), log.colorValue(pi.Version))
 }
 
 // UsingHost --
-func (log Nice) UsingHost(host *api.Host) {
+func (log Festive) UsingHost(host *api.Host) {
 	log.Println(2, "Using the %s host @ %s", log.colorOp(host.Name), log.colorURL(host.URL))
 }

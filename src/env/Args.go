@@ -46,9 +46,12 @@ func ParseArgs(args *Args) {
 		srx.Flag("status").CaptureInt64(&args.Expect.Status),
 	}), 0, 2)
 
-	expLogLevel := srx.Flag("loglevel").CaptureInt64(&args.LogLevel)
-
-	expLogStyle := srx.Flag("logstyle").CaptureString(&args.LogStyle)
+	expLogLevel := srx.Flag("at").Flag("level").CaptureInt64(&args.LogLevel)
+	expLogStyle := srx.Flag("in").CaptureString(&args.LogStyle).Flag("style")
+	expLog := srx.Flag("log").Repeat(srx.OneOf([]*srx.SRX{
+		expLogLevel,
+		expLogStyle,
+	}), 1, 2)
 
 	srx.Repeat(srx.OneOf([]*srx.SRX{
 		expExecute,
@@ -57,7 +60,7 @@ func ParseArgs(args *Args) {
 		expUse,
 		expExpect,
 		expHost,
-		expLogLevel,
-		expLogStyle,
-	}), 1, 4).Parse(os.Args[1:])
+		expLog,
+	}), 1, 8).Parse(os.Args[1:])
+	//    ^^^ UPDATE ME EVERY TIME YOU ADD ARGUMENTS
 }

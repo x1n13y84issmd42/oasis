@@ -76,13 +76,13 @@ func New(style string, level int64) ILogger {
 	case "plain":
 		return NewPlain(level)
 
-	case "nice":
-		return NewNice(level)
+	case "festive":
+		return NewFestive(level)
 	}
 
 	fmt.Printf("The \"%s\" log style is unknown.\nAvailable loggers are:\n", style)
 	fmt.Println("\tplain - a simple text logger")
-	fmt.Println("\tnice - a nicer colorized logger")
+	fmt.Println("\tfestive - a nicer colorized logger")
 
 	panic("No way.")
 }

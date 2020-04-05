@@ -19,10 +19,17 @@ Work in progress.
 ## Usage
 Oasis can be used either in manual mode, which allows to test few operations at a time, or in script mode, which is designed to test complex interaction scenarios, involving multiple endpoints and reusing data across them.
 
+### CLI
+Oasis has an unconventional command line interface which syntax resembles natural English naguage, or MySQL. So it configures not with "arguments" in conventional sense, as flags or switches; it's more like a query.
+
+Some clauses are straightforward and resemble flags (`from path/to/spec`), while others may be a bit more complex, like `expect` or `log`. Both of these have "child clauses" which may be used in arbitrary order. For example, if one would like to specify a logging level 1 and plain style, they'd expressed it either as `log at level 4 in plain style` or `log in plain style at level 1`. The `log` clause itself may be anywhere on command line, just like any other top-level clause (see [Arguments](#arguments)).
+
 ### Manual mode
 `oasis from spec/oasis.yaml test secure-apikey-cookie,meta-query-echo-body,meta-query-echo-headers,meta-headers-echo-body`
 
 `oasis from spec/oasis.yaml test meta-number-fail expect status 200 CT "*"`
+
+`run/oasis from spec/oasis.yaml test meta-bool-fail,meta-bool,meta-number-fail,meta-number log at level 4 in festive style`
 
 #### Arguments
 Argument|Example|Description
@@ -34,6 +41,9 @@ Argument|Example|Description
 `expect`|See below.|Specifies you expectations as for the operation outcome, such as response status & content type. The values from here will be used to select a proper `Response` from the OAS spec.
 `expect CT [CT_NAME]`|`expect CT application/json`<br/>`expect CT "*"`|Makes Oasis choose a spec `Response` with the specified Content-Type. Asterisk means "use the first one in the spec", and is default dehavior.
 `expect status [STATUS_CODE]`|`expect status 201`|Makes Oasis choose a spec `Response` with the specified response status code.
+log|See below|Logging control.
+`log at level [LEVEL]`|`log at level 4`|Set the log verbosity level using values 0-5.
+`log in [STYLE] style`|`log in plain style`|Set the log style. `plain` means plain text log, and `festive` is a colorized version.
 
 ### Script mode
 Coming soon.
