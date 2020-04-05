@@ -69,3 +69,20 @@ func (log Log) Print(l int64, msg string, args ...interface{}) {
 func (log Log) Println(l int64, msg string, args ...interface{}) {
 	log.Print(l, msg+"\n", args...)
 }
+
+// New creates a new logger based on the provided log tyle & leve.
+func New(style string, level int64) ILogger {
+	switch style {
+	case "plain":
+		return NewPlain(level)
+
+	case "nice":
+		return NewNice(level)
+	}
+
+	fmt.Printf("The \"%s\" log style is unknown.\nAvailable loggers are:\n", style)
+	fmt.Println("\tplain - a simple text logger")
+	fmt.Println("\tnice - a nicer colorized logger")
+
+	panic("No way.")
+}

@@ -19,6 +19,8 @@ func Manual(args *env.Args, logger log.ILogger) {
 	spec, specErr := utility.Load(args.Spec, logger)
 
 	if specErr == nil {
+		logger.TestingProject(spec.GetProjectInfo())
+
 		var specHost *api.Host
 
 		if params.Request.HostHint == "" {

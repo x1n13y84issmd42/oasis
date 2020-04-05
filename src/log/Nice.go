@@ -37,7 +37,7 @@ func NewNice(level int64) *Nice {
 		colorFailure: color.New(color.FgWhite).Add(color.BgRed).SprintFunc(),
 		colorSuccess: color.New(color.FgGreen).SprintFunc(),
 		colorError:   color.New(color.FgRed).SprintFunc(),
-		colorID:      color.New(color.FgHiWhite).SprintFunc(),
+		colorID:      color.New(color.FgHiWhite).Add(color.Bold).SprintFunc(),
 		colorValue:   color.New(color.FgHiWhite).SprintFunc(),
 	}
 }
@@ -56,7 +56,7 @@ func (log Nice) Error(err error) {
 
 // LoadingSpec --
 func (log Nice) LoadingSpec(path string) {
-	log.Println(2, "Loading %s", path)
+	log.Println(2, "Loading %s", log.colorURL(path))
 }
 
 // PrintOperations prints the list of available operations.
@@ -80,6 +80,7 @@ func (log Nice) UsingDefaultHost() {
 	log.Println(2, "No host name has been specified, using the first one in the list.")
 }
 
+// HostNotFound ...
 func (log Nice) HostNotFound(h string) {
 	if h == "" {
 		log.Println(2, "No default host is found in the spec.")
@@ -141,10 +142,16 @@ func (log Nice) HeaderHasNoValue(hdr *api.Header) {
 	log.Println(1, "\tHeader \"%s\" has a wrong type.", hdr.Name)
 } */
 
+// TestingOperation --
+func (log Nice) TestingOperation(op *api.Operation) {
+	log.Print(1, "Testing the %s operation... ", log.colorOp(op.Name))
+	log.Print(2, "\n")
+}
+
 // OperationOK --
 func (log Nice) OperationOK(res *api.Operation) {
 	log.Print(2, "\t")
-	log.Println(1, "%s", log.colorOK("OK"))
+	log.Println(1, "%s", log.colorOK("SUCCESS"))
 }
 
 // OperationFail --
@@ -241,16 +248,10 @@ func (log Nice) UsingParameterExample(paramName string, in string, container str
 
 // TestingProject --
 func (log Nice) TestingProject(pi *api.ProjectInfo) {
-	log.Println(1, "Testing the %s @ %s", pi.Title, pi.Version)
+	log.Println(1, "Testing the %s @ %s", log.colorOp(pi.Title), log.colorValue(pi.Version))
 }
 
 // UsingHost --
 func (log Nice) UsingHost(host *api.Host) {
-	log.Println(2, "Using the \"%s\" host @ %s", host.Name, host.URL)
-}
-
-// TestingOperation --
-func (log Nice) TestingOperation(op *api.Operation) {
-	log.Print(1, "Testing the \"%s\" operation... ", log.colorOp(op.Name))
-	log.Print(2, "\n")
+	log.Println(2, "Using the %s host @ %s", log.colorOp(host.Name), log.colorURL(host.URL))
 }

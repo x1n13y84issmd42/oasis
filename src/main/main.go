@@ -12,7 +12,7 @@ func main() {
 
 	env.ParseArgs(args)
 
-	logger := log.NewNice(args.LogLevel)
+	logger := log.New(args.LogStyle, args.LogLevel)
 
 	if args.Script != "" {
 		Script(args, logger)

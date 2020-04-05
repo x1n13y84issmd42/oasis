@@ -2,20 +2,19 @@ package log
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// Simple - a simple test execution logger
-type Simple struct {
+// Plain - a plain & simple test execution logger
+type Plain struct {
 	Log
 }
 
-// NewSimple is a Nice logger constructor.
-func NewSimple(level int64) *Simple {
-	return &Simple{
+// NewPlain is a Nice logger constructor.
+func NewPlain(level int64) *Plain {
+	return &Plain{
 		Log: Log{
 			Level: level,
 		},
@@ -23,24 +22,24 @@ func NewSimple(level int64) *Simple {
 }
 
 // Usage prints CLI usage information.
-func (log Simple) Usage() {
+func (log Plain) Usage() {
 	fmt.Println("Please specify at least a spec file & an operation to test.")
 	fmt.Println("Example:")
 	fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
 }
 
 // Error --
-func (log Simple) Error(err error) {
+func (log Plain) Error(err error) {
 	log.Println(1, "\tSomething happened: %s", err.Error())
 }
 
 // LoadingSpec --
-func (log Simple) LoadingSpec(path string) {
+func (log Plain) LoadingSpec(path string) {
 	log.Println(2, "Loading %s", path)
 }
 
 // PrintOperations prints the list of available operations.
-func (log Simple) PrintOperations(ops []*api.Operation) {
+func (log Plain) PrintOperations(ops []*api.Operation) {
 	for _, op := range ops {
 		if op.ID != "" {
 			log.Println(1, "\t%s [%s]", op.Name, op.ID)
@@ -56,11 +55,12 @@ func (log Simple) PrintOperations(ops []*api.Operation) {
 }
 
 // UsingDefaultHost --
-func (log Simple) UsingDefaultHost() {
+func (log Plain) UsingDefaultHost() {
 	log.Println(2, "No host name has been specified, using the first one in the list.")
 }
 
-func (log Simple) HostNotFound(h string) {
+// HostNotFound ...
+func (log Plain) HostNotFound(h string) {
 	if h == "" {
 		log.Println(2, "No default host is found in the spec.")
 	} else {
@@ -69,27 +69,27 @@ func (log Simple) HostNotFound(h string) {
 }
 
 // Overriding --
-func (log Simple) Overriding(what string) {
+func (log Plain) Overriding(what string) {
 	log.Println(1, "\tOverriding %s.", what)
 }
 
 // Requesting --
-func (log Simple) Requesting(URL string) {
+func (log Plain) Requesting(URL string) {
 	log.Println(2, "\tRequesting %s", URL)
 }
 
 // ResponseNotFound --
-func (log Simple) ResponseNotFound(CT string, status int) {
+func (log Plain) ResponseNotFound(CT string, status int) {
 	log.Println(1, "\tNo response for Status of %d & Content-Type of \"%s\"", status, CT)
 }
 
 // ResponseHasWrongStatus --
-func (log Simple) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
+func (log Plain) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
 	log.Println(1, "\tExpected the %d status in response, but got %d.", resp.StatusCode, actualStatus)
 }
 
 // ResponseHasWrongContentType --
-func (log Simple) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
+func (log Plain) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
 	log.Println(1, "\tExpected the \"%s\" Content-Type in response, but got \"%s\".", resp.ContentType, actualCT)
 }
 
@@ -99,7 +99,7 @@ func (log Simple) ResponseHasWrongContentType(resp *api.Response, actualCT strin
 } */
 
 // UsingResponse --
-func (log Simple) UsingResponse(resp *api.Response) {
+func (log Plain) UsingResponse(resp *api.Response) {
 	// if resp.Schema != nil {
 	// 	log.Println(1, "\tTesting against the \"%s\" response.", resp.Schema.Name)
 	// } else {
@@ -112,7 +112,7 @@ func (log Simple) UsingResponse(resp *api.Response) {
 }
 
 // HeaderHasNoValue --
-func (log Simple) HeaderHasNoValue(hdr *api.Header) {
+func (log Plain) HeaderHasNoValue(hdr *api.Header) {
 	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr.Name)
 }
 
@@ -121,33 +121,41 @@ func (log Simple) HeaderHasNoValue(hdr *api.Header) {
 	log.Println(1, "\tHeader \"%s\" has a wrong type.", hdr.Name)
 } */
 
+// TestingOperation --
+func (log Plain) TestingOperation(res *api.Operation) {
+	log.Print(1, "Testing the \"%s\" operation... ", res.Name)
+	log.Print(2, "\n")
+}
+
 // OperationOK --
-func (log Simple) OperationOK(res *api.Operation) {
-	log.Println(1, "OK")
+func (log Plain) OperationOK(res *api.Operation) {
+	log.Print(2, "\t")
+	log.Println(1, "%s", "OK")
 }
 
 // OperationFail --
-func (log Simple) OperationFail(res *api.Operation) {
-	log.Println(1, "FAILURE")
+func (log Plain) OperationFail(res *api.Operation) {
+	log.Print(2, "\t")
+	log.Println(1, "%s", "FAILURE")
 }
 
 // OperationNotFound --
-func (log Simple) OperationNotFound(op string) {
+func (log Plain) OperationNotFound(op string) {
 	log.Println(1, "The operation \"%s\" isn't there.", op)
 }
 
 // SchemaTesting --
-func (log Simple) SchemaTesting(schema *api.Schema, data interface{}) {
+func (log Plain) SchemaTesting(schema *api.Schema, data interface{}) {
 	log.Print(4, "\t%s: testing %#v", schema.Name, data)
 }
 
 // SchemaOK --
-func (log Simple) SchemaOK(schema *api.Schema) {
+func (log Plain) SchemaOK(schema *api.Schema) {
 	log.Println(4, " - OK")
 }
 
 // SchemaFail --
-func (log Simple) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
+func (log Plain) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
 	log.Println(4, " - FAILURE")
 	// log.Println(4, "\tSchema \"%s\" has errors.", schema.Name)
 
@@ -197,12 +205,12 @@ func (log Simple) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultErr
 } */
 
 // ParameterHasNoExample --
-func (log Simple) ParameterHasNoExample(paramName string, in string, container string) {
+func (log Plain) ParameterHasNoExample(paramName string, in string, container string) {
 	log.Println(5, "\tThe %s parameter \"%s\" (from %s) has no example value to use.", in, paramName, container)
 }
 
 // UsingParameterExample --
-func (log Simple) UsingParameterExample(paramName string, in string, container string) {
+func (log Plain) UsingParameterExample(paramName string, in string, container string) {
 	log.Println(5, "\tUsing the %s parameter \"%s\" (from %s) example.", in, paramName, container)
 }
 
@@ -217,16 +225,11 @@ func (log Simple) UsingParameterExample(paramName string, in string, container s
 } */
 
 // TestingProject --
-func (log Simple) TestingProject(pi *api.ProjectInfo) {
+func (log Plain) TestingProject(pi *api.ProjectInfo) {
 	log.Println(1, "Testing the %s @ %s", pi.Title, pi.Version)
 }
 
 // UsingHost --
-func (log Simple) UsingHost(host *api.Host) {
+func (log Plain) UsingHost(host *api.Host) {
 	log.Println(2, "Using the \"%s\" host @ %s", host.Name, host.URL)
-}
-
-// TestingOperation --
-func (log Simple) TestingOperation(res *api.Operation) {
-	log.Println(1, "Testing the \"%s\" operation @ %s %s", res.Name, strings.ToUpper(res.Method), res.Path)
 }
