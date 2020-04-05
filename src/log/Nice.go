@@ -152,12 +152,14 @@ func (log Nice) TestingOperation(op *api.Operation) {
 func (log Nice) OperationOK(res *api.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.colorOK("SUCCESS"))
+	log.Print(2, "\n")
 }
 
 // OperationFail --
 func (log Nice) OperationFail(res *api.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.colorFailure("FAILURE"))
+	log.Print(2, "\n")
 }
 
 // OperationNotFound --

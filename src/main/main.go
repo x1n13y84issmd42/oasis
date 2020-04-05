@@ -8,6 +8,7 @@ import (
 func main() {
 	args := &env.Args{
 		LogLevel: 2,
+		LogStyle: "nice",
 	}
 
 	env.ParseArgs(args)

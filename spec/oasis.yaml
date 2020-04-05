@@ -72,7 +72,7 @@ paths:
                 type: boolean
               required: true
               description: Your source of truth.
-  /api/public/meta/headers/number/fail:
+  /api/public/meta/headers/number/fail/schema:
     get:
       tags:
         - public

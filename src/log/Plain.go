@@ -130,13 +130,15 @@ func (log Plain) TestingOperation(res *api.Operation) {
 // OperationOK --
 func (log Plain) OperationOK(res *api.Operation) {
 	log.Print(2, "\t")
-	log.Println(1, "%s", "OK")
+	log.Println(1, "%s", "SUCCESS")
+	log.Print(2, "\n")
 }
 
 // OperationFail --
 func (log Plain) OperationFail(res *api.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", "FAILURE")
+	log.Print(2, "\n")
 }
 
 // OperationNotFound --
