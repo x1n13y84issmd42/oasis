@@ -12,11 +12,7 @@ func main() {
 
 	env.ParseArgs(args)
 
-	logger := &log.Simple{
-		Log: log.Log{
-			Level: args.LogLevel,
-		},
-	}
+	logger := log.NewNice(args.LogLevel)
 
 	if args.Script != "" {
 		Script(args, logger)

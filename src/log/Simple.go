@@ -13,6 +13,15 @@ type Simple struct {
 	Log
 }
 
+// NewSimple is a Nice logger constructor.
+func NewSimple(level int64) *Simple {
+	return &Simple{
+		Log: Log{
+			Level: level,
+		},
+	}
+}
+
 // Usage prints CLI usage information.
 func (log Simple) Usage() {
 	fmt.Println("Please specify at least a spec file & an operation to test.")

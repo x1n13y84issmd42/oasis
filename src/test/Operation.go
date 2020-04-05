@@ -35,7 +35,15 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 
 	// fmt.Printf("Op response: %#v\n", response)
 
-	return Response(response, specResp, logger)
+	res := Response(response, specResp, logger)
+
+	if res {
+		logger.OperationOK(specOp)
+	} else {
+		logger.OperationFail(specOp)
+	}
+
+	return res
 }
 
 // SelectRequest ...

@@ -36,3 +36,7 @@
 [[constraint]]
   name = "github.com/xeipuuv/gojsonschema"
   version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/fatih/color"
+  version = "1.9.0"
