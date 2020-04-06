@@ -705,7 +705,7 @@ components:
           type: string
         createdAt:
           type: string
-          format: date
+          format: date-time
         token:
           type: string
       example: "{\r\n\"name\": \"Seamus Gulgowski\",\r\n\"email\": \"Eldridge87@hotmail.com\",\r\n\"createdAt\": \"2019-03-01T21:58:16.596Z\",\r\n\"token\": \"f5f8cf46-7ed9-465c-827a-3c39470b178b\"\r\n}"
