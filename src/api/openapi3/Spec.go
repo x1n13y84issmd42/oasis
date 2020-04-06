@@ -272,8 +272,8 @@ func (spec *Spec) CreatePath(
 		fixPath(ppn, ppv, "override")
 	}
 
-	useParameters(oasOp.Parameters, "operation")
-	useParameters(oasPathItem.Parameters, "path")
+	useParameters(oasOp.Parameters, "spec operation")
+	useParameters(oasPathItem.Parameters, "spec path")
 
 	return path
 }
@@ -320,8 +320,8 @@ func (spec *Spec) CreateQuery(
 		}
 	}
 
-	useParameters(oasOp.Parameters, "operation")
-	useParameters(oasPathItem.Parameters, "path")
+	useParameters(oasOp.Parameters, "spec operation")
+	useParameters(oasPathItem.Parameters, "spec path")
 
 	return &qry
 }

@@ -261,12 +261,12 @@ func (log Festive) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultEr
 
 // ParameterHasNoExample --
 func (log Festive) ParameterHasNoExample(paramName string, in string, container string) {
-	log.Println(5, "\tThe %s parameter \"%s\" (from %s) has no example value to use.", in, paramName, container)
+	log.Println(5, "\tThe %s parameter %s (from %s) has no example value to use.", in, log.styleID(paramName), container)
 }
 
 // UsingParameterExample --
 func (log Festive) UsingParameterExample(paramName string, in string, container string) {
-	log.Println(5, "\tUsing the %s parameter \"%s\" (from %s) example.", in, paramName, container)
+	log.Println(5, "\tUsing the %s parameter %s (from %s) example.", in, log.styleID(paramName), container)
 }
 
 // PropertyHasNoValue --
