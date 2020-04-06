@@ -1,3 +1,6 @@
 #!/bin/bash
 
+# Required by gookit/color to work properly on windows.
+TERM=xterm
+
 go run src/main/*.go ${@}

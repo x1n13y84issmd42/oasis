@@ -29,6 +29,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:f7607c7556611109a0579cba1cc171122d60cc591fd9fe388c432c9a2740e82f"
+  name = "github.com/gookit/color"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4424096b9787fc36df5fd5e15c62886edbf13544"
+  version = "v1.2.4"
+
+[[projects]]
   digest = "1:0109cf4321a15313ec895f42e723e1f76121c6975ea006abfa20012272ec0937"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
@@ -90,6 +98,7 @@
   input-imports = [
     "github.com/fatih/color",
     "github.com/getkin/kin-openapi/openapi3",
+    "github.com/gookit/color",
     "github.com/xeipuuv/gojsonschema",
   ]
   solver-name = "gps-cdcl"

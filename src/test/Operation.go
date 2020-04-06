@@ -25,7 +25,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 
 	req := specReq.CreateRequest(specHost)
 
-	logger.Requesting(req.URL.String())
+	logger.Requesting(req.Method, req.URL.String())
 	response, err := client.Do(req)
 
 	if err != nil {

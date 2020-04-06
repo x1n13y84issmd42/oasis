@@ -74,8 +74,8 @@ func (log Plain) Overriding(what string) {
 }
 
 // Requesting --
-func (log Plain) Requesting(URL string) {
-	log.Println(2, "\tRequesting %s", URL)
+func (log Plain) Requesting(method string, URL string) {
+	log.Println(2, "\tRequesting %s @ %s", method, URL)
 }
 
 // ResponseNotFound --

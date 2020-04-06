@@ -2,8 +2,9 @@ package log
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/fatih/color"
+	"github.com/gookit/color"
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -14,14 +15,17 @@ type ColorFn = func(...interface{}) string
 // Festive - a colorized test execution logger.
 type Festive struct {
 	Log
-	colorURL     ColorFn
-	colorOp      ColorFn
-	colorOK      ColorFn
-	colorFailure ColorFn
-	colorSuccess ColorFn
-	colorError   ColorFn
-	colorID      ColorFn
-	colorValue   ColorFn
+	styleDefault       ColorFn
+	styleURL           ColorFn
+	styleMethod        ColorFn
+	styleOp            ColorFn
+	styleOK            ColorFn
+	styleFailure       ColorFn
+	styleSuccess       ColorFn
+	styleError         ColorFn
+	styleID            ColorFn
+	styleValueExpected ColorFn
+	styleValueActual   ColorFn
 }
 
 // NewFestive is a Nice logger constructor.
@@ -31,14 +35,17 @@ func NewFestive(level int64) *Festive {
 			Level: level,
 		},
 
-		colorURL:     color.New(color.FgCyan).Add(color.Underline).SprintFunc(),
-		colorOp:      color.New(color.FgYellow).SprintFunc(),
-		colorOK:      color.New(color.FgWhite).Add(color.BgGreen).SprintFunc(),
-		colorFailure: color.New(color.FgWhite).Add(color.BgRed).SprintFunc(),
-		colorSuccess: color.New(color.FgGreen).SprintFunc(),
-		colorError:   color.New(color.FgRed).SprintFunc(),
-		colorID:      color.New(color.FgHiWhite).Add(color.Bold).SprintFunc(),
-		colorValue:   color.New(color.FgHiWhite).SprintFunc(),
+		styleDefault:       color.New(38, 5, 218).Sprint,
+		styleURL:           color.New(color.FgCyan, color.OpUnderscore).Sprint,
+		styleMethod:        color.New(color.FgCyan).Sprint,
+		styleOp:            color.New(color.FgYellow).Sprint,
+		styleOK:            color.New(color.FgLightWhite, color.BgGreen).Sprint,
+		styleFailure:       color.New(color.FgLightWhite, color.BgRed).Sprint,
+		styleSuccess:       color.New(color.FgGreen).Sprint,
+		styleError:         color.New(color.FgRed).Sprint,
+		styleID:            color.New(color.FgLightWhite, color.OpUnderscore).Sprint,
+		styleValueExpected: color.New(48, 5, 2, 38, 5, 0).Sprint,
+		styleValueActual:   color.New(48, 5, 250, 38, 5, 0).Sprint,
 	}
 }
 
@@ -51,26 +58,26 @@ func (log Festive) Usage() {
 
 // Error --
 func (log Festive) Error(err error) {
-	log.Println(1, "\tSomething happened: %s", log.colorError(err.Error()))
+	log.Println(1, "\tSomething happened: %s", log.styleError(err.Error()))
 }
 
 // LoadingSpec --
 func (log Festive) LoadingSpec(path string) {
-	log.Println(2, "Loading %s", log.colorURL(path))
+	log.Println(2, "Loading %s", log.styleURL(path))
 }
 
 // PrintOperations prints the list of available operations.
 func (log Festive) PrintOperations(ops []*api.Operation) {
 	for _, op := range ops {
 		if op.ID != "" {
-			log.Println(1, "\t%s [%s]", log.colorOp(op.Name), log.colorOp(op.ID))
+			log.Println(1, "\t%s [%s]", log.styleOp(op.Name), log.styleOp(op.ID))
 			if op.Description != "" {
 				log.Println(1, "\t%s", op.Description)
 			}
 		} else {
-			log.Println(1, "\t%s", log.colorOp(op.Name))
+			log.Println(1, "\t%s", log.styleOp(op.Name))
 		}
-		log.Println(1, "\t%s @ %s\n", op.Method, log.colorURL(op.Path))
+		log.Println(1, "\t%s @ %s\n", op.Method, log.styleURL(op.Path))
 		log.Println(1, "")
 	}
 }
@@ -95,8 +102,8 @@ func (log Festive) Overriding(what string) {
 }
 
 // Requesting --
-func (log Festive) Requesting(URL string) {
-	log.Println(2, "\tRequesting %s", log.colorURL(URL))
+func (log Festive) Requesting(method string, URL string) {
+	log.Println(2, "\tRequesting %s @ %s", log.styleMethod(method), log.styleURL(URL))
 }
 
 // ResponseNotFound --
@@ -106,12 +113,27 @@ func (log Festive) ResponseNotFound(CT string, status int) {
 
 // ResponseHasWrongStatus --
 func (log Festive) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
-	log.Println(1, "\tExpected the %d status in response, but got %d.", resp.StatusCode, actualStatus)
+	m := strings.Join([]string{
+		"\t",
+		"Expected the %s ",
+		log.styleID("status"),
+		" in response, but got %s",
+		".",
+	}, "")
+	log.Println(2, m, log.styleValueExpected(resp.StatusCode), log.styleValueActual(actualStatus))
 }
 
 // ResponseHasWrongContentType --
 func (log Festive) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
-	log.Println(1, "\tExpected the \"%s\" Content-Type in response, but got \"%s\".", resp.ContentType, actualCT)
+	m := strings.Join([]string{
+		"\t",
+		"Expected the %s ",
+		log.styleID("Content-Type"),
+		" in response, but got %s",
+		".",
+	}, "")
+
+	log.Println(2, m, log.styleValueExpected(resp.ContentType), log.styleValueActual(actualCT))
 }
 
 // UsingRequest --
@@ -144,21 +166,21 @@ func (log Festive) HeaderHasNoValue(hdr *api.Header) {
 
 // TestingOperation --
 func (log Festive) TestingOperation(op *api.Operation) {
-	log.Print(1, "Testing the %s operation... ", log.colorOp(op.Name))
+	log.Print(1, "Testing the %s operation... ", log.styleOp(op.Name))
 	log.Print(2, "\n")
 }
 
 // OperationOK --
 func (log Festive) OperationOK(res *api.Operation) {
 	log.Print(2, "\t")
-	log.Println(1, "%s", log.colorOK("SUCCESS"))
+	log.Println(1, "%s", log.styleOK("SUCCESS"))
 	log.Print(2, "\n")
 }
 
 // OperationFail --
 func (log Festive) OperationFail(res *api.Operation) {
 	log.Print(2, "\t")
-	log.Println(1, "%s", log.colorFailure("FAILURE"))
+	log.Println(1, "%s", log.styleFailure("FAILURE"))
 	log.Print(2, "\n")
 }
 
@@ -169,22 +191,22 @@ func (log Festive) OperationNotFound(op string) {
 
 // SchemaTesting --
 func (log Festive) SchemaTesting(schema *api.Schema, data interface{}) {
-	datas := log.colorValue(fmt.Sprintf("%#v", data))
-	log.Print(4, "\t%s: testing %s", log.colorID(schema.Name), datas)
+	datas := log.styleValueActual(fmt.Sprintf("%#v", data))
+	log.Print(4, "\t%s: testing %s", log.styleID(schema.Name), datas)
 }
 
 // SchemaOK --
 func (log Festive) SchemaOK(schema *api.Schema) {
-	log.Println(4, log.colorSuccess(" - OK"))
+	log.Println(4, log.styleSuccess(" - OK"))
 }
 
 // SchemaFail --
 func (log Festive) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
-	log.Println(4, log.colorError(" - FAILURE"))
+	log.Println(4, log.styleError(" - FAILURE"))
 	// log.Println(4, "\tSchema \"%s\" has errors.", schema.Name)
 
 	for _, desc := range errors {
-		log.Println(4, "\t\t%s", log.colorError(desc))
+		log.Println(4, "\t\t%s", log.styleError(desc))
 	}
 }
 
@@ -250,10 +272,10 @@ func (log Festive) UsingParameterExample(paramName string, in string, container 
 
 // TestingProject --
 func (log Festive) TestingProject(pi *api.ProjectInfo) {
-	log.Println(1, "Testing the %s @ %s", log.colorOp(pi.Title), log.colorValue(pi.Version))
+	log.Println(1, "Testing the %s @ %s", log.styleOp(pi.Title), log.styleID(pi.Version))
 }
 
 // UsingHost --
 func (log Festive) UsingHost(host *api.Host) {
-	log.Println(2, "Using the %s host @ %s", log.colorOp(host.Name), log.colorURL(host.URL))
+	log.Println(2, "Using the %s host @ %s", log.styleOp(host.Name), log.styleURL(host.URL))
 }

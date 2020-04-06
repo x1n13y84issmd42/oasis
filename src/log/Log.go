@@ -26,7 +26,7 @@ type ILogger interface {
 	UsingResponse(req *api.Response)
 
 	Overriding(what string)
-	Requesting(url string)
+	Requesting(method string, url string)
 
 	ParameterHasNoExample(paramName string, in string, container string)
 	UsingParameterExample(paramName string, in string, container string)

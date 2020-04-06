@@ -15,7 +15,11 @@
 				"from",
 				"../../spec/oasis.yaml",
 				"test",
-				"meta-query-echo-headers"
+				"meta-headers-echo-body",
+				"log",
+				"at",
+				"level",
+				"4"
 			]
 		},
 
