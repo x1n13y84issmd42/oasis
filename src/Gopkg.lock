@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  digest = "1:bde2a1ce1de28312f165a88926c12f4acd19dc4d7da96a445dfa5a29eae07a93"
-  name = "github.com/fatih/color"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "daf2830f2741ebb735b21709a520c5f37d642d85"
-  version = "v1.9.0"
-
-[[projects]]
   digest = "1:7561f9ee6ad92bb3533286579dacc2d5aced91835358d39e2b69aa099ea5de2e"
   name = "github.com/getkin/kin-openapi"
   packages = [
@@ -17,8 +9,8 @@
     "openapi3",
   ]
   pruneopts = "UT"
-  revision = "989d00f2a3e831bd8fa14a4c2abd17a37d684f50"
-  version = "v0.3.0"
+  revision = "156b7ea663989fa097bcee777b98c76cf019d38c"
+  version = "v0.3.1"
 
 [[projects]]
   digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
@@ -35,22 +27,6 @@
   pruneopts = "UT"
   revision = "4424096b9787fc36df5fd5e15c62886edbf13544"
   version = "v1.2.4"
-
-[[projects]]
-  digest = "1:0109cf4321a15313ec895f42e723e1f76121c6975ea006abfa20012272ec0937"
-  name = "github.com/mattn/go-colorable"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "68e95eba382c972aafde02ead2cd2426a8a92480"
-  version = "v0.1.6"
-
-[[projects]]
-  digest = "1:0c58d31abe2a2ccb429c559b6292e7df89dcda675456fecc282fa90aa08273eb"
-  name = "github.com/mattn/go-isatty"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "7b513a986450394f7bbf1476909911b3aa3a55ce"
-  version = "v0.0.12"
 
 [[projects]]
   branch = "master"
@@ -77,14 +53,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:842f1500cf319662226ee2f897aa1bf5e9228bb851af8a9aaef5c425fe90f14e"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  pruneopts = "UT"
-  revision = "c3d80250170dec19bf61949c81233cede5ddaf61"
-
-[[projects]]
   digest = "1:55b110c99c5fdc4f14930747326acce56b52cfce60b24b1c03ef686ac0e46bb1"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -96,7 +64,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/fatih/color",
     "github.com/getkin/kin-openapi/openapi3",
     "github.com/gookit/color",
     "github.com/xeipuuv/gojsonschema",
