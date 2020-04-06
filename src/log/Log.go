@@ -62,10 +62,6 @@ type Log struct {
 func (log Log) Print(l int64, msg string, args ...interface{}) {
 	if l <= log.Level {
 		fmt.Printf(msg, args...)
-		// Redraw the prompt.
-		// This is needed for new BG color to take place in the mid of the line.
-		// Otherwise it redraws only on \n.
-		fmt.Printf("\x1b[K")
 	}
 }
 

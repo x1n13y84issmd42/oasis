@@ -12,6 +12,15 @@ import (
 // ColorFn is a function to colorize strings before printing them.
 type ColorFn = func(...interface{}) string
 
+func wrapStyle(styleFn ColorFn) ColorFn {
+	return func(args ...interface{}) string {
+		// Adding a "redraw the prompt" control sequence.
+		// This is needed for new BG color to take place in the mid of the line.
+		// Otherwise it redraws only on \n.
+		return styleFn(args...) + "\x1b[K"
+	}
+}
+
 // Festive - a colorized test execution logger.
 type Festive struct {
 	Log
@@ -35,17 +44,17 @@ func NewFestive(level int64) *Festive {
 			Level: level,
 		},
 
-		styleDefault:       color.New(38, 5, 218).Sprint,
-		styleURL:           color.New(color.FgCyan, color.OpUnderscore).Sprint,
-		styleMethod:        color.New(color.FgCyan).Sprint,
-		styleOp:            color.New(color.FgYellow).Sprint,
-		styleOK:            color.New(color.FgLightWhite, color.BgGreen).Sprint,
-		styleFailure:       color.New(color.FgLightWhite, color.BgRed).Sprint,
-		styleSuccess:       color.New(color.FgGreen).Sprint,
-		styleError:         color.New(color.FgRed).Sprint,
-		styleID:            color.New(color.FgLightWhite, color.OpUnderscore).Sprint,
-		styleValueExpected: color.New(48, 5, 2, 38, 5, 0).Sprint,
-		styleValueActual:   color.New(48, 5, 250, 38, 5, 0).Sprint,
+		styleDefault:       wrapStyle(color.New(38, 5, 218).Sprint),
+		styleURL:           wrapStyle(color.New(color.FgCyan, color.OpUnderscore).Sprint),
+		styleMethod:        wrapStyle(color.New(color.FgCyan).Sprint),
+		styleOp:            wrapStyle(color.New(color.FgYellow).Sprint),
+		styleOK:            wrapStyle(color.New(color.FgLightWhite, color.BgGreen).Sprint),
+		styleFailure:       wrapStyle(color.New(color.FgLightWhite, color.BgRed).Sprint),
+		styleSuccess:       wrapStyle(color.New(color.FgGreen).Sprint),
+		styleError:         wrapStyle(color.New(color.FgRed).Sprint),
+		styleID:            wrapStyle(color.New(color.FgLightWhite, color.OpUnderscore).Sprint),
+		styleValueExpected: wrapStyle(color.New(48, 5, 2, 38, 5, 0).Sprint),
+		styleValueActual:   wrapStyle(color.New(48, 5, 240, 38, 5, 255).Sprint),
 	}
 }
 
