@@ -19,8 +19,7 @@ func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
 
 	headersOK := true
 	for specHeaderName, specHeaderValues := range specResp.Headers {
-		// fmt.Printf("\tHeader: %s: %#v\n", specHeaderName, resp.Header.Values(specHeaderName))
-		headersOK = ResponseHeader(specHeaderName, specHeaderValues, resp.Header.Values(specHeaderName), logger) && headersOK
+		headersOK = Header(specHeaderName, specHeaderValues, resp.Header.Values(specHeaderName), logger) && headersOK
 	}
 
 	if !statusOK {

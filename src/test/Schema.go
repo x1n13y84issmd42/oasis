@@ -6,8 +6,8 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// ValidateJSONSchema uses the provided schema to validate the provided data against.
-func ValidateJSONSchema(data interface{}, schema *api.Schema, logger log.ILogger) bool {
+// Schema validates data against the provided schema.
+func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool {
 	logger.SchemaTesting(schema, data)
 
 	schemaLoader := gojsonschema.NewGoLoader(schema.JSONSchema)

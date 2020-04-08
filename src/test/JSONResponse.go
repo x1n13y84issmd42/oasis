@@ -19,23 +19,23 @@ func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
 	var err error = nil
 
 	if res, err := tryJSONObjectResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema(res, specResp.Schema, logger)
+		return Schema(res, specResp.Schema, logger)
 	}
 
 	if res, err := tryJSONArrayResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema(res, specResp.Schema, logger)
+		return Schema(res, specResp.Schema, logger)
 	}
 
 	if res, err := tryJSONStringResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema(res, specResp.Schema, logger)
+		return Schema(res, specResp.Schema, logger)
 	}
 
 	if res, err := tryJSONNumberResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema(res, specResp.Schema, logger)
+		return Schema(res, specResp.Schema, logger)
 	}
 
 	if res, err := tryJSONBooleanResponse(&respData, specResp, logger); err == nil {
-		return ValidateJSONSchema(res, specResp.Schema, logger)
+		return Schema(res, specResp.Schema, logger)
 	}
 
 	fmt.Printf("JSONResponse Error: %s", err.Error())
