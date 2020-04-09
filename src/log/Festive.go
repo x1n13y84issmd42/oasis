@@ -256,7 +256,7 @@ func (log Festive) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultEr
 
 // UsingSecurity --
 func (log Festive) UsingSecurity(sec api.ISecurity) {
-	log.Println(1, "\tUsing the \"%s\" security settings.", sec.GetName())
+	log.Println(3, "\tUsing the \"%s\" security settings.", sec.GetName())
 }
 
 // ParameterHasNoExample --
@@ -281,7 +281,7 @@ func (log Festive) UsingParameterExample(paramName string, in string, container 
 
 // TestingProject --
 func (log Festive) TestingProject(pi *api.ProjectInfo) {
-	log.Println(1, "Testing the %s @ %s", log.styleOp(pi.Title), log.styleID(pi.Version))
+	log.Println(2, "Testing the %s @ %s", log.styleOp(pi.Title), log.styleID(pi.Version))
 }
 
 // UsingHost --

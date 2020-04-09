@@ -520,7 +520,7 @@ paths:
         - composite
   /api/secure/apikey-header/get:
     get:
-      summary: Get a secured resource
+      summary: Secure API Key Header
       tags:
         - secure
         - apikey
@@ -533,7 +533,7 @@ paths:
       description: Requests a resource which requires an API key in a header.
   /api/secure/apikey-query/get:
     get:
-      summary: Get a secured resource
+      summary: Secure API Key Query
       tags: []
       responses:
         '200':
@@ -679,7 +679,7 @@ paths:
           description: An optional boolean header.
   /api/secure/apikey-cookie/get:
     get:
-      summary: Get a secure resource
+      summary: Secure API Key Cookie
       tags:
         - secure
       responses:
