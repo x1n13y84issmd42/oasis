@@ -7,6 +7,7 @@ type Operation struct {
 	ID          string
 	Method      string
 	Path        string
+	Security    ISecurity
 	Requests    []*Request
 	Responses   []*Response
 }

@@ -717,7 +717,7 @@ components:
     HTTP Basic:
       type: http
       scheme: basic
-      example: Basic dXNlcjoxMjM=
+      x-example: Basic dXNlcjoxMjM=
     HTTP Digest:
       type: http
       scheme: digest
@@ -728,14 +728,14 @@ components:
       name: key
       type: apiKey
       in: query
-      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
+      x-example: GOT_A_SECRET_CAN_YOU_KEEP_IT
     API Key - Header:
       name: x-api-key
       type: apiKey
       in: header
-      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
+      x-example: GOT_A_SECRET_CAN_YOU_KEEP_IT
     API Key - Cookie:
       name: api_key
       type: apiKey
       in: cookie
-      example: GOT_A_SECRET_CAN_YOU_KEEP_IT
+      x-example: GOT_A_SECRET_CAN_YOU_KEEP_IT

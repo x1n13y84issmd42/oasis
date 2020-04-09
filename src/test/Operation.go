@@ -25,6 +25,10 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 
 	req := specReq.CreateRequest(specHost)
 
+	if specOp.Security != nil {
+		specOp.Security.Secure(req)
+	}
+
 	logger.Requesting(req.Method, req.URL.String())
 	response, err := client.Do(req)
 

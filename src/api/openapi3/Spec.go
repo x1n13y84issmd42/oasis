@@ -2,12 +2,15 @@ package openapi3
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	apikey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+	http "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
@@ -113,9 +116,71 @@ func (spec *Spec) makeOperation(
 		Description: oasOp.Description,
 		Method:      method,
 		Path:        specPath,
+		Security:    spec.MakeSecurity(oasOp.Security, params),
 		Requests:    specRequests,
 		Responses:   specResponses,
 	}
+}
+
+// MakeSecurity creates an api.Request instance from available operation spec data.
+func (spec *Spec) MakeSecurity(
+	oasSecReqs *openapi3.SecurityRequirements,
+	params *api.OperationParameters,
+) api.ISecurity {
+
+	var oasSec *openapi3.SecurityScheme
+	oasSecurityToken := ""
+	oasSecurityName := ""
+
+	getSecurity := func(n string) *openapi3.SecurityScheme {
+		oasSecR := spec.OAS.Components.SecuritySchemes[n]
+
+		if oasSecR == nil || oasSecR.Value == nil {
+			panic(fmt.Sprintf(`Security definition \"%s\" not found.`, n))
+		}
+
+		oasSecurityName = n
+		return oasSecR.Value
+	}
+
+	if params.Security.SecurityHint != "" {
+		oasSec = getSecurity(params.Security.SecurityHint)
+	} else if oasSecReqs != nil {
+		for _, oasSecReq := range *oasSecReqs {
+			for oasSecName := range oasSecReq {
+				oasSec = getSecurity(oasSecName)
+				break
+			}
+
+			if oasSec != nil {
+				break
+			}
+		}
+	}
+
+	if params.Security.HTTPAuthValue != "" {
+		oasSecurityToken = params.Security.HTTPAuthValue
+	} else if oasSec != nil && oasSec.Extensions["x-example"] != nil {
+		jre, isjre := oasSec.Extensions["x-example"].(json.RawMessage)
+		if isjre {
+			tokenErr := json.Unmarshal(jre, &oasSecurityToken)
+			if tokenErr != nil {
+				panic(tokenErr)
+			}
+		}
+	}
+
+	if oasSec != nil {
+		switch oasSec.Type {
+		case "apiKey":
+			return apikey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log)
+
+		case "http":
+			return http.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log)
+		}
+	}
+
+	return nil
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.

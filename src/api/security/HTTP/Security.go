@@ -5,14 +5,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 // Security implements the 'http' security type.
 type Security struct {
-	APISecurity *openapi3.SecurityScheme
-	Log         log.ILogger
+	Name     string
+	Token    string
+	Username string
+	Password string
+	Log      log.ILogger
 }
 
 // WWWAuthenticateQoP is a type for the Quality of Protection value.
@@ -21,8 +24,8 @@ type WWWAuthenticateQoP string
 
 // QoP types.
 const (
-	WWWAuthenticateQoPAuth     = "auth"
-	WWWAuthenticateQoPAuthIntl = "auth-intl"
+	WWWAuthenticateQoPAuth     = WWWAuthenticateQoP("auth")
+	WWWAuthenticateQoPAuthIntl = WWWAuthenticateQoP("auth-intl")
 )
 
 // WWWAuthenticate is a representation of the Www-Authenticate HTTP response header.
@@ -33,20 +36,30 @@ type WWWAuthenticate struct {
 	QoP    WWWAuthenticateQoP
 }
 
-// Secure adds an example value from the API spec to the Authorization request header.
-func (sec Security) Secure(req *http.Request) {
-	auth := sec.Probe(req)
-
-	switch sec.APISecurity.Scheme {
+// New creates a new HTTP security.
+func New(name string, scheme string, value string, logger log.ILogger) api.ISecurity {
+	switch scheme {
 	case "basic":
-		Basic{sec.APISecurity, sec.Log, auth}.Secure(req)
+		return Basic{
+			Security{
+				Name:  name,
+				Token: value,
+				Log:   logger,
+			},
+		}
 
 	case "digest":
-		Digest{sec.APISecurity, sec.Log, auth}.Secure(req)
-
-	default:
-		fmt.Printf("Unknown security scheme '%s'\n", sec.APISecurity.Scheme)
+		return Digest{
+			Security{
+				Name:  name,
+				Token: value,
+				Log:   logger,
+			},
+		}
 	}
+
+	fmt.Printf("Unknown security scheme '%s'\n", scheme)
+	return nil
 }
 
 // Probe makes a request to a URL which is (supposedly) protected
@@ -105,4 +118,9 @@ func (sec Security) ParseWWWAuthenticate(header string) map[string]string {
 	}
 
 	return res
+}
+
+// GetName returns name.
+func (sec Security) GetName() string {
+	return sec.Name
 }

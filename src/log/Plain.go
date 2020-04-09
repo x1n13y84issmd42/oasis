@@ -202,9 +202,9 @@ func (log Plain) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultErro
 } */
 
 // UsingSecurity --
-/* func (log Simple) UsingSecurity(sec *api.Security) {
-	log.Println(1, "\tUsing the \"%s\" security settings.", sec.Name)
-} */
+func (log Plain) UsingSecurity(sec api.ISecurity) {
+	log.Println(1, "\tUsing the \"%s\" security settings.", sec.GetName())
+}
 
 // ParameterHasNoExample --
 func (log Plain) ParameterHasNoExample(paramName string, in string, container string) {

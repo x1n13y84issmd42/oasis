@@ -25,9 +25,8 @@ type OperationResponseExpectation struct {
 // OperationSecurityParameters is operation security parameters.
 // Use hints to tell Oasis which security definition to pick from a spec.
 type OperationSecurityParameters struct {
-	SecurityHint    string
-	HTTPBasicValue  string
-	HTTPDigestValue string
+	SecurityHint  string
+	HTTPAuthValue string
 }
 
 // PathParameters is a map of named path parameters.

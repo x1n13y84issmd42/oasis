@@ -21,7 +21,7 @@ type ILogger interface {
 	UsingDefaultHost()
 	HostNotFound(h string)
 
-	// UsingSecurity(sec *api.Security)
+	UsingSecurity(sec api.ISecurity)
 	// UsingRequest(req *api.Request)
 	UsingResponse(req *api.Response)
 
