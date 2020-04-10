@@ -3,19 +3,19 @@ package openapi3
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	apikey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
-	http "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
+	secAPIKey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+	secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
 func isstring(i interface{}) (s string) {
-	fmt.Printf("isstring: i=%#v\n", i)
 	if i != nil {
 		if iv, ok := i.(string); ok {
 			s = iv
@@ -198,10 +198,10 @@ func (spec *Spec) MakeSecurity(
 	if oasSec != nil {
 		switch oasSec.Type {
 		case "apiKey":
-			return apikey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log)
+			return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log)
 
 		case "http":
-			return http.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log)
+			return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log)
 		}
 	}
 
@@ -225,6 +225,18 @@ func (spec *Spec) MakeRequest(
 	specReq.Path = specPath
 	specReq.Query = specQuery
 	//TODO: request headers
+
+	specHeaders := http.Header{}
+
+	for _, oasOpParam := range oasOp.Parameters {
+		if oasOpParam.Value == nil || oasOpParam.Value.In != "header" {
+			continue
+		}
+
+		specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))
+	}
+
+	specReq.Headers = specHeaders
 
 	return specReq
 }

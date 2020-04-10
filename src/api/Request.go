@@ -20,6 +20,6 @@ func (specReq *Request) CreateRequest(host *Host) *http.Request {
 	URL := fmt.Sprintf("%s%s", host.URL, specReq.Path)
 	req, _ := http.NewRequest(specReq.Method, URL, nil)
 	req.URL.RawQuery = specReq.Query.Encode()
-	//TODO: add headers
+	req.Header = specReq.Headers
 	return req
 }
