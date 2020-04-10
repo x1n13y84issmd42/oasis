@@ -94,5 +94,7 @@ func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.I
 		return nil, err
 	}
 
+	res = &v
+
 	return
 }
