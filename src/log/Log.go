@@ -9,6 +9,8 @@ import (
 
 // ILogger - interface for execution loggers
 type ILogger interface {
+	NOMESSAGE(msg string, args ...interface{})
+
 	Usage()
 	Error(err error)
 	LoadingSpec(path string)
@@ -68,6 +70,13 @@ func (log Log) Print(l int64, msg string, args ...interface{}) {
 // Println prints and adds a newline.
 func (log Log) Println(l int64, msg string, args ...interface{}) {
 	log.Print(l, msg+"\n", args...)
+}
+
+// NOMESSAGE is a default and temporary print function to use when you don't have
+// a dedidated message function in the logger. It is meant to be replaced eventually
+// with a proper logging method or removed. Henec the indicating name.
+func (log Log) NOMESSAGE(msg string, args ...interface{}) {
+	log.Println(1, "\t"+msg, args...)
 }
 
 // New creates a new logger based on the provided log tyle & leve.

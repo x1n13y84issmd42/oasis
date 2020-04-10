@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -19,6 +18,6 @@ func (sec Digest) Secure(req *http.Request) {
 	} else if sec.Username != "" {
 		//TODO: implement client-side digest encoding
 	} else {
-		fmt.Printf("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
 	}
 }

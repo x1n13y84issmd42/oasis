@@ -1,7 +1,6 @@
 package apikey
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -19,6 +18,6 @@ func (sec Query) Secure(req *http.Request) {
 		q.Add(sec.ParamName, sec.Value)
 		req.URL.RawQuery = q.Encode()
 	} else {
-		fmt.Printf("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
 	}
 }

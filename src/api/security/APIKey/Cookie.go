@@ -1,7 +1,6 @@
 package apikey
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -17,6 +16,6 @@ func (sec Cookie) Secure(req *http.Request) {
 	if sec.Value != "" {
 		req.AddCookie(&http.Cookie{Name: sec.ParamName, Value: sec.Value})
 	} else {
-		fmt.Printf("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
 	}
 }
