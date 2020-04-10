@@ -3,4 +3,7 @@
 # Required by gookit/color to work properly on windows.
 TERM=xterm
 
-go run src/main/*.go ${@}
+CMD="go run src/main/*.go"
+[[ -f build/oasis ]] && CMD=build/oasis
+
+$CMD ${@}
