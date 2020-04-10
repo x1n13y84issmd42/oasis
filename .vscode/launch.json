@@ -5,7 +5,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch",
+			"name": "Test Oasis",
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
@@ -17,6 +17,25 @@
 				"test",
 				// "meta-headers-echo-body",
 				"secure-http-basic",
+				"log",
+				"at",
+				"level",
+				"4"
+			]
+		},
+
+		{
+			"name": "Test Petstore",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/src/main",
+			"env": {},
+			"args": [
+				"from",
+				"../../spec/petstore.yaml",
+				"test",
+				"getPetById",
 				"log",
 				"at",
 				"level",

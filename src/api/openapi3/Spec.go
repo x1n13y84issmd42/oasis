@@ -14,6 +14,31 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
+func isstring(i interface{}) (s string) {
+	fmt.Printf("isstring: i=%#v\n", i)
+	if i != nil {
+		if iv, ok := i.(string); ok {
+			s = iv
+		}
+
+		if iv, ok := i.(int64); ok {
+			s = string(iv)
+		}
+
+		if iv, ok := i.(uint64); ok {
+			s = string(iv)
+		}
+
+		//TODO: fix this
+		// Long float values (as 9223372036854663000) work incorrectly here.
+		if iv, ok := i.(float64); ok {
+			s = strconv.FormatFloat(iv, 'f', 0, 64)
+		}
+	}
+
+	return
+}
+
 // Spec is an OAS3-backed API test spec.
 type Spec struct {
 	Log log.ILogger
@@ -274,9 +299,10 @@ func (spec *Spec) MakeSchema(
 ) *api.Schema {
 
 	if oasSchema != nil {
+		jsonSchema := spec.MakeJSONSchema(oasSchema)
 		return &api.Schema{
 			Name:       name,
-			JSONSchema: spec.MakeJSONSchema(oasSchema),
+			JSONSchema: jsonSchema,
 		}
 	}
 
@@ -291,6 +317,14 @@ func (spec *Spec) MakeJSONSchema(
 	if jsonSchemaErr == nil {
 		sch := make(api.JSONSchema)
 		json.Unmarshal(jsonSchema, &sch)
+
+		// Adding the components object to the JSON schema object because of $refs
+		jsonComps, jsonCompsErr := spec.OAS.Components.MarshalJSON()
+		if jsonCompsErr == nil {
+			comps := make(map[string]interface{})
+			json.Unmarshal(jsonComps, &comps)
+			sch["components"] = comps
+		}
 		return sch
 	}
 
@@ -329,7 +363,7 @@ func (spec *Spec) CreatePath(
 				continue
 			}
 
-			fixPath(specP.Value.Name, specP.Value.Example.(string), container)
+			fixPath(specP.Value.Name, isstring(specP.Value.Example), container)
 		}
 	}
 
