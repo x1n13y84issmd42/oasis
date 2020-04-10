@@ -31,6 +31,8 @@ Some clauses are straightforward and resemble flags (`from path/to/spec`), while
 
 `run/oasis from spec/oasis.yaml test meta-bool-fail,meta-bool,meta-number-fail,meta-number log at level 4 in festive style`
 
+`run/oasis from spec/petstore.yaml test findPetsByStatus,getPetById expect CT application/json`
+
 #### Arguments
 Argument|Example|Description
 -|-|-
