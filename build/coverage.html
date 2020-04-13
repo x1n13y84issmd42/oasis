@@ -56,9 +56,9 @@
 				
 				<option value="file0">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (50.0%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (27.3%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (100.0%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
 				</select>
 			</div>
@@ -123,9 +123,9 @@ func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
 		
 		<pre class="file" id="file1" style="display: none">package srx
 
-// Flag is a shorthand function to create a Flag() expression.
-func Flag(f string) *SRX <span class="cov8" title="1">{
-        return NewSRX().Flag(f)
+// String is a shorthand function to create a String() expression.
+func String(f string) *SRX <span class="cov8" title="1">{
+        return NewSRX().String(f)
 }</span>
 
 // CaptureString is a shorthand function to create a CaptureString() expression.
@@ -133,18 +133,43 @@ func CaptureString(v *string) *SRX <span class="cov0" title="0">{
         return NewSRX().CaptureString(v)
 }</span>
 
-// CaptureInt64 is a shorthand function to create a CaptureInt64() expression.
-func CaptureInt64(v *int64) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureInt64(v)
-}</span>
-
 // CaptureStringSlice is a shorthand function to create a CaptureStringSlice() expression.
 func CaptureStringSlice(v *[]string) *SRX <span class="cov0" title="0">{
         return NewSRX().CaptureStringSlice(v)
 }</span>
 
+// CaptureInt64 is a shorthand function to create a CaptureInt64() expression.
+func CaptureInt64(v *int64) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureInt64(v)
+}</span>
+
+// CaptureInt64Slice is a shorthand function to create a CaptureInt64Slice() expression.
+func CaptureInt64Slice(v *[]int64) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureInt64Slice(v)
+}</span>
+
+// CaptureFloat64 is a shorthand function to create a CaptureFloat64() expression.
+func CaptureFloat64(v *float64) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureFloat64(v)
+}</span>
+
+// CaptureFloat64Slice is a shorthand function to create a CaptureFloat64Slice() expression.
+func CaptureFloat64Slice(v *[]float64) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureFloat64Slice(v)
+}</span>
+
+// CaptureBool is a shorthand function to create a CaptureBool() expression.
+func CaptureBool(v *bool) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureBool(v)
+}</span>
+
+// CaptureBoolSlice is a shorthand function to create a CaptureBoolSlice() expression.
+func CaptureBoolSlice(v *[]bool) *SRX <span class="cov0" title="0">{
+        return NewSRX().CaptureBoolSlice(v)
+}</span>
+
 // OneOf is a shorthand function to create a OneOf() expression.
-func OneOf(parsers []*SRX) *SRX <span class="cov8" title="1">{
+func OneOf(parsers ...*SRX) *SRX <span class="cov8" title="1">{
         return NewSRX().OneOf(parsers)
 }</span>
 
@@ -225,8 +250,8 @@ func (srx *SRX) actualParse(cursor *Cursor) *SRX <span class="cov8" title="1">{
         <span class="cov8" title="1">return srx</span>
 }
 
-// Flag parses a single string value.
-func (srx *SRX) Flag(f string) *SRX <span class="cov8" title="1">{
+// String parses a single string value.
+func (srx *SRX) String(f string) *SRX <span class="cov8" title="1">{
         srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
                 res := f == cursor.Get()
                 if res </span><span class="cov8" title="1">{
@@ -237,47 +262,248 @@ func (srx *SRX) Flag(f string) *SRX <span class="cov8" title="1">{
         <span class="cov8" title="1">return srx</span>
 }
 
-// CaptureString stores the current item in the provided string pointer.
-func (srx *SRX) CaptureString(v *string) *SRX <span class="cov8" title="1">{
+//StringHandler is a function to handle string values.
+type StringHandler = func(string)
+
+//StringSliceHandler is a function to handle []string values.
+type StringSliceHandler = func([]string)
+
+//Int64Handler is a function to handle int64 values.
+type Int64Handler = func(int64)
+
+//Int64SliceHandler is a function to handle []int64 values.
+type Int64SliceHandler = func([]int64)
+
+//Float64Handler is a function to handle float64 values.
+type Float64Handler = func(float64)
+
+//Float64SliceHandler is a function to handle []float64 values.
+type Float64SliceHandler = func([]float64)
+
+//BoolHandler is a function to handle bool values.
+type BoolHandler = func(bool)
+
+//BoolSliceHandler is a function to handle bool values.
+type BoolSliceHandler = func([]bool)
+
+// HandleString invokes the provided handler function with the current item as an argument.
+func (srx *SRX) HandleString(h StringHandler) *SRX <span class="cov8" title="1">{
         srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                *v = cursor.Get()
+                h(cursor.Get())
                 cursor.Shift(1)
                 return true
         }</span>)
         <span class="cov8" title="1">return srx</span>
 }
 
-// CaptureInt64 tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) CaptureInt64(v *int64) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                i, ierr := strconv.ParseInt(cursor.Get(), 10, 64)
-                if ierr == nil </span><span class="cov8" title="1">{
-                        *v = i
-                        cursor.Shift(1)
-                }</span>
-                <span class="cov8" title="1">return true</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// CaptureStringSlice tries to parse the current item as a comma-separated list
-// of string values and store the result in the provided string slice pointer.
-func (srx *SRX) CaptureStringSlice(v *[]string) *SRX <span class="cov8" title="1">{
+// HandleStringSlice tries to parse the current item as a comma-separated list
+// of string values and call the provided string slice handler with that list as an argument.
+func (srx *SRX) HandleStringSlice(h StringSliceHandler) *SRX <span class="cov8" title="1">{
         srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
                 item := cursor.Get()
                 if item != "" </span><span class="cov8" title="1">{
                         values := strings.Split(item, ",")
                         if len(values) &gt; 0 </span><span class="cov8" title="1">{
-                                *v = values
+                                h(values)
                                 cursor.Shift(1)
                                 return true
                         }</span>
                 }
-
                 <span class="cov8" title="1">return false</span>
         })
         <span class="cov8" title="1">return srx</span>
+}
+
+// HandleInt64 tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleInt64(h Int64Handler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                i, ierr := strconv.ParseInt(cursor.Get(), 10, 64)
+                if ierr == nil </span><span class="cov8" title="1">{
+                        h(i)
+                        cursor.Shift(1)
+                        return true
+                }</span>
+                <span class="cov8" title="1">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// HandleInt64Slice tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleInt64Slice(h Int64SliceHandler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                item := cursor.Get()
+                if item != "" </span><span class="cov8" title="1">{
+                        ss := strings.Split(item, ",")
+                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
+                                is := []int64{}
+                                for _, sv := range ss </span><span class="cov8" title="1">{
+                                        iv, iverr := strconv.ParseInt(sv, 10, 64)
+                                        if iverr == nil </span><span class="cov8" title="1">{
+                                                is = append(is, iv)
+                                        }</span> else<span class="cov8" title="1"> {
+                                                return false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if len(is) &gt; 0 </span><span class="cov8" title="1">{
+                                        h(is)
+                                        cursor.Shift(1)
+                                        return true
+                                }</span>
+                        }
+                }
+                <span class="cov0" title="0">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// HandleFloat64 tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleFloat64(h Float64Handler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                f, ferr := strconv.ParseFloat(cursor.Get(), 64)
+                if ferr == nil </span><span class="cov8" title="1">{
+                        h(f)
+                        cursor.Shift(1)
+                        return true
+                }</span>
+                <span class="cov8" title="1">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// HandleFloat64Slice tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleFloat64Slice(h Float64SliceHandler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                item := cursor.Get()
+                if item != "" </span><span class="cov8" title="1">{
+                        ss := strings.Split(item, ",")
+                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
+                                fs := []float64{}
+                                for _, sv := range ss </span><span class="cov8" title="1">{
+                                        fv, fverr := strconv.ParseFloat(sv, 64)
+                                        if fverr == nil </span><span class="cov8" title="1">{
+                                                fs = append(fs, fv)
+                                        }</span> else<span class="cov8" title="1"> {
+                                                return false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if len(fs) &gt; 0 </span><span class="cov8" title="1">{
+                                        h(fs)
+                                        cursor.Shift(1)
+                                        return true
+                                }</span>
+                        }
+                }
+                <span class="cov0" title="0">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// HandleBool tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleBool(h BoolHandler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                f, ferr := strconv.ParseBool(cursor.Get())
+                if ferr == nil </span><span class="cov8" title="1">{
+                        h(f)
+                        cursor.Shift(1)
+                        return true
+                }</span>
+                <span class="cov8" title="1">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// HandleBoolSlice tries to parse the current item as integer value
+// and store the result in the provided string pointer.
+func (srx *SRX) HandleBoolSlice(h BoolSliceHandler) *SRX <span class="cov8" title="1">{
+        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
+                item := cursor.Get()
+                if item != "" </span><span class="cov8" title="1">{
+                        ss := strings.Split(item, ",")
+                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
+                                bs := []bool{}
+                                for _, sv := range ss </span><span class="cov8" title="1">{
+                                        bv, bverr := strconv.ParseBool(sv)
+                                        if bverr == nil </span><span class="cov8" title="1">{
+                                                bs = append(bs, bv)
+                                        }</span> else<span class="cov8" title="1"> {
+                                                return false
+                                        }</span>
+                                }
+                                <span class="cov8" title="1">if len(bs) &gt; 0 </span><span class="cov8" title="1">{
+                                        h(bs)
+                                        cursor.Shift(1)
+                                        return true
+                                }</span>
+                        }
+                }
+                <span class="cov0" title="0">return false</span>
+        })
+        <span class="cov8" title="1">return srx</span>
+}
+
+// CaptureString stores the current item in the provided string pointer.
+func (srx *SRX) CaptureString(v *string) *SRX <span class="cov8" title="1">{
+        return srx.HandleString(func(vv string) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureStringSlice tries to parse the current item as a comma-separated list
+// of string values and store the result in the provided string slice pointer.
+func (srx *SRX) CaptureStringSlice(v *[]string) *SRX <span class="cov8" title="1">{
+        return srx.HandleStringSlice(func(vv []string) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureInt64 stores the current item in the provided int64 pointer.
+func (srx *SRX) CaptureInt64(v *int64) *SRX <span class="cov8" title="1">{
+        return srx.HandleInt64(func(vv int64) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureInt64Slice tries to parse the current item as a comma-separated list
+// of int64 values and store the result in the provided int64 slice pointer.
+func (srx *SRX) CaptureInt64Slice(v *[]int64) *SRX <span class="cov8" title="1">{
+        return srx.HandleInt64Slice(func(vv []int64) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureFloat64 stores the current item in the provided float64 pointer.
+func (srx *SRX) CaptureFloat64(v *float64) *SRX <span class="cov8" title="1">{
+        return srx.HandleFloat64(func(vv float64) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureFloat64Slice tries to parse the current item as a comma-separated list
+// of float64 values and store the result in the provided float64 slice pointer.
+func (srx *SRX) CaptureFloat64Slice(v *[]float64) *SRX <span class="cov8" title="1">{
+        return srx.HandleFloat64Slice(func(vv []float64) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureBool stores the current item in the provided bool pointer.
+func (srx *SRX) CaptureBool(v *bool) *SRX <span class="cov8" title="1">{
+        return srx.HandleBool(func(vv bool) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
+}
+
+// CaptureBoolSlice tries to parse the current item as a comma-separated list
+// of bool values and store the result in the provided bool slice pointer.
+func (srx *SRX) CaptureBoolSlice(v *[]bool) *SRX <span class="cov8" title="1">{
+        return srx.HandleBoolSlice(func(vv []bool) </span><span class="cov8" title="1">{
+                *v = vv
+        }</span>)
 }
 
 // OneOf attempts to execute one parser from the supplied list of parsers.

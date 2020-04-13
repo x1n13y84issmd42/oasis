@@ -14,7 +14,7 @@ func NewBuilder() *SRXBuilder {
 
 func (builder *SRXBuilder) SetFlags(flags []string) *SRX {
 	for _, f := range flags {
-		builder.Parser.Flag(f)
+		builder.Parser.String(f)
 	}
 
 	return builder.Parser
@@ -27,7 +27,7 @@ type TestFlagInput struct {
 	ExpProgress int
 }
 
-func TestFlag(t *testing.T) {
+func TestString(t *testing.T) {
 	inputs := []TestFlagInput{
 		TestFlagInput{
 			Flags:       []string{"foo", "bar", "qeq"},
@@ -87,9 +87,16 @@ func ExpectString(t *testing.T, actual *string, expected string, msg string) Exp
 	}
 }
 
-func ExpectBool(t *testing.T, actual *bool, expected bool, msg string) Expectation {
+func ExpectStringSlice(t *testing.T, actual *[]string, expected []string, msg string) Expectation {
 	return func() bool {
-		res := *actual == expected
+		res := len(*actual) == len(expected)
+
+		if res {
+			for aI, a := range *actual {
+				res = (a == expected[aI])
+			}
+		}
+
 		if !res {
 			t.Errorf("FAILED %s\n", msg)
 			t.Errorf("       Expected %#v\n", expected)
@@ -111,7 +118,69 @@ func ExpectInt64(t *testing.T, actual *int64, expected int64, msg string) Expect
 	}
 }
 
-func ExpectStringSlice(t *testing.T, actual *[]string, expected []string, msg string) Expectation {
+func ExpectInt64Slice(t *testing.T, actual *[]int64, expected []int64, msg string) Expectation {
+	return func() bool {
+		res := len(*actual) == len(expected)
+
+		if res {
+			for aI, a := range *actual {
+				res = (a == expected[aI])
+			}
+		}
+
+		if !res {
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %#v\n", expected)
+			t.Errorf("       Actual %#v\n", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectFloat64(t *testing.T, actual *float64, expected float64, msg string) Expectation {
+	return func() bool {
+		res := *actual == expected
+		if !res {
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %f\n", expected)
+			t.Errorf("       Actual %f\n", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectFloat64Slice(t *testing.T, actual *[]float64, expected []float64, msg string) Expectation {
+	return func() bool {
+		res := len(*actual) == len(expected)
+
+		if res {
+			for aI, a := range *actual {
+				res = (a == expected[aI])
+			}
+		}
+
+		if !res {
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %#v\n", expected)
+			t.Errorf("       Actual %#v\n", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectBool(t *testing.T, actual *bool, expected bool, msg string) Expectation {
+	return func() bool {
+		res := *actual == expected
+		if !res {
+			t.Errorf("FAILED %s\n", msg)
+			t.Errorf("       Expected %#v\n", expected)
+			t.Errorf("       Actual %#v\n", *actual)
+		}
+		return res
+	}
+}
+
+func ExpectBoolSlice(t *testing.T, actual *[]bool, expected []bool, msg string) Expectation {
 	return func() bool {
 		res := len(*actual) == len(expected)
 
@@ -154,10 +223,10 @@ func genericTest(t *testing.T, inputs []TestInput) {
 
 func TestOneOf(t *testing.T) {
 	parserCtor1 := func() *SRX {
-		return OneOf([]*SRX{
-			Flag("foo").Flag("bar").Flag("qeq"),
-			Flag("one").Flag("two").Flag("three").Flag("four"),
-		})
+		return OneOf(
+			String("foo").String("bar").String("qeq"),
+			String("one").String("two").String("three").String("four"),
+		)
 	}
 
 	inputs := []TestInput{
@@ -207,14 +276,14 @@ func TestOneOf(t *testing.T) {
 
 func TestRepeat(t *testing.T) {
 	ctor1 := func() *SRX {
-		return Repeat(Flag("yolo"), 0, 1)
+		return Repeat(String("yolo"), 0, 1)
 	}
 
 	ctor2 := func() *SRX {
-		return Repeat(OneOf([]*SRX{
-			Flag("f00"),
-			Flag("b4r"),
-		}), 3, 5)
+		return Repeat(OneOf(
+			String("f00"),
+			String("b4r"),
+		), 3, 5)
 	}
 
 	inputs := []TestInput{
@@ -270,7 +339,7 @@ func TestCaptureString(t *testing.T) {
 	genericTest(t, []TestInput{
 		TestInput{
 			Init: func() *SRX {
-				return Flag("yeet").CaptureString(&v)
+				return String("yeet").CaptureString(&v)
 			},
 			Args:        []string{"yeet", "you"},
 			ExpComplete: true,
@@ -282,13 +351,45 @@ func TestCaptureString(t *testing.T) {
 	})
 }
 
+func TestCaptureStringSlice(t *testing.T) {
+	var v []string
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("things").CaptureStringSlice(&v)
+			},
+			Args:        []string{"things", "item,object,gizmo,article"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectStringSlice(t, &v, []string{
+					"item",
+					"object",
+					"gizmo",
+					"article",
+				}, "Expected a slice of strings to get captured."),
+			},
+		},
+
+		TestInput{
+			Init: func() *SRX {
+				return String("things").CaptureStringSlice(&v)
+			},
+			Args:        []string{"things"},
+			ExpComplete: false,
+			ExpProgress: 1,
+		},
+	})
+}
+
 func TestCaptureInt64(t *testing.T) {
 	var v int64
 
 	genericTest(t, []TestInput{
 		TestInput{
 			Init: func() *SRX {
-				return Flag("answer").CaptureInt64(&v)
+				return String("answer").CaptureInt64(&v)
 			},
 			Args:        []string{"answer", "42"},
 			ExpComplete: true,
@@ -300,34 +401,200 @@ func TestCaptureInt64(t *testing.T) {
 	})
 }
 
-func TestCaptureStringSlice(t *testing.T) {
-	var v []string
+func TestCaptureInt64Slice(t *testing.T) {
+	var v []int64
 
 	genericTest(t, []TestInput{
 		TestInput{
 			Init: func() *SRX {
-				return Flag("things").CaptureStringSlice(&v)
+				return String("answer").CaptureInt64Slice(&v)
 			},
-			Args:        []string{"things", "item,object,gizmo,article"},
+			Args:        []string{"answer", "42,43,44,45"},
 			ExpComplete: true,
 			ExpProgress: 2,
 			Expect: []Expectation{
-				ExpectStringSlice(t, &v, []string{
-					"item",
-					"object",
-					"gizmo",
-					"article",
-				}, "Expected the '42' int64 value to get captured."),
+				ExpectInt64Slice(t, &v, []int64{42, 43, 44, 45}, "Expected a slice of int64 to get captured."),
 			},
 		},
+	})
+}
 
+func TestCaptureInt64Fail(t *testing.T) {
+	var v int64
+
+	genericTest(t, []TestInput{
 		TestInput{
 			Init: func() *SRX {
-				return Flag("things").CaptureStringSlice(&v)
+				return String("answer").CaptureInt64(&v)
 			},
-			Args:        []string{"things"},
+			Args:        []string{"answer", "ab42"},
 			ExpComplete: false,
 			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectInt64(t, &v, 0, "Expected no int64 value to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureInt64SliceFail(t *testing.T) {
+	var v []int64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("answer").CaptureInt64Slice(&v)
+			},
+			Args:        []string{"answer", "42,ab,44,xxx"},
+			ExpComplete: false,
+			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectInt64Slice(t, &v, []int64{}, "Expected an empty slice of int64 to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureFloat64(t *testing.T) {
+	var v float64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("pie").CaptureFloat64(&v)
+			},
+			Args:        []string{"pie", "3.1415"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectFloat64(t, &v, 3.1415, "Expected the '3.1415' float64 value to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureFloat64Slice(t *testing.T) {
+	var v []float64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("answer").CaptureFloat64Slice(&v)
+			},
+			Args:        []string{"answer", "3.14,42.1,9000.0000001"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectFloat64Slice(t, &v, []float64{3.14, 42.1, 9000.0000001}, "Expected a slice of float64 to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureFloat64Fail(t *testing.T) {
+	var v float64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("answer").CaptureFloat64(&v)
+			},
+			Args:        []string{"answer", "3.1abc"},
+			ExpComplete: false,
+			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectFloat64(t, &v, 0, "Expected no float64 value to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureFloat64SliceFail(t *testing.T) {
+	var v []float64
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("answer").CaptureFloat64Slice(&v)
+			},
+			Args:        []string{"answer", "3.one,4.4444,a.b"},
+			ExpComplete: false,
+			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectFloat64Slice(t, &v, []float64{}, "Expected an empty slice of float64 to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureBool(t *testing.T) {
+	var v bool
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("truth").CaptureBool(&v)
+			},
+			Args:        []string{"truth", "true"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectBool(t, &v, true, "Expected a true bool value to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureBoolSlice(t *testing.T) {
+	var v []bool
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("truthies").CaptureBoolSlice(&v)
+			},
+			Args:        []string{"truthies", "true,true,false,true,false,false"},
+			ExpComplete: true,
+			ExpProgress: 2,
+			Expect: []Expectation{
+				ExpectBoolSlice(t, &v, []bool{true, true, false, true, false, false}, "Expected a slice of bool to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureBoolFail(t *testing.T) {
+	var v bool
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("truth").CaptureBool(&v)
+			},
+			Args:        []string{"truth", "I_SWEAR"},
+			ExpComplete: false,
+			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectBool(t, &v, false, "Expected no bool value to get captured."),
+			},
+		},
+	})
+}
+
+func TestCaptureBoolSliceFail(t *testing.T) {
+	var v []bool
+
+	genericTest(t, []TestInput{
+		TestInput{
+			Init: func() *SRX {
+				return String("truthies").CaptureBoolSlice(&v)
+			},
+			Args:        []string{"truthies", "true,false,I_SWEAR,ture,flase"},
+			ExpComplete: false,
+			ExpProgress: 1,
+			Expect: []Expectation{
+				ExpectBoolSlice(t, &v, []bool{}, "Expected an empty slice of bool to get captured."),
+			},
 		},
 	})
 }

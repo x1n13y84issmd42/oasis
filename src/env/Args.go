@@ -1,15 +1,21 @@
 package env
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/srx"
 )
 
+// ParameterMap is a generic map of test parameters.
+type ParameterMap map[string]string
+
 // ArgsUse is what goes after the "use" command line argument.
 type ArgsUse struct {
-	CT       string
-	Security string
+	CT             string
+	Security       string
+	PathParameters ParameterMap
 }
 
 // ArgsExpect is what goes after the "expect" command line argument.
@@ -32,28 +38,38 @@ type Args struct {
 
 // ParseArgs parses command line arguments into the args struct.
 func ParseArgs(args *Args) {
-	expExecute := srx.Flag("execute").CaptureString(&args.Script)
-	expFrom := srx.Flag("from").CaptureString(&args.Spec)
-	expTest := srx.Flag("test").CaptureStringSlice(&args.Ops)
-	expHost := srx.Flag("@").CaptureString(&args.Host)
+	expExecute := srx.String("execute").CaptureString(&args.Script)
+	expFrom := srx.String("from").CaptureString(&args.Spec)
+	expTest := srx.String("test").CaptureStringSlice(&args.Ops)
+	expHost := srx.String("@").CaptureString(&args.Host)
 
-	expUse := srx.Flag("use").Repeat(srx.OneOf([]*srx.SRX{
-		srx.Flag("security").CaptureString(&args.Use.Security),
-	}), 0, 1)
+	args.Use.PathParameters = ParameterMap{}
 
-	expExpect := srx.Flag("expect").Repeat(srx.OneOf([]*srx.SRX{
-		srx.Flag("CT").CaptureString(&args.Expect.CT),
-		srx.Flag("status").CaptureInt64(&args.Expect.Status),
-	}), 0, 2)
+	hPathParams := func(params []string) {
+		for _, pp := range params {
+			pps := strings.Split(pp, "=")
+			args.Use.PathParameters[pps[0]] = pps[1]
+		}
+	}
 
-	expLogLevel := srx.Flag("at").Flag("level").CaptureInt64(&args.LogLevel)
-	expLogStyle := srx.Flag("in").CaptureString(&args.LogStyle).Flag("style")
-	expLog := srx.Flag("log").Repeat(srx.OneOf([]*srx.SRX{
+	expUse := srx.String("use").Repeat(srx.OneOf(
+		srx.String("security").CaptureString(&args.Use.Security),
+		srx.String("path").String("parameters").HandleStringSlice(hPathParams),
+	), 0, 1)
+
+	expExpect := srx.String("expect").Repeat(srx.OneOf(
+		srx.String("CT").CaptureString(&args.Expect.CT),
+		srx.String("status").CaptureInt64(&args.Expect.Status),
+	), 0, 2)
+
+	expLogLevel := srx.String("at").String("level").CaptureInt64(&args.LogLevel)
+	expLogStyle := srx.String("in").CaptureString(&args.LogStyle).String("style")
+	expLog := srx.String("log").Repeat(srx.OneOf(
 		expLogLevel,
 		expLogStyle,
-	}), 1, 2)
+	), 1, 2)
 
-	srx.Repeat(srx.OneOf([]*srx.SRX{
+	srx.Repeat(srx.OneOf(
 		expExecute,
 		expFrom,
 		expTest,
@@ -61,6 +77,8 @@ func ParseArgs(args *Args) {
 		expExpect,
 		expHost,
 		expLog,
-	}), 1, 8).Parse(os.Args[1:])
+	), 1, 8).Parse(os.Args[1:])
 	//    ^^^ UPDATE ME EVERY TIME YOU ADD ARGUMENTS
+
+	fmt.Printf("Args: %#v", args)
 }
