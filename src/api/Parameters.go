@@ -52,4 +52,6 @@ func (params *OperationParameters) LoadFromArgs(args *env.Args) {
 	params.Response.ContentTypeHint = args.Expect.CT
 	params.Response.StatusHint = uint64(args.Expect.Status)
 	params.Security.SecurityHint = args.Use.Security
+	params.Path = PathParameters(args.Use.PathParameters)
+	params.Query = args.Use.Query
 }

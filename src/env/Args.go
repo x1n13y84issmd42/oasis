@@ -2,6 +2,7 @@ package env
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -16,6 +17,7 @@ type ArgsUse struct {
 	CT             string
 	Security       string
 	PathParameters ParameterMap
+	Query          url.Values
 }
 
 // ArgsExpect is what goes after the "expect" command line argument.
@@ -52,9 +54,22 @@ func ParseArgs(args *Args) {
 		}
 	}
 
+	args.Use.Query = url.Values{}
+
+	hQueryParams := func(params []string) {
+		for _, pp := range params {
+			pps := strings.Split(pp, "=")
+			if args.Use.Query[pps[0]] == nil {
+				args.Use.Query[pps[0]] = []string{}
+			}
+			args.Use.Query[pps[0]] = append(args.Use.Query[pps[0]], pps[1])
+		}
+	}
+
 	expUse := srx.String("use").Repeat(srx.OneOf(
 		srx.String("security").CaptureString(&args.Use.Security),
 		srx.String("path").String("parameters").HandleStringSlice(hPathParams),
+		srx.String("query").HandleStringSlice(hQueryParams),
 	), 0, 1)
 
 	expExpect := srx.String("expect").Repeat(srx.OneOf(

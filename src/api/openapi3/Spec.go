@@ -224,7 +224,6 @@ func (spec *Spec) MakeRequest(
 	specReq.Method = method
 	specReq.Path = specPath
 	specReq.Query = specQuery
-	//TODO: request headers
 
 	specHeaders := http.Header{}
 
@@ -386,6 +385,16 @@ func (spec *Spec) CreatePath(
 	useParameters(oasOp.Parameters, "spec operation")
 	useParameters(oasPathItem.Parameters, "spec path")
 
+	// Checking for leftover params.
+	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
+	lops := RX.FindAllString(path, -1)
+	if len(lops) > 0 {
+		spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
+		for _, lop := range lops {
+			spec.Log.NOMESSAGE("\t%s", lop)
+		}
+	}
+
 	return path
 }
 
@@ -402,11 +411,13 @@ func (spec *Spec) CreateQuery(
 	qry := make(url.Values)
 
 	add := func(qpn string, qpv string, container string) {
-		if qpv != "" {
-			qry.Add(qpn, qpv)
-			spec.Log.UsingParameterExample(qpn, "query", container)
-		} else {
-			spec.Log.ParameterHasNoExample(qpn, "query", container)
+		if qry.Get(qpn) == "" {
+			if qpv != "" {
+				qry.Add(qpn, qpv)
+				spec.Log.UsingParameterExample(qpn, "query", container)
+			} else {
+				spec.Log.ParameterHasNoExample(qpn, "query", container)
+			}
 		}
 	}
 

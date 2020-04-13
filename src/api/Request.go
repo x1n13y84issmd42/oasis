@@ -12,6 +12,7 @@ type Request struct {
 	Path    string
 	Query   *url.Values
 	Headers http.Header
+	//TODO: body
 }
 
 // CreateRequest creates a Request instance, already configured
