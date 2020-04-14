@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:7561f9ee6ad92bb3533286579dacc2d5aced91835358d39e2b69aa099ea5de2e"
   name = "github.com/getkin/kin-openapi"
   packages = [
@@ -27,6 +35,22 @@
   pruneopts = "UT"
   revision = "4424096b9787fc36df5fd5e15c62886edbf13544"
   version = "v1.2.4"
+
+[[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:5e8f46b412421d2d6cceea845d28ac46f3f5a5f60a6e86f0ee75e24fd43a02a9"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "3ebf1ddaeb260c4b1ae502a01c7844fa8c1fa0e9"
+  version = "v1.5.1"
 
 [[projects]]
   branch = "master"
@@ -66,6 +90,7 @@
   input-imports = [
     "github.com/getkin/kin-openapi/openapi3",
     "github.com/gookit/color",
+    "github.com/stretchr/testify/assert",
     "github.com/xeipuuv/gojsonschema",
   ]
   solver-name = "gps-cdcl"

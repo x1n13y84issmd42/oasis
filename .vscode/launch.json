@@ -36,7 +36,7 @@
 				"from",
 				"../../spec/petstore.yaml",
 				"test",
-				"findPetsByStatus",
+				"getPetById",
 				"log",
 				"at",
 				"level",

@@ -54,4 +54,6 @@ func (params *OperationParameters) LoadFromArgs(args *env.Args) {
 	params.Security.SecurityHint = args.Use.Security
 	params.Path = PathParameters(args.Use.PathParameters)
 	params.Query = args.Use.Query
+
+	// fmt.Printf("Operation params: %#v\n", params)
 }

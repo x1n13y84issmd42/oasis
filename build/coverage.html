@@ -54,11 +54,15 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
+				<option value="file0">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go (0.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (27.3%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (14.7%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
+				
+				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
+				
+				<option value="file4">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
 				</select>
 			</div>
@@ -72,7 +76,530 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">package srx
+		<pre class="file" id="file0" style="display: none">package openapi3
+
+import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/log"
+)
+
+// Load reads the spec file at path, parses it and returns parsed spec data.
+func Load(path string, logger log.ILogger) (*Spec, error) <span class="cov0" title="0">{
+        oas, oasErr := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(path)
+        if oasErr == nil </span><span class="cov0" title="0">{
+                return &amp;Spec{
+                        OAS: oas,
+                        Log: logger,
+                }, nil
+        }</span>
+
+        <span class="cov0" title="0">return nil, oasErr</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package openapi3
+
+import (
+        "encoding/json"
+        goerrors "errors"
+        "fmt"
+        "net/http"
+        "net/url"
+        "regexp"
+        "strconv"
+
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/api"
+        secAPIKey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+        secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
+        "github.com/x1n13y84issmd42/oasis/src/errors"
+        "github.com/x1n13y84issmd42/oasis/src/log"
+)
+
+func isstring(i interface{}) (s string) <span class="cov8" title="1">{
+        if i != nil </span><span class="cov8" title="1">{
+                if iv, ok := i.(string); ok </span><span class="cov8" title="1">{
+                        s = iv
+                }</span>
+
+                <span class="cov8" title="1">if iv, ok := i.(int64); ok </span><span class="cov0" title="0">{
+                        s = string(iv)
+                }</span>
+
+                <span class="cov8" title="1">if iv, ok := i.(uint64); ok </span><span class="cov0" title="0">{
+                        s = string(iv)
+                }</span>
+
+                //TODO: fix this
+                // Long float values (as 9223372036854663000) work incorrectly here.
+                <span class="cov8" title="1">if iv, ok := i.(float64); ok </span><span class="cov0" title="0">{
+                        s = strconv.FormatFloat(iv, 'f', 0, 64)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return</span>
+}
+
+// Spec is an OAS3-backed API test spec.
+type Spec struct {
+        Log log.ILogger
+        OAS *openapi3.Swagger
+}
+
+// GetOperations returns a list of all available test operations from the spec.
+func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operation <span class="cov0" title="0">{
+        ops := []*api.Operation{}
+
+        addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) </span><span class="cov0" title="0">{
+                if oasOp != nil </span><span class="cov0" title="0">{
+                        specOp, specOpErr := spec.makeOperation(method, oasOp, oasPath, oasPathItem, params)
+                        if specOpErr == nil </span><span class="cov0" title="0">{
+                                ops = append(ops, specOp)
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">for oasPath, oasPathItem := range spec.OAS.Paths </span><span class="cov0" title="0">{
+                addOp(oasPathItem.Get, "GET", oasPath, oasPathItem)
+                addOp(oasPathItem.Post, "POST", oasPath, oasPathItem)
+                addOp(oasPathItem.Put, "PUT", oasPath, oasPathItem)
+                addOp(oasPathItem.Delete, "DELETE", oasPath, oasPathItem)
+                addOp(oasPathItem.Patch, "PATCH", oasPath, oasPathItem)
+                addOp(oasPathItem.Head, "HEAD", oasPath, oasPathItem)
+                addOp(oasPathItem.Options, "OPTIONS", oasPath, oasPathItem)
+                addOp(oasPathItem.Trace, "TRACE", oasPath, oasPathItem)
+                addOp(oasPathItem.Connect, "CONNECT", oasPath, oasPathItem)
+        }</span>
+
+        <span class="cov0" title="0">return ops</span>
+}
+
+// GetOperation returns a list of all available test operations from the spec.
+func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, errors.IError) <span class="cov0" title="0">{
+        filterOp := func(oasOp *openapi3.Operation) bool </span><span class="cov0" title="0">{
+                return (oasOp != nil &amp;&amp; (oasOp.Summary == name || oasOp.OperationID == name))
+        }</span>
+
+        <span class="cov0" title="0">for oasPath, oasPathItem := range spec.OAS.Paths </span><span class="cov0" title="0">{
+                if filterOp(oasPathItem.Get) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("GET", oasPathItem.Get, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Post) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("POST", oasPathItem.Post, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Put) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Delete) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Patch) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Head) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Options) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Connect) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem, params)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Trace) </span><span class="cov0" title="0">{
+                        return spec.makeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem, params)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return nil, api.OperationNotFound(name, nil)</span>
+}
+
+func (spec *Spec) makeOperation(
+        method string,
+        oasOp *openapi3.Operation,
+        oasPath string,
+        oasPathItem *openapi3.PathItem,
+        params *api.OperationParameters,
+) (*api.Operation, errors.IError) <span class="cov0" title="0">{
+        specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
+        }</span>
+
+        <span class="cov0" title="0">specQuery := spec.CreateQuery(oasPathItem, oasOp, params)
+        specRequests := []*api.Request{}
+        specResponses := []*api.Response{}
+
+        // In case there is a reponse body with certain Content-Type is expected,
+        // collect them all.
+        if oasOp.RequestBody != nil &amp;&amp; oasOp.RequestBody.Value != nil </span><span class="cov0" title="0">{
+                for oasCT, oasMT := range oasOp.RequestBody.Value.Content </span><span class="cov0" title="0">{
+                        specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, oasCT, oasMT, params))
+                }</span>
+        } else<span class="cov0" title="0"> {
+                // Otherwise making a single contentless response.
+                specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, "", nil, params))
+        }</span>
+
+        <span class="cov0" title="0">for oasRespStatus, oasResp := range oasOp.Responses </span><span class="cov0" title="0">{
+                if oasResp.Value != nil </span><span class="cov0" title="0">{
+                        specResponses = append(specResponses, spec.MakeResponses(oasRespStatus, oasResp.Value)...)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return &amp;api.Operation{
+                OperationDesc: api.OperationDesc{
+                        ID:          oasOp.OperationID,
+                        Name:        oasOp.Summary,
+                        Description: oasOp.Description,
+                },
+                Method:    method,
+                Path:      specPath,
+                Security:  spec.MakeSecurity(oasOp.Security, params),
+                Requests:  specRequests,
+                Responses: specResponses,
+        }, nil</span>
+}
+
+// MakeSecurity creates an api.Request instance from available operation spec data.
+func (spec *Spec) MakeSecurity(
+        oasSecReqs *openapi3.SecurityRequirements,
+        params *api.OperationParameters,
+) api.ISecurity <span class="cov0" title="0">{
+
+        var oasSec *openapi3.SecurityScheme
+        oasSecurityToken := ""
+        oasSecurityName := ""
+
+        getSecurity := func(n string) *openapi3.SecurityScheme </span><span class="cov0" title="0">{
+                oasSecR := spec.OAS.Components.SecuritySchemes[n]
+
+                if oasSecR == nil || oasSecR.Value == nil </span><span class="cov0" title="0">{
+                        panic(fmt.Sprintf(`Security definition \"%s\" not found.`, n))</span>
+                }
+
+                <span class="cov0" title="0">oasSecurityName = n
+                return oasSecR.Value</span>
+        }
+
+        <span class="cov0" title="0">if params.Security.SecurityHint != "" </span><span class="cov0" title="0">{
+                oasSec = getSecurity(params.Security.SecurityHint)
+        }</span> else<span class="cov0" title="0"> if oasSecReqs != nil </span><span class="cov0" title="0">{
+                for _, oasSecReq := range *oasSecReqs </span><span class="cov0" title="0">{
+                        for oasSecName := range oasSecReq </span><span class="cov0" title="0">{
+                                oasSec = getSecurity(oasSecName)
+                                break</span>
+                        }
+
+                        <span class="cov0" title="0">if oasSec != nil </span><span class="cov0" title="0">{
+                                break</span>
+                        }
+                }
+        }
+
+        <span class="cov0" title="0">if params.Security.HTTPAuthValue != "" </span><span class="cov0" title="0">{
+                oasSecurityToken = params.Security.HTTPAuthValue
+        }</span> else<span class="cov0" title="0"> if oasSec != nil &amp;&amp; oasSec.Extensions["x-example"] != nil </span><span class="cov0" title="0">{
+                jre, isjre := oasSec.Extensions["x-example"].(json.RawMessage)
+                if isjre </span><span class="cov0" title="0">{
+                        tokenErr := json.Unmarshal(jre, &amp;oasSecurityToken)
+                        if tokenErr != nil </span><span class="cov0" title="0">{
+                                panic(tokenErr)</span>
+                        }
+                }
+        }
+
+        <span class="cov0" title="0">if oasSec != nil </span><span class="cov0" title="0">{
+                switch oasSec.Type </span>{
+                case "apiKey":<span class="cov0" title="0">
+                        return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log)</span>
+
+                case "http":<span class="cov0" title="0">
+                        return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log)</span>
+                }
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// MakeRequest creates an api.Request instance from available operation spec data.
+func (spec *Spec) MakeRequest(
+        method string,
+        specPath string,
+        specQuery *url.Values,
+        oasOp *openapi3.Operation,
+        oasPathItem *openapi3.PathItem,
+        oasCT string,
+        oasMT *openapi3.MediaType,
+        params *api.OperationParameters,
+) *api.Request <span class="cov0" title="0">{
+
+        specReq := &amp;api.Request{}
+        specReq.Method = method
+        specReq.Path = specPath
+        specReq.Query = specQuery
+
+        specHeaders := http.Header{}
+
+        for _, oasOpParam := range oasOp.Parameters </span><span class="cov0" title="0">{
+                if oasOpParam.Value == nil || oasOpParam.Value.In != "header" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))</span>
+        }
+
+        <span class="cov0" title="0">specReq.Headers = specHeaders
+
+        return specReq</span>
+}
+
+// MakeResponses creates a list of api.Response instances from available operation spec data.
+func (spec *Spec) MakeResponses(
+        oasRespStatus string,
+        oasResp *openapi3.Response,
+) []*api.Response <span class="cov0" title="0">{
+
+        specResponses := []*api.Response{}
+        specDescription := oasResp.Description
+        specStatusCode, _ := strconv.ParseUint(oasRespStatus, 10, 64)
+        specHeaders := api.Headers{}
+
+        // Headers.
+        for oasHeaderName, oasHeader := range oasResp.Headers </span><span class="cov0" title="0">{
+                if oasHeader.Value != nil </span><span class="cov0" title="0">{
+                        specHeaders[oasHeaderName] = spec.MakeHeader(oasHeaderName, oasHeader.Value)
+                }</span>
+        }
+
+        // Bodies.
+        <span class="cov0" title="0">if len(oasResp.Content) &gt; 0 </span><span class="cov0" title="0">{
+                for oasRespContentType, oasRespContent := range oasResp.Content </span><span class="cov0" title="0">{
+                        var specSchema *api.Schema
+                        if oasRespContent.Schema != nil &amp;&amp; oasRespContent.Schema.Value != nil </span><span class="cov0" title="0">{
+                                specSchema = spec.MakeSchema("Response", oasRespContent.Schema.Value)
+                        }</span>
+                        <span class="cov0" title="0">specResponses = append(specResponses, &amp;api.Response{
+                                Description: specDescription,
+                                StatusCode:  specStatusCode,
+                                Headers:     specHeaders,
+                                ContentType: oasRespContentType,
+                                Schema:      specSchema,
+                        })</span>
+                }
+        } else<span class="cov0" title="0"> {
+                specResponses = append(specResponses, &amp;api.Response{
+                        Description: specDescription,
+                        StatusCode:  specStatusCode,
+                        Headers:     specHeaders,
+                })
+        }</span>
+
+        <span class="cov0" title="0">return specResponses</span>
+}
+
+// MakeHeader creates an api.Rrequest instance from available operation spec data.
+func (spec *Spec) MakeHeader(
+        oasHeaderName string,
+        oasHeader *openapi3.Header,
+) *api.Header <span class="cov0" title="0">{
+        var specSchema *api.Schema
+
+        if oasHeader.Schema != nil &amp;&amp; oasHeader.Schema.Value != nil </span><span class="cov0" title="0">{
+                specSchema = spec.MakeSchema(oasHeaderName, oasHeader.Schema.Value)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;api.Header{
+                Name:        oasHeaderName,
+                Description: oasHeader.Description,
+                Required:    oasHeader.Required,
+                Schema:      specSchema,
+        }</span>
+}
+
+// MakeSchema creates an api.Schema instance from available operation spec data.
+func (spec *Spec) MakeSchema(
+        name string,
+        oasSchema *openapi3.Schema,
+) *api.Schema <span class="cov0" title="0">{
+
+        if oasSchema != nil </span><span class="cov0" title="0">{
+                jsonSchema := spec.MakeJSONSchema(oasSchema)
+                return &amp;api.Schema{
+                        Name:       name,
+                        JSONSchema: jsonSchema,
+                }
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// MakeJSONSchema creates an api.Schema instance from available operation spec data.
+func (spec *Spec) MakeJSONSchema(
+        oasSchema *openapi3.Schema,
+) api.JSONSchema <span class="cov0" title="0">{
+        jsonSchema, jsonSchemaErr := json.Marshal(oasSchema)
+        if jsonSchemaErr == nil </span><span class="cov0" title="0">{
+                sch := make(api.JSONSchema)
+                json.Unmarshal(jsonSchema, &amp;sch)
+
+                // Adding the components object to the JSON schema object because of $refs
+                jsonComps, jsonCompsErr := spec.OAS.Components.MarshalJSON()
+                if jsonCompsErr == nil </span><span class="cov0" title="0">{
+                        comps := make(map[string]interface{})
+                        json.Unmarshal(jsonComps, &amp;comps)
+                        sch["components"] = comps
+                }</span>
+                <span class="cov0" title="0">return sch</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// CreatePath creates an operation path with parameters replaced by actual values from `example`.
+// Path parameters can be found in several places, so there is a priority list:
+//                 params.Path
+//                 operation-level parameters
+//                 path-level parameters
+func (spec *Spec) CreatePath(
+        oasPath string,
+        oasPathItem *openapi3.PathItem,
+        oasOp *openapi3.Operation,
+        params *api.OperationParameters,
+) (string, errors.IError) <span class="cov8" title="1">{
+        path := oasPath
+
+        fixPath := func(ppn string, ppv string, container string) </span><span class="cov8" title="1">{
+                RX, _ := regexp.Compile("\\{" + ppn + "\\}")
+
+                if RX.Match([]byte(path)) </span><span class="cov8" title="1">{
+                        if ppv != "" </span><span class="cov8" title="1">{
+                                path = string(RX.ReplaceAll([]byte(path), []byte(ppv)))
+                                spec.Log.UsingParameterExample(ppn, "path", container)
+                        }</span> else<span class="cov8" title="1"> {
+                                spec.Log.ParameterHasNoExample(ppn, "path", container)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov8" title="1">{
+                for _, specP := range specParams </span><span class="cov8" title="1">{
+                        if specP == nil || specP.Value == nil || specP.Value.In != "path" </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+
+                        <span class="cov8" title="1">fixPath(specP.Value.Name, isstring(specP.Value.Example), container)</span>
+                }
+        }
+
+        <span class="cov8" title="1">for ppn, ppv := range params.Path </span><span class="cov8" title="1">{
+                fixPath(ppn, ppv, "override")
+        }</span>
+
+        <span class="cov8" title="1">useParameters(oasOp.Parameters, "spec operation")
+        useParameters(oasPathItem.Parameters, "spec path")
+
+        // Checking for leftover params.
+        RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
+        lops := RX.FindAllString(path, -1)
+        if len(lops) &gt; 0 </span><span class="cov0" title="0">{
+                // spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
+                // for _, lop := range lops {
+                //         spec.Log.NOMESSAGE("\t%s", lop)
+                // }
+                return "", errors.NoParameters(lops, errors.Wrap(goerrors.New("XYNTA")))
+        }</span>
+
+        <span class="cov8" title="1">return path, nil</span>
+}
+
+// CreateQuery creates a query string for an operation request using values from `example`.
+// Query parameters can be found in several places, so there is a priority list:
+//                 params.Query
+//                 operation-level parameters
+//                 path-level parameters
+func (spec *Spec) CreateQuery(
+        oasPathItem *openapi3.PathItem,
+        oasOp *openapi3.Operation,
+        params *api.OperationParameters,
+) *url.Values <span class="cov0" title="0">{
+        qry := make(url.Values)
+
+        add := func(qpn string, qpv string, container string) </span><span class="cov0" title="0">{
+                if qry.Get(qpn) == "" </span><span class="cov0" title="0">{
+                        if qpv != "" </span><span class="cov0" title="0">{
+                                qry.Add(qpn, qpv)
+                                spec.Log.UsingParameterExample(qpn, "query", container)
+                        }</span> else<span class="cov0" title="0"> {
+                                spec.Log.ParameterHasNoExample(qpn, "query", container)
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov0" title="0">{
+                for _, specP := range specParams </span><span class="cov0" title="0">{
+                        if specP == nil || specP.Value == nil || specP.Value.In != "query" || !specP.Value.Required </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+
+                        <span class="cov0" title="0">example := ""
+                        if specP.Value.Example != nil </span><span class="cov0" title="0">{
+                                example = specP.Value.Example.(string)
+                        }</span>
+
+                        <span class="cov0" title="0">add(specP.Value.Name, example, container)</span>
+                }
+        }
+
+        <span class="cov0" title="0">for qpn, qpvs := range params.Query </span><span class="cov0" title="0">{
+                for _, qpv := range qpvs </span><span class="cov0" title="0">{
+                        add(qpn, qpv, "override")
+                }</span>
+        }
+
+        <span class="cov0" title="0">useParameters(oasOp.Parameters, "spec operation")
+        useParameters(oasPathItem.Parameters, "spec path")
+
+        return &amp;qry</span>
+}
+
+// GetProjectInfo returns project info from the spec.info object.
+func (spec *Spec) GetProjectInfo() *api.ProjectInfo <span class="cov0" title="0">{
+        return &amp;api.ProjectInfo{
+                Title:       spec.OAS.Info.Title,
+                Description: spec.OAS.Info.Description,
+                Version:     spec.OAS.Info.Version,
+        }
+}</span>
+
+// GetHost returns an API host by requested description
+// from the spec.servers list.
+func (spec *Spec) GetHost(name string) *api.Host <span class="cov0" title="0">{
+        for _, oasServer := range spec.OAS.Servers </span><span class="cov0" title="0">{
+                if oasServer.Description == name </span><span class="cov0" title="0">{
+                        return &amp;api.Host{
+                                Name:        name,
+                                Description: oasServer.Description,
+                                URL:         oasServer.URL,
+                        }
+                }</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+// GetDefaultHost returns the fisr host from the spec.servers list as default.
+func (spec *Spec) GetDefaultHost() *api.Host <span class="cov0" title="0">{
+        if len(spec.OAS.Servers) &gt; 0 </span><span class="cov0" title="0">{
+                return &amp;api.Host{
+                        Name:        "Default",
+                        Description: spec.OAS.Servers[0].Description,
+                        URL:         spec.OAS.Servers[0].URL,
+                }
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package srx
 
 // Cursor is a pair of argument list and an index of a current argument.
 type Cursor struct {
@@ -121,12 +648,21 @@ func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package srx
+		<pre class="file" id="file3" style="display: none">package srx
 
 // String is a shorthand function to create a String() expression.
 func String(f string) *SRX <span class="cov8" title="1">{
         return NewSRX().String(f)
 }</span>
+
+// Strings is a syntactic sugar for sequential String() calls.
+func Strings(ss ...string) *SRX <span class="cov8" title="1">{
+        p := NewSRX().String(ss[0])
+        for i := 1; i &lt; len(ss); i++ </span><span class="cov8" title="1">{
+                p.String(ss[i])
+        }</span>
+        <span class="cov8" title="1">return p</span>
+}
 
 // CaptureString is a shorthand function to create a CaptureString() expression.
 func CaptureString(v *string) *SRX <span class="cov0" title="0">{
@@ -179,7 +715,7 @@ func Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file2" style="display: none">package srx
+		<pre class="file" id="file4" style="display: none">package srx
 
 import (
         "strconv"
