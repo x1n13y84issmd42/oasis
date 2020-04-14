@@ -1,7 +1,6 @@
 package env
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"strings"
@@ -68,16 +67,16 @@ func ParseArgs(args *Args) {
 
 	expUse := srx.String("use").Repeat(srx.OneOf(
 		srx.String("security").CaptureString(&args.Use.Security),
-		srx.String("path").String("parameters").HandleStringSlice(hPathParams),
+		srx.Strings("path", "parameters").HandleStringSlice(hPathParams),
 		srx.String("query").HandleStringSlice(hQueryParams),
-	), 0, 1)
+	), 0, 3)
 
 	expExpect := srx.String("expect").Repeat(srx.OneOf(
 		srx.String("CT").CaptureString(&args.Expect.CT),
 		srx.String("status").CaptureInt64(&args.Expect.Status),
 	), 0, 2)
 
-	expLogLevel := srx.String("at").String("level").CaptureInt64(&args.LogLevel)
+	expLogLevel := srx.Strings("at", "level").CaptureInt64(&args.LogLevel)
 	expLogStyle := srx.String("in").CaptureString(&args.LogStyle).String("style")
 	expLog := srx.String("log").Repeat(srx.OneOf(
 		expLogLevel,
@@ -95,5 +94,5 @@ func ParseArgs(args *Args) {
 	), 1, 8).Parse(os.Args[1:])
 	//    ^^^ UPDATE ME EVERY TIME YOU ADD ARGUMENTS
 
-	fmt.Printf("Args: %#v", args)
+	// fmt.Printf("Args: %#v\n", args)
 }

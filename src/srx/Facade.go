@@ -5,6 +5,15 @@ func String(f string) *SRX {
 	return NewSRX().String(f)
 }
 
+// Strings is a syntactic sugar for sequential String() calls.
+func Strings(ss ...string) *SRX {
+	p := NewSRX().String(ss[0])
+	for i := 1; i < len(ss); i++ {
+		p.String(ss[i])
+	}
+	return p
+}
+
 // CaptureString is a shorthand function to create a CaptureString() expression.
 func CaptureString(v *string) *SRX {
 	return NewSRX().CaptureString(v)

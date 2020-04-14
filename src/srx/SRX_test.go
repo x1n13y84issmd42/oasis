@@ -29,21 +29,21 @@ type TestFlagInput struct {
 
 func TestString(t *testing.T) {
 	inputs := []TestFlagInput{
-		TestFlagInput{
+		{
 			Flags:       []string{"foo", "bar", "qeq"},
 			Args:        []string{"foo", "bar", "qeq"},
 			ExpComplete: true,
 			ExpProgress: 3,
 		},
 
-		TestFlagInput{
+		{
 			Flags:       []string{"foo", "bar", "qeq"},
 			Args:        []string{"foo", "bar"},
 			ExpComplete: false,
 			ExpProgress: 2,
 		},
 
-		TestFlagInput{
+		{
 			Flags:       []string{"foo", "bar", "qeq"},
 			Args:        []string{"foo", "bar", "qeq", "baz", "qyx"},
 			ExpComplete: true,
@@ -224,13 +224,13 @@ func genericTest(t *testing.T, inputs []TestInput) {
 func TestOneOf(t *testing.T) {
 	parserCtor1 := func() *SRX {
 		return OneOf(
-			String("foo").String("bar").String("qeq"),
-			String("one").String("two").String("three").String("four"),
+			Strings("foo", "bar", "qeq"),
+			Strings("one", "two", "three", "four"),
 		)
 	}
 
 	inputs := []TestInput{
-		TestInput{
+		{
 			Init: parserCtor1,
 			Args: []string{"foo", "bar", "qeq"},
 
@@ -238,7 +238,7 @@ func TestOneOf(t *testing.T) {
 			ExpProgress: 3,
 		},
 
-		TestInput{
+		{
 			Init: parserCtor1,
 			Args: []string{"one", "two", "three", "four"},
 
@@ -246,7 +246,7 @@ func TestOneOf(t *testing.T) {
 			ExpProgress: 4,
 		},
 
-		TestInput{
+		{
 			Init: parserCtor1,
 			Args: []string{"one", "two", "three", "four", "5", "6ix", "se7en"},
 
@@ -254,7 +254,7 @@ func TestOneOf(t *testing.T) {
 			ExpProgress: 4,
 		},
 
-		TestInput{
+		{
 			Init: parserCtor1,
 			Args: []string{"one", "qyx"},
 
@@ -262,7 +262,7 @@ func TestOneOf(t *testing.T) {
 			ExpProgress: 0,
 		},
 
-		TestInput{
+		{
 			Init: parserCtor1,
 			Args: []string{"qyx", "one"},
 
@@ -287,42 +287,42 @@ func TestRepeat(t *testing.T) {
 	}
 
 	inputs := []TestInput{
-		TestInput{
+		{
 			Init:        ctor1,
 			Args:        []string{"yolo"},
 			ExpComplete: true,
 			ExpProgress: 1,
 		},
 
-		TestInput{
+		{
 			Init:        ctor1,
 			Args:        []string{"whatever"},
 			ExpComplete: true,
 			ExpProgress: 0,
 		},
 
-		TestInput{
+		{
 			Init:        ctor2,
 			Args:        []string{"f00", "nonbar"},
 			ExpComplete: false,
 			ExpProgress: 0,
 		},
 
-		TestInput{
+		{
 			Init:        ctor2,
 			Args:        []string{"f00", "b4r"},
 			ExpComplete: false,
 			ExpProgress: 0,
 		},
 
-		TestInput{
+		{
 			Init:        ctor2,
 			Args:        []string{"f00", "b4r", "f00"},
 			ExpComplete: true,
 			ExpProgress: 3,
 		},
 
-		TestInput{
+		{
 			Init:        ctor2,
 			Args:        []string{"f00", "b4r", "f00", "f00", "b4r", "bar", "qeq"},
 			ExpComplete: true,
@@ -337,7 +337,7 @@ func TestCaptureString(t *testing.T) {
 	var v string
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("yeet").CaptureString(&v)
 			},
@@ -355,7 +355,7 @@ func TestCaptureStringSlice(t *testing.T) {
 	var v []string
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("things").CaptureStringSlice(&v)
 			},
@@ -372,7 +372,7 @@ func TestCaptureStringSlice(t *testing.T) {
 			},
 		},
 
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("things").CaptureStringSlice(&v)
 			},
@@ -387,7 +387,7 @@ func TestCaptureInt64(t *testing.T) {
 	var v int64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureInt64(&v)
 			},
@@ -405,7 +405,7 @@ func TestCaptureInt64Slice(t *testing.T) {
 	var v []int64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureInt64Slice(&v)
 			},
@@ -423,7 +423,7 @@ func TestCaptureInt64Fail(t *testing.T) {
 	var v int64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureInt64(&v)
 			},
@@ -441,7 +441,7 @@ func TestCaptureInt64SliceFail(t *testing.T) {
 	var v []int64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureInt64Slice(&v)
 			},
@@ -459,7 +459,7 @@ func TestCaptureFloat64(t *testing.T) {
 	var v float64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("pie").CaptureFloat64(&v)
 			},
@@ -477,7 +477,7 @@ func TestCaptureFloat64Slice(t *testing.T) {
 	var v []float64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureFloat64Slice(&v)
 			},
@@ -495,7 +495,7 @@ func TestCaptureFloat64Fail(t *testing.T) {
 	var v float64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureFloat64(&v)
 			},
@@ -513,7 +513,7 @@ func TestCaptureFloat64SliceFail(t *testing.T) {
 	var v []float64
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("answer").CaptureFloat64Slice(&v)
 			},
@@ -531,7 +531,7 @@ func TestCaptureBool(t *testing.T) {
 	var v bool
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("truth").CaptureBool(&v)
 			},
@@ -549,7 +549,7 @@ func TestCaptureBoolSlice(t *testing.T) {
 	var v []bool
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("truthies").CaptureBoolSlice(&v)
 			},
@@ -567,7 +567,7 @@ func TestCaptureBoolFail(t *testing.T) {
 	var v bool
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("truth").CaptureBool(&v)
 			},
@@ -585,7 +585,7 @@ func TestCaptureBoolSliceFail(t *testing.T) {
 	var v []bool
 
 	genericTest(t, []TestInput{
-		TestInput{
+		{
 			Init: func() *SRX {
 				return String("truthies").CaptureBoolSlice(&v)
 			},
