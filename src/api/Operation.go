@@ -1,13 +1,18 @@
 package api
 
-// Operation is an description of an API operation which is a subject to testing.
-type Operation struct {
+// OperationDesc is a general operation description.
+type OperationDesc struct {
 	Name        string
 	Description string
 	ID          string
-	Method      string
-	Path        string
-	Security    ISecurity
-	Requests    []*Request
-	Responses   []*Response
+}
+
+// Operation is an description of an API operation which is a subject to testing.
+type Operation struct {
+	OperationDesc
+	Method    string
+	Path      string
+	Security  ISecurity
+	Requests  []*Request
+	Responses []*Response
 }

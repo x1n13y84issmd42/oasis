@@ -67,7 +67,8 @@ func (log Festive) Usage() {
 
 // Error --
 func (log Festive) Error(err error) {
-	log.Println(1, "\tSomething happened: %s", log.styleError(err.Error()))
+	// log.Println(1, "\tSomething happened: %s", log.styleError(err.Error()))
+	log.Println(1, log.styleError(err.Error()))
 }
 
 // LoadingSpec --
@@ -214,4 +215,14 @@ func (log Festive) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultEr
 	for _, desc := range errors {
 		log.Println(4, "\t\t%s", log.styleError(desc))
 	}
+}
+
+// ErrOperationMalformed ...
+func (log Festive) ErrOperationMalformed(err *api.ErrOperationMalformed) {
+	log.Println(1, "Operation %s has malformed or incomplete data.", log.styleID(err.OpID))
+}
+
+// ErrOperationNotFound ...
+func (log Festive) ErrOperationNotFound(err *api.ErrOperationNotFound) {
+	log.Println(1, "Operation %s not found.", log.styleID(err.OpID))
 }

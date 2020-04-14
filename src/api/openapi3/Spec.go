@@ -2,6 +2,7 @@ package openapi3
 
 import (
 	"encoding/json"
+	goerrors "errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	secAPIKey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
 	secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
@@ -51,7 +53,10 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 
 	addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) {
 		if oasOp != nil {
-			ops = append(ops, spec.makeOperation(method, oasOp, oasPath, oasPathItem, params))
+			specOp, specOpErr := spec.makeOperation(method, oasOp, oasPath, oasPathItem, params)
+			if specOpErr == nil {
+				ops = append(ops, specOp)
+			}
 		}
 	}
 
@@ -71,7 +76,7 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 }
 
 // GetOperation returns a list of all available test operations from the spec.
-func (spec *Spec) GetOperation(name string, params *api.OperationParameters) *api.Operation {
+func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, errors.IError) {
 	filterOp := func(oasOp *openapi3.Operation) bool {
 		return (oasOp != nil && (oasOp.Summary == name || oasOp.OperationID == name))
 	}
@@ -106,7 +111,7 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) *ap
 		}
 	}
 
-	return nil
+	return nil, api.OperationNotFound(name, nil)
 }
 
 func (spec *Spec) makeOperation(
@@ -115,17 +120,24 @@ func (spec *Spec) makeOperation(
 	oasPath string,
 	oasPathItem *openapi3.PathItem,
 	params *api.OperationParameters,
-) *api.Operation {
-	specPath := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
+) (*api.Operation, errors.IError) {
+	specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
+	if err != nil {
+		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
+	}
+
 	specQuery := spec.CreateQuery(oasPathItem, oasOp, params)
 	specRequests := []*api.Request{}
 	specResponses := []*api.Response{}
 
+	// In case there is a reponse body with certain Content-Type is expected,
+	// collect them all.
 	if oasOp.RequestBody != nil && oasOp.RequestBody.Value != nil {
 		for oasCT, oasMT := range oasOp.RequestBody.Value.Content {
 			specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, oasCT, oasMT, params))
 		}
 	} else {
+		// Otherwise making a single contentless response.
 		specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, "", nil, params))
 	}
 
@@ -136,15 +148,17 @@ func (spec *Spec) makeOperation(
 	}
 
 	return &api.Operation{
-		ID:          oasOp.OperationID,
-		Name:        oasOp.Summary,
-		Description: oasOp.Description,
-		Method:      method,
-		Path:        specPath,
-		Security:    spec.MakeSecurity(oasOp.Security, params),
-		Requests:    specRequests,
-		Responses:   specResponses,
-	}
+		OperationDesc: api.OperationDesc{
+			ID:          oasOp.OperationID,
+			Name:        oasOp.Summary,
+			Description: oasOp.Description,
+		},
+		Method:    method,
+		Path:      specPath,
+		Security:  spec.MakeSecurity(oasOp.Security, params),
+		Requests:  specRequests,
+		Responses: specResponses,
+	}, nil
 }
 
 // MakeSecurity creates an api.Request instance from available operation spec data.
@@ -352,7 +366,7 @@ func (spec *Spec) CreatePath(
 	oasPathItem *openapi3.PathItem,
 	oasOp *openapi3.Operation,
 	params *api.OperationParameters,
-) string {
+) (string, errors.IError) {
 	path := oasPath
 
 	fixPath := func(ppn string, ppv string, container string) {
@@ -389,13 +403,14 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
-		for _, lop := range lops {
-			spec.Log.NOMESSAGE("\t%s", lop)
-		}
+		// spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
+		// for _, lop := range lops {
+		// 	spec.Log.NOMESSAGE("\t%s", lop)
+		// }
+		return "", errors.NoParameters(lops, errors.Wrap(goerrors.New("XYNTA")))
 	}
 
-	return path
+	return path, nil
 }
 
 // CreateQuery creates a query string for an operation request using values from `example`.

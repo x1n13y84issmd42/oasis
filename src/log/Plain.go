@@ -162,3 +162,13 @@ func (log Plain) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultErro
 		log.Println(4, "\t\t%s", desc)
 	}
 }
+
+// ErrOperationMalformed ...
+func (log Plain) ErrOperationMalformed(err *api.ErrOperationMalformed) {
+	log.Println(1, "Oops")
+}
+
+// ErrOperationNotFound ...
+func (log Plain) ErrOperationNotFound(err *api.ErrOperationNotFound) {
+	log.Println(1, "Oops")
+}

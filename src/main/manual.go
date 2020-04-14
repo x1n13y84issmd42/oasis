@@ -39,17 +39,19 @@ func Manual(args *env.Args, logger log.ILogger) {
 		testResult := true
 		printOps := false
 		for _, inOp := range args.Ops {
-			specOp := spec.GetOperation(inOp, params)
-			if specOp != nil {
+			specOp, specOpErr := spec.GetOperation(inOp, params)
+			if specOpErr == nil {
 				testResult = test.Operation(specHost, specOp, params, logger) && testResult
 			} else {
-				logger.OperationNotFound(inOp)
+				// logger.OperationNotFound(inOp)
+				// fmt.Printf("ERROR: %s", specOpErr.Error())
+				logger.XError(specOpErr, logger, log.Tab(0))
 				printOps = true
 			}
 		}
 
 		if printOps {
-			logger.PrintOperations(spec.GetOperations(params))
+			// logger.PrintOperations(spec.GetOperations(params))
 		}
 
 		if !testResult {

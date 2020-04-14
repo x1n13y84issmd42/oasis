@@ -2,8 +2,10 @@ package log
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -42,6 +44,10 @@ type ILogger interface {
 	SchemaTesting(schema *api.Schema, data interface{})
 	SchemaOK(schema *api.Schema)
 	SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
+
+	XError(err errors.IError, sameLogButILogger ILogger, tab TabFn)
+	ErrOperationMalformed(err *api.ErrOperationMalformed)
+	ErrOperationNotFound(err *api.ErrOperationNotFound)
 }
 
 // Log is a base type for loggers.
@@ -66,6 +72,35 @@ func (log Log) Println(l int64, msg string, args ...interface{}) {
 // with a proper logging method or removed. Henec the indicating name.
 func (log Log) NOMESSAGE(msg string, args ...interface{}) {
 	log.Println(1, "\t"+msg, args...)
+}
+
+// TabFn ...
+type TabFn func(log Log)
+
+// Tab ...
+func Tab(level uint) TabFn {
+	return func(log Log) {
+		log.Print(1, ""+strings.Repeat("  ", int(level)))
+	}
+}
+
+// More ...
+func (fn TabFn) More() TabFn {
+	return func(log Log) {
+		fn(log)
+		log.Print(1, "  ")
+	}
+}
+
+// XError ...
+func (log Log) XError(err errors.IError, sameLogButILogger ILogger, tab TabFn) {
+	tab(log)
+	sameLogButILogger.Error(err)
+	if c := err.Cause(); c != nil {
+		tab(log)
+		log.Print(1, "Caused by:\n")
+		log.XError(c, sameLogButILogger, tab.More())
+	}
 }
 
 // New creates a new logger based on the provided log tyle & leve.

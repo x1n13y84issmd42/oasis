@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // Spec is an interface to access specification data.
@@ -12,7 +14,7 @@ type Spec interface {
 	GetHost(name string) *Host
 	GetDefaultHost() *Host
 	GetOperations(params *OperationParameters) []*Operation
-	GetOperation(name string, params *OperationParameters) *Operation
+	GetOperation(name string, params *OperationParameters) (*Operation, errors.IError)
 }
 
 // ProjectInfo is a generic project information.
