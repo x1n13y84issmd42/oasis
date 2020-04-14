@@ -24,20 +24,16 @@ type ILogger interface {
 	HostNotFound(h string)
 
 	UsingSecurity(sec api.ISecurity)
-	// UsingRequest(req *api.Request)
-	UsingResponse(req *api.Response)
+	SecurityHasNoData(sec api.ISecurity)
 
-	Overriding(what string)
 	Requesting(method string, url string)
 
 	ParameterHasNoExample(paramName string, in string, container string)
 	UsingParameterExample(paramName string, in string, container string)
 
-	// PropertyHasNoValue(prop *api.Property, ctx *utility.Context)
 	HeaderHasNoValue(header *api.Header)
 	ResponseHasWrongStatus(schema *api.Response, actualStatus int)
 	ResponseHasWrongContentType(schema *api.Response, actualCT string)
-	ResponseNotFound(CT string, status int)
 
 	OperationOK(res *api.Operation)
 	OperationFail(res *api.Operation)
@@ -46,13 +42,6 @@ type ILogger interface {
 	SchemaTesting(schema *api.Schema, data interface{})
 	SchemaOK(schema *api.Schema)
 	SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
-	// UnknownSchemaDataType(schema *api.Schema)
-	// SchemaExpectedBoolean(schema *api.Schema, v interface{})
-	// SchemaExpectedNumber(schema *api.Schema, v interface{})
-	// SchemaExpectedInteger(schema *api.Schema, v interface{})
-	// SchemaExpectedString(schema *api.Schema, v interface{})
-	// SchemaExpectedArray(schema *api.Schema, v interface{})
-	// SchemaExpectedObject(schema *api.Schema, v interface{})
 }
 
 // Log is a base type for loggers.

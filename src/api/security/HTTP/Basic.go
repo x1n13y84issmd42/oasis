@@ -18,6 +18,6 @@ func (sec Basic) Secure(req *http.Request) {
 	} else if sec.Username != "" {
 		//TODO: implement client-side basic encoding
 	} else {
-		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.SecurityHasNoData(sec)
 	}
 }

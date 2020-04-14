@@ -18,6 +18,6 @@ func (sec Query) Secure(req *http.Request) {
 		q.Add(sec.ParamName, sec.Value)
 		req.URL.RawQuery = q.Encode()
 	} else {
-		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.SecurityHasNoData(sec)
 	}
 }

@@ -16,6 +16,6 @@ func (sec Header) Secure(req *http.Request) {
 	if sec.Value != "" {
 		req.Header.Add(sec.ParamName, sec.Value)
 	} else {
-		sec.Log.NOMESSAGE("The security \"%s\" contains no data to use in request.", sec.Name)
+		sec.Log.SecurityHasNoData(sec)
 	}
 }
