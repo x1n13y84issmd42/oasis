@@ -6,6 +6,7 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -24,17 +25,6 @@ func wrapStyle(styleFn ColorFn) ColorFn {
 // Festive - a colorized test execution logger.
 type Festive struct {
 	Log
-	styleDefault       ColorFn
-	styleURL           ColorFn
-	styleMethod        ColorFn
-	styleOp            ColorFn
-	styleOK            ColorFn
-	styleFailure       ColorFn
-	styleSuccess       ColorFn
-	styleError         ColorFn
-	styleID            ColorFn
-	styleValueExpected ColorFn
-	styleValueActual   ColorFn
 }
 
 // NewFestive is a Nice logger constructor.
@@ -43,19 +33,51 @@ func NewFestive(level int64) *Festive {
 		Log: Log{
 			Level: level,
 		},
-
-		styleDefault:       wrapStyle(color.New(38, 5, 218).Sprint),
-		styleURL:           wrapStyle(color.New(color.FgCyan, color.OpUnderscore).Sprint),
-		styleMethod:        wrapStyle(color.New(color.FgCyan).Sprint),
-		styleOp:            wrapStyle(color.New(color.FgYellow).Sprint),
-		styleOK:            wrapStyle(color.New(color.FgLightWhite, color.BgGreen).Sprint),
-		styleFailure:       wrapStyle(color.New(color.FgLightWhite, color.BgRed).Sprint),
-		styleSuccess:       wrapStyle(color.New(color.FgGreen).Sprint),
-		styleError:         wrapStyle(color.New(color.FgRed).Sprint),
-		styleID:            wrapStyle(color.New(color.FgLightWhite, color.OpUnderscore).Sprint),
-		styleValueExpected: wrapStyle(color.New(48, 5, 2, 38, 5, 0).Sprint),
-		styleValueActual:   wrapStyle(color.New(48, 5, 240, 38, 5, 255).Sprint),
 	}
+}
+
+func (log Festive) styleDefault(args ...interface{}) string {
+	return color.New(38, 5, 218).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleURL(args ...interface{}) string {
+	return color.New(color.FgCyan, color.OpUnderscore).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleMethod(args ...interface{}) string {
+	return color.New(color.FgCyan).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleOp(args ...interface{}) string {
+	return color.New(color.FgYellow).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleOK(args ...interface{}) string {
+	return color.New(color.FgLightWhite, color.BgGreen).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleFailure(args ...interface{}) string {
+	return color.New(color.FgLightWhite, color.BgRed).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleSuccess(args ...interface{}) string {
+	return color.New(color.FgGreen).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleError(args ...interface{}) string {
+	return color.New(color.FgRed).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleID(args ...interface{}) string {
+	return color.New(color.FgLightWhite, color.OpUnderscore).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleValueExpected(args ...interface{}) string {
+	return color.New(48, 5, 2, 38, 5, 0).Sprint(args...) + "\x1b[K"
+}
+
+func (log Festive) styleValueActual(args ...interface{}) string {
+	return color.New(48, 5, 240, 38, 5, 255).Sprint(args...) + "\x1b[K"
 }
 
 // Usage prints CLI usage information.
@@ -67,6 +89,11 @@ func (log Festive) Usage() {
 
 // Error --
 func (log Festive) Error(err error) {
+	if xerr, ok := err.(errors.IError); ok {
+		// log.Println(1, "MEGA ERROR: %s", log.styleError(err.Error()))
+		log.XError(xerr, log, Tab(0))
+		return
+	}
 	// log.Println(1, "\tSomething happened: %s", log.styleError(err.Error()))
 	log.Println(1, log.styleError(err.Error()))
 }

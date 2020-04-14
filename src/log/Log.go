@@ -45,7 +45,7 @@ type ILogger interface {
 	SchemaOK(schema *api.Schema)
 	SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
 
-	XError(err errors.IError, sameLogButILogger ILogger, tab TabFn)
+	XError(err errors.IError, style IStyle, tab TabFn)
 	ErrOperationMalformed(err *api.ErrOperationMalformed)
 	ErrOperationNotFound(err *api.ErrOperationNotFound)
 }
@@ -93,13 +93,13 @@ func (fn TabFn) More() TabFn {
 }
 
 // XError ...
-func (log Log) XError(err errors.IError, sameLogButILogger ILogger, tab TabFn) {
+func (log Log) XError(err errors.IError, style IStyle, tab TabFn) {
 	tab(log)
-	sameLogButILogger.Error(err)
+	log.Println(1, "%s", style.styleError(err.Error()))
 	if c := err.Cause(); c != nil {
 		tab(log)
 		log.Print(1, "Caused by:\n")
-		log.XError(c, sameLogButILogger, tab.More())
+		log.XError(c, style, tab.More())
 	}
 }
 

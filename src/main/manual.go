@@ -43,9 +43,7 @@ func Manual(args *env.Args, logger log.ILogger) {
 			if specOpErr == nil {
 				testResult = test.Operation(specHost, specOp, params, logger) && testResult
 			} else {
-				// logger.OperationNotFound(inOp)
-				// fmt.Printf("ERROR: %s", specOpErr.Error())
-				logger.XError(specOpErr, logger, log.Tab(0))
+				logger.Error(specOpErr)
 				printOps = true
 			}
 		}
