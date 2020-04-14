@@ -21,6 +21,50 @@ func NewPlain(level int64) *Plain {
 	}
 }
 
+func (log Plain) styleDefault(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleURL(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleMethod(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleOp(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleOK(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleFailure(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleSuccess(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleError(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleID(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleValueExpected(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
+func (log Plain) styleValueActual(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
+
 // Usage prints CLI usage information.
 func (log Plain) Usage() {
 	fmt.Println("Please specify at least a spec file & an operation to test.")
@@ -30,7 +74,7 @@ func (log Plain) Usage() {
 
 // Error --
 func (log Plain) Error(err error) {
-	log.Println(1, "\tSomething happened: %s", err.Error())
+	log.XError(err, log, Tab(0))
 }
 
 // LoadingSpec --

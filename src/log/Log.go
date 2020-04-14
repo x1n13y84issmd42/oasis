@@ -45,7 +45,7 @@ type ILogger interface {
 	SchemaOK(schema *api.Schema)
 	SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
 
-	XError(err errors.IError, style IStyle, tab TabFn)
+	XError(err error, style IStyle, tab TabFn)
 	ErrOperationMalformed(err *api.ErrOperationMalformed)
 	ErrOperationNotFound(err *api.ErrOperationNotFound)
 }
@@ -84,8 +84,8 @@ func Tab(level uint) TabFn {
 	}
 }
 
-// More ...
-func (fn TabFn) More() TabFn {
+// Shift ...
+func (fn TabFn) Shift() TabFn {
 	return func(log Log) {
 		fn(log)
 		log.Print(1, "  ")
@@ -93,17 +93,20 @@ func (fn TabFn) More() TabFn {
 }
 
 // XError ...
-func (log Log) XError(err errors.IError, style IStyle, tab TabFn) {
+func (log Log) XError(err error, style IStyle, tab TabFn) {
 	tab(log)
 	log.Println(1, "%s", style.styleError(err.Error()))
-	if c := err.Cause(); c != nil {
-		tab(log)
-		log.Print(1, "Caused by:\n")
-		log.XError(c, style, tab.More())
+
+	if xerr, ok := err.(errors.IError); ok {
+		if c := xerr.Cause(); c != nil {
+			tab(log)
+			log.Print(1, "Caused by:\n")
+			log.XError(c, style, tab.Shift())
+		}
 	}
 }
 
-// New creates a new logger based on the provided log tyle & leve.
+// New creates a new logger based on the provided log style & level.
 func New(style string, level int64) ILogger {
 	switch style {
 	case "plain":

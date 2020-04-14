@@ -6,7 +6,6 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -89,13 +88,7 @@ func (log Festive) Usage() {
 
 // Error --
 func (log Festive) Error(err error) {
-	if xerr, ok := err.(errors.IError); ok {
-		// log.Println(1, "MEGA ERROR: %s", log.styleError(err.Error()))
-		log.XError(xerr, log, Tab(0))
-		return
-	}
-	// log.Println(1, "\tSomething happened: %s", log.styleError(err.Error()))
-	log.Println(1, log.styleError(err.Error()))
+	log.XError(err, log, Tab(0))
 }
 
 // LoadingSpec --
