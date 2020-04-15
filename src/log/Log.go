@@ -9,50 +9,10 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// ILogger - interface for execution loggers
-type ILogger interface {
-	NOMESSAGE(msg string, args ...interface{})
-
-	Usage()
-	Error(err error)
-	LoadingSpec(path string)
-
-	PrintOperations(ops []*api.Operation)
-	TestingProject(p *api.ProjectInfo)
-	TestingOperation(res *api.Operation)
-
-	UsingHost(p *api.Host)
-	UsingDefaultHost()
-	HostNotFound(h string)
-
-	UsingSecurity(sec api.ISecurity)
-	SecurityHasNoData(sec api.ISecurity)
-
-	Requesting(method string, url string)
-
-	ParameterHasNoExample(paramName string, in string, container string)
-	UsingParameterExample(paramName string, in string, container string)
-
-	HeaderHasNoValue(header *api.Header)
-	ResponseHasWrongStatus(schema *api.Response, actualStatus int)
-	ResponseHasWrongContentType(schema *api.Response, actualCT string)
-
-	OperationOK(res *api.Operation)
-	OperationFail(res *api.Operation)
-	OperationNotFound(op string)
-
-	SchemaTesting(schema *api.Schema, data interface{})
-	SchemaOK(schema *api.Schema)
-	SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
-
-	XError(err error, style IStyle, tab TabFn)
-	ErrOperationMalformed(err *api.ErrOperationMalformed)
-	ErrOperationNotFound(err *api.ErrOperationNotFound)
-}
-
 // Log is a base type for loggers.
 type Log struct {
 	Level int64
+	Style IStyle
 }
 
 // Print prints.
@@ -74,17 +34,17 @@ func (log Log) NOMESSAGE(msg string, args ...interface{}) {
 	log.Println(1, "\t"+msg, args...)
 }
 
-// TabFn ...
+// TabFn produces indentation when printing nested errors.
 type TabFn func(log Log)
 
-// Tab ...
+// Tab creates an indentation function.
 func Tab(level uint) TabFn {
 	return func(log Log) {
 		log.Print(1, ""+strings.Repeat("  ", int(level)))
 	}
 }
 
-// Shift ...
+// Shift produces a new indentation function by adding a level to it.
 func (fn TabFn) Shift() TabFn {
 	return func(log Log) {
 		fn(log)
@@ -92,10 +52,11 @@ func (fn TabFn) Shift() TabFn {
 	}
 }
 
-// XError ...
+// XError is an internal error handling function. It handles both
+// built-in errors and errors.IError instances.
 func (log Log) XError(err error, style IStyle, tab TabFn) {
 	tab(log)
-	log.Println(1, "%s", style.styleError(err.Error()))
+	log.Println(1, "%s", style.Error(err.Error()))
 
 	if xerr, ok := err.(errors.IError); ok {
 		if c := xerr.Cause(); c != nil {
@@ -106,19 +67,160 @@ func (log Log) XError(err error, style IStyle, tab TabFn) {
 	}
 }
 
-// New creates a new logger based on the provided log style & level.
-func New(style string, level int64) ILogger {
-	switch style {
-	case "plain":
-		return NewPlain(level)
+// Usage prints CLI usage information.
+func (log Log) Usage() {
+	fmt.Println("Please specify at least a spec file & an operation to test.")
+	fmt.Println("Example:")
+	fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
+}
 
-	case "festive":
-		return NewFestive(level)
+// Error --
+func (log Log) Error(err error) {
+	log.XError(err, log.Style, Tab(0))
+}
+
+// LoadingSpec --
+func (log Log) LoadingSpec(path string) {
+	log.Println(2, "Loading %s", log.Style.URL(path))
+}
+
+// PrintOperations prints the list of available operations.
+func (log Log) PrintOperations(ops []*api.Operation) {
+	for _, op := range ops {
+		if op.ID != "" {
+			log.Println(1, "\t%s [%s]", log.Style.Op(op.Name), log.Style.Op(op.ID))
+			if op.Description != "" {
+				log.Println(1, "\t%s", op.Description)
+			}
+		} else {
+			log.Println(1, "\t%s", log.Style.Op(op.Name))
+		}
+		log.Println(1, "\t%s @ %s\n", op.Method, log.Style.URL(op.Path))
+		log.Println(1, "")
 	}
+}
 
-	fmt.Printf("The \"%s\" log style is unknown.\nAvailable loggers are:\n", style)
-	fmt.Println("\tplain - a simple text logger")
-	fmt.Println("\tfestive - a nicer colorized logger")
+// TestingProject --
+func (log Log) TestingProject(pi *api.ProjectInfo) {
+	log.Println(2, "Testing the %s @ %s", log.Style.Op(pi.Title), log.Style.ID(pi.Version))
+}
 
-	panic("No way.")
+// UsingHost --
+func (log Log) UsingHost(host *api.Host) {
+	log.Println(2, "Using the %s host @ %s", log.Style.Op(host.Name), log.Style.URL(host.URL))
+}
+
+// UsingDefaultHost --
+func (log Log) UsingDefaultHost() {
+	log.Println(2, "No host name has been specified, using the first one in the list.")
+}
+
+// HostNotFound ...
+func (log Log) HostNotFound(h string) {
+	if h == "" {
+		log.Println(2, "No default host is found in the spec.")
+	} else {
+		log.Println(2, "The host \"%s\" is not found in the spec.", h)
+	}
+}
+
+// UsingSecurity --
+func (log Log) UsingSecurity(sec api.ISecurity) {
+	log.Println(3, "\tUsing the %s security settings.", log.Style.ID(sec.GetName()))
+}
+
+// SecurityHasNoData --
+func (log Log) SecurityHasNoData(sec api.ISecurity) {
+	log.Println(3, "\tThe security %s contains no data to use in request.", log.Style.ID(sec.GetName()))
+}
+
+// Requesting --
+func (log Log) Requesting(method string, URL string) {
+	log.Println(2, "\tRequesting %s @ %s", log.Style.Method(method), log.Style.URL(URL))
+}
+
+// ParameterHasNoExample --
+func (log Log) ParameterHasNoExample(paramName string, in string, container string) {
+	log.Println(5, "\tThe %s parameter %s (from %s) has no example value to use.", in, log.Style.ID(paramName), container)
+}
+
+// UsingParameterExample --
+func (log Log) UsingParameterExample(paramName string, in string, container string) {
+	log.Println(5, "\tUsing the %s parameter %s (from %s) example.", in, log.Style.ID(paramName), container)
+}
+
+// HeaderHasNoValue --
+func (log Log) HeaderHasNoValue(hdr *api.Header) {
+	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr.Name)
+}
+
+// ResponseHasWrongStatus --
+func (log Log) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
+	m := strings.Join([]string{
+		"\t",
+		"Expected the %s ",
+		log.Style.ID("status"),
+		" in response, but got %s",
+		".",
+	}, "")
+	log.Println(2, m, log.Style.ValueExpected(resp.StatusCode), log.Style.ValueActual(actualStatus))
+}
+
+// ResponseHasWrongContentType --
+func (log Log) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
+	m := strings.Join([]string{
+		"\t",
+		"Expected the %s ",
+		log.Style.ID("Content-Type"),
+		" in response, but got %s",
+		".",
+	}, "")
+
+	log.Println(2, m, log.Style.ValueExpected(resp.ContentType), log.Style.ValueActual(actualCT))
+}
+
+// TestingOperation --
+func (log Log) TestingOperation(op *api.Operation) {
+	log.Print(1, "Testing the %s operation... ", log.Style.Op(op.Name))
+	log.Print(2, "\n")
+}
+
+// OperationOK --
+func (log Log) OperationOK(res *api.Operation) {
+	log.Print(2, "\t")
+	log.Println(1, "%s", log.Style.OK("SUCCESS"))
+	log.Print(2, "\n")
+}
+
+// OperationFail --
+func (log Log) OperationFail(res *api.Operation) {
+	log.Print(2, "\t")
+	log.Println(1, "%s", log.Style.Failure("FAILURE"))
+	log.Print(2, "\n")
+}
+
+// OperationNotFound --
+func (log Log) OperationNotFound(op string) {
+	log.Println(1, "The operation \"%s\" isn't there.", op)
+}
+
+// SchemaTesting --
+func (log Log) SchemaTesting(schema *api.Schema, data interface{}) {
+	datas := log.Style.ValueActual(fmt.Sprintf("%#v", data))
+	log.Print(4, "\t%s: testing %s", log.Style.ID(schema.Name), datas)
+}
+
+// SchemaOK --
+func (log Log) SchemaOK(schema *api.Schema) {
+	log.Println(4, log.Style.Success(" - OK"))
+}
+
+// SchemaFail --
+func (log Log) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
+	log.Println(4, log.Style.Error(" - FAILURE"))
+	// log.Println(4, "\tSchema \"%s\" has errors.", schema.Name)
+
+	for _, desc := range errors {
+		log.Println(4, "\t\t%s", log.Style.Error(desc))
+	}
 }
