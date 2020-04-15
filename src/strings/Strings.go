@@ -18,7 +18,13 @@ func Map(strings []string, mapfn StringMapFn) []string {
 // EnumJoin joins a string slice into a human-readable enumeration,
 // so a [1, 2, 3] slice becomes a "1, 2 and 3" string.
 func EnumJoin(strings []string) string {
-	s1 := strings[:len(strings)-1]
-	s2 := strings[len(strings)-1]
-	return gostrings.Join(s1, ", ") + " and " + s2
+	if len(strings) > 2 {
+		s1 := strings[:len(strings)-1]
+		s2 := strings[len(strings)-1]
+		return gostrings.Join(s1, ", ") + " and " + s2
+	} else if len(strings) > 1 {
+		return strings[0]
+	} else {
+		return ""
+	}
 }
