@@ -175,7 +175,7 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 }
 
 // GetOperation returns a list of all available test operations from the spec.
-func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, errors.IError) <span class="cov0" title="0">{
+func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, error) <span class="cov0" title="0">{
         filterOp := func(oasOp *openapi3.Operation) bool </span><span class="cov0" title="0">{
                 return (oasOp != nil &amp;&amp; (oasOp.Summary == name || oasOp.OperationID == name))
         }</span>
@@ -219,7 +219,7 @@ func (spec *Spec) makeOperation(
         oasPath string,
         oasPathItem *openapi3.PathItem,
         params *api.OperationParameters,
-) (*api.Operation, errors.IError) <span class="cov0" title="0">{
+) (*api.Operation, error) <span class="cov0" title="0">{
         specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
@@ -465,7 +465,7 @@ func (spec *Spec) CreatePath(
         oasPathItem *openapi3.PathItem,
         oasOp *openapi3.Operation,
         params *api.OperationParameters,
-) (string, errors.IError) <span class="cov8" title="1">{
+) (string, error) <span class="cov8" title="1">{
         path := oasPath
 
         fixPath := func(ppn string, ppv string, container string) </span><span class="cov8" title="1">{
@@ -502,11 +502,7 @@ func (spec *Spec) CreatePath(
         RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
         lops := RX.FindAllString(path, -1)
         if len(lops) &gt; 0 </span><span class="cov0" title="0">{
-                // spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
-                // for _, lop := range lops {
-                //         spec.Log.NOMESSAGE("\t%s", lop)
-                // }
-                return "", errors.NoParameters(lops, errors.Wrap(goerrors.New("XYNTA")))
+                return "", errors.NoParameters(lops, goerrors.New("XYNTA"))
         }</span>
 
         <span class="cov8" title="1">return path, nil</span>

@@ -17,7 +17,7 @@ func (err ErrOperationMalformed) Error() string {
 }
 
 // OperationMalformed creates a new ErrOperationMalformed error instance.
-func OperationMalformed(id string, details string, cause errors.IError) ErrOperationMalformed {
+func OperationMalformed(id string, details string, cause error) ErrOperationMalformed {
 	return ErrOperationMalformed{
 		Base: errors.Base{
 			TheCause: cause,
@@ -39,7 +39,7 @@ func (err ErrOperationNotFound) Error() string {
 }
 
 // OperationNotFound creates a new ErrOperationNotFound error instance.
-func OperationNotFound(id string, cause errors.IError) ErrOperationNotFound {
+func OperationNotFound(id string, cause error) ErrOperationNotFound {
 	return ErrOperationNotFound{
 		Base: errors.Base{
 			TheCause: cause,

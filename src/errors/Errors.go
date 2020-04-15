@@ -5,35 +5,20 @@ import "strings"
 // Base is a generic error used within Oasis.
 // It references it's root cause.
 type Base struct {
-	TheCause IError
+	TheCause error
 }
 
 type IError interface {
 	Error() string
-	Cause() IError
+	Cause() error
 }
 
 func (err Base) Error() string {
 	return "---"
 }
 
-func (err Base) Cause() IError {
+func (err Base) Cause() error {
 	return err.TheCause
-}
-
-type WError struct {
-	Base
-	or error
-}
-
-func (err WError) Error() string {
-	return err.or.Error()
-}
-
-func Wrap(err error) IError {
-	return WError{
-		or: err,
-	}
 }
 
 // ErrNoParameters ...
@@ -51,7 +36,7 @@ func (err ErrNoParameters) Error() string {
 }
 
 // NoParameters ...
-func NoParameters(missingParams []string, cause IError) ErrNoParameters {
+func NoParameters(missingParams []string, cause error) ErrNoParameters {
 	return ErrNoParameters{
 		Base: Base{
 			TheCause: cause,

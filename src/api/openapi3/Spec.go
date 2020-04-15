@@ -76,7 +76,7 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 }
 
 // GetOperation returns a list of all available test operations from the spec.
-func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, errors.IError) {
+func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*api.Operation, error) {
 	filterOp := func(oasOp *openapi3.Operation) bool {
 		return (oasOp != nil && (oasOp.Summary == name || oasOp.OperationID == name))
 	}
@@ -120,7 +120,7 @@ func (spec *Spec) makeOperation(
 	oasPath string,
 	oasPathItem *openapi3.PathItem,
 	params *api.OperationParameters,
-) (*api.Operation, errors.IError) {
+) (*api.Operation, error) {
 	specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
 	if err != nil {
 		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
@@ -366,7 +366,7 @@ func (spec *Spec) CreatePath(
 	oasPathItem *openapi3.PathItem,
 	oasOp *openapi3.Operation,
 	params *api.OperationParameters,
-) (string, errors.IError) {
+) (string, error) {
 	path := oasPath
 
 	fixPath := func(ppn string, ppv string, container string) {
@@ -403,11 +403,7 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		// spec.Log.NOMESSAGE("Operation path is incomplete. The following parameters were not fixed:")
-		// for _, lop := range lops {
-		// 	spec.Log.NOMESSAGE("\t%s", lop)
-		// }
-		return "", errors.NoParameters(lops, errors.Wrap(goerrors.New("XYNTA")))
+		return "", errors.NoParameters(lops, goerrors.New("XYNTA"))
 	}
 
 	return path, nil
