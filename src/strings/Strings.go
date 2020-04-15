@@ -1,6 +1,9 @@
 package strings
 
-import gostrings "strings"
+import (
+	"sort"
+	gostrings "strings"
+)
 
 // StringMapFn is a function to map strings to strings.
 type StringMapFn = func(string) string
@@ -19,6 +22,7 @@ func Map(strings []string, mapfn StringMapFn) []string {
 // so a [1, 2, 3] slice becomes a "1, 2 and 3" string.
 func EnumJoin(strings []string) string {
 	if len(strings) > 2 {
+		sort.Strings(strings)
 		s1 := strings[:len(strings)-1]
 		s2 := strings[len(strings)-1]
 		return gostrings.Join(s1, ", ") + " and " + s2
@@ -27,4 +31,17 @@ func EnumJoin(strings []string) string {
 	} else {
 		return ""
 	}
+}
+
+// SIMap is a string-interface map.
+type SIMap map[string]interface{}
+
+// Keys returns a slice containing keys of m.
+func (m SIMap) Keys() []string {
+	res := []string{}
+
+	for k := range m {
+		res = append(res, k)
+	}
+	return res
 }

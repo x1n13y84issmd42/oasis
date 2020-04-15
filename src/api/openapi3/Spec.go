@@ -127,7 +127,11 @@ func (spec *Spec) makeOperation(
 		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
 	}
 
-	specQuery := spec.CreateQuery(oasPathItem, oasOp, params)
+	specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
+	if err != nil {
+		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
+	}
+
 	specRequests := []*api.Request{}
 	specResponses := []*api.Response{}
 
@@ -249,6 +253,8 @@ func (spec *Spec) MakeRequest(
 
 		specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))
 	}
+
+	//TODO: same params from oasPathItem & params
 
 	specReq.Headers = specHeaders
 
@@ -404,7 +410,7 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		return "", errors.NoParameters(strings.Map(lops, func(lop string) string {
+		return path, errors.NoParameters(strings.Map(lops, func(lop string) string {
 			return lop[1 : len(lop)-1]
 		}), goerrors.New("XYNTA"))
 	}
@@ -421,19 +427,24 @@ func (spec *Spec) CreateQuery(
 	oasPathItem *openapi3.PathItem,
 	oasOp *openapi3.Operation,
 	params *api.OperationParameters,
-) *url.Values {
+) (*url.Values, error) {
 	qry := make(url.Values)
 
 	add := func(qpn string, qpv string, container string) {
-		if qry.Get(qpn) == "" {
-			if qpv != "" {
-				qry.Add(qpn, qpv)
-				spec.Log.UsingParameterExample(qpn, "query", container)
-			} else {
-				spec.Log.ParameterHasNoExample(qpn, "query", container)
-			}
+		// if qry.Get(qpn) == "" {
+		if qpv != "" {
+			qry.Add(qpn, qpv)
+			spec.Log.UsingParameterExample(qpn, "query", container)
+		} else {
+			spec.Log.ParameterHasNoExample(qpn, "query", container)
 		}
+		// }
 	}
+
+	var err error
+	// These are for error reporting.
+	present := make(map[string]bool)
+	missing := make(strings.SIMap)
 
 	useParameters := func(specParams openapi3.Parameters, container string) {
 		for _, specP := range specParams {
@@ -444,10 +455,15 @@ func (spec *Spec) CreateQuery(
 			example := ""
 			if specP.Value.Example != nil {
 				example = specP.Value.Example.(string)
+				present[specP.Value.Name] = true
+			} else if !present[specP.Value.Name] {
+				missing[specP.Value.Name] = true
+				continue
 			}
 
 			add(specP.Value.Name, example, container)
 		}
+
 	}
 
 	for qpn, qpvs := range params.Query {
@@ -459,7 +475,11 @@ func (spec *Spec) CreateQuery(
 	useParameters(oasOp.Parameters, "spec operation")
 	useParameters(oasPathItem.Parameters, "spec path")
 
-	return &qry
+	if len(missing) > 0 {
+		err = errors.NoParameters(missing.Keys(), nil)
+	}
+
+	return &qry, err
 }
 
 // GetProjectInfo returns project info from the spec.info object.
@@ -473,27 +493,27 @@ func (spec *Spec) GetProjectInfo() *api.ProjectInfo {
 
 // GetHost returns an API host by requested description
 // from the spec.servers list.
-func (spec *Spec) GetHost(name string) *api.Host {
+func (spec *Spec) GetHost(name string) (*api.Host, error) {
 	for _, oasServer := range spec.OAS.Servers {
 		if oasServer.Description == name {
 			return &api.Host{
-				Name:        name,
-				Description: oasServer.Description,
-				URL:         oasServer.URL,
-			}
+				Name: oasServer.Description,
+				URL:  oasServer.URL,
+			}, nil
 		}
 	}
-	return nil
+
+	return nil, errors.HostNotFound(name, nil)
 }
 
 // GetDefaultHost returns the fisr host from the spec.servers list as default.
-func (spec *Spec) GetDefaultHost() *api.Host {
+func (spec *Spec) GetDefaultHost() (*api.Host, error) {
 	if len(spec.OAS.Servers) > 0 {
 		return &api.Host{
-			Name:        "Default",
-			Description: spec.OAS.Servers[0].Description,
-			URL:         spec.OAS.Servers[0].URL,
-		}
+			Name: spec.OAS.Servers[0].Description,
+			URL:  spec.OAS.Servers[0].URL,
+		}, nil
 	}
-	return nil
+
+	return nil, errors.HostNotFound("Default", nil)
 }

@@ -53,3 +53,21 @@ func NoParameters(missingParams []string, cause error) ErrNoParameters {
 		MissingParams: missingParams,
 	}
 }
+
+// ErrHostNotFound may be returned from host-related methods of specs.
+type ErrHostNotFound struct {
+	Base
+	HostName string
+}
+
+func (err ErrHostNotFound) Error() string {
+	return "Host '" + err.HostName + "' not found in the spec."
+}
+
+// HostNotFound creates a new ErrHostNotFound error instance.
+func HostNotFound(hn string, cause error) ErrHostNotFound {
+	return ErrHostNotFound{
+		Base:     Base{TheCause: cause},
+		HostName: hn,
+	}
+}

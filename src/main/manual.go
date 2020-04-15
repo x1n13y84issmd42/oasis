@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
@@ -22,18 +21,21 @@ func Manual(args *env.Args, logger log.ILogger) {
 		logger.TestingProject(spec.GetProjectInfo())
 
 		var specHost *api.Host
+		var specHostErr error
 
 		if params.Request.HostHint == "" {
-			specHost = spec.GetDefaultHost()
+			specHost, specHostErr = spec.GetDefaultHost()
 			logger.UsingDefaultHost()
 		} else {
-			specHost = spec.GetHost(params.Request.HostHint)
+			specHost, specHostErr = spec.GetHost(params.Request.HostHint)
 		}
 
 		if specHost != nil {
 			logger.UsingHost(specHost)
-		} else {
-			logger.HostNotFound(params.Request.HostHint)
+		} else if specHostErr != nil {
+			logger.Error(specHostErr)
+			os.Exit(255)
+			return
 		}
 
 		testResult := true
@@ -56,7 +58,7 @@ func Manual(args *env.Args, logger log.ILogger) {
 			os.Exit(255)
 		}
 	} else {
-		fmt.Println(specErr)
+		logger.Error(specErr)
 		os.Exit(255)
 	}
 }

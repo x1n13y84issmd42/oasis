@@ -56,7 +56,7 @@
 				
 				<option value="file0">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go (0.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (14.7%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (32.8%)</option>
 				
 				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
@@ -114,6 +114,7 @@ import (
         secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
         "github.com/x1n13y84issmd42/oasis/src/errors"
         "github.com/x1n13y84issmd42/oasis/src/log"
+        "github.com/x1n13y84issmd42/oasis/src/strings"
 )
 
 func isstring(i interface{}) (s string) <span class="cov8" title="1">{
@@ -225,8 +226,12 @@ func (spec *Spec) makeOperation(
                 return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
         }</span>
 
-        <span class="cov0" title="0">specQuery := spec.CreateQuery(oasPathItem, oasOp, params)
-        specRequests := []*api.Request{}
+        <span class="cov0" title="0">specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
+        }</span>
+
+        <span class="cov0" title="0">specRequests := []*api.Request{}
         specResponses := []*api.Response{}
 
         // In case there is a reponse body with certain Content-Type is expected,
@@ -347,6 +352,8 @@ func (spec *Spec) MakeRequest(
 
                 <span class="cov0" title="0">specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))</span>
         }
+
+        //TODO: same params from oasPathItem &amp; params
 
         <span class="cov0" title="0">specReq.Headers = specHeaders
 
@@ -501,9 +508,11 @@ func (spec *Spec) CreatePath(
         // Checking for leftover params.
         RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
         lops := RX.FindAllString(path, -1)
-        if len(lops) &gt; 0 </span><span class="cov0" title="0">{
-                return "", errors.NoParameters(lops, goerrors.New("XYNTA"))
-        }</span>
+        if len(lops) &gt; 0 </span><span class="cov8" title="1">{
+                return path, errors.NoParameters(strings.Map(lops, func(lop string) string </span><span class="cov8" title="1">{
+                        return lop[1 : len(lop)-1]
+                }</span>), goerrors.New("XYNTA"))
+        }
 
         <span class="cov8" title="1">return path, nil</span>
 }
@@ -517,45 +526,59 @@ func (spec *Spec) CreateQuery(
         oasPathItem *openapi3.PathItem,
         oasOp *openapi3.Operation,
         params *api.OperationParameters,
-) *url.Values <span class="cov0" title="0">{
+) (*url.Values, error) <span class="cov8" title="1">{
         qry := make(url.Values)
 
-        add := func(qpn string, qpv string, container string) </span><span class="cov0" title="0">{
-                if qry.Get(qpn) == "" </span><span class="cov0" title="0">{
-                        if qpv != "" </span><span class="cov0" title="0">{
-                                qry.Add(qpn, qpv)
-                                spec.Log.UsingParameterExample(qpn, "query", container)
-                        }</span> else<span class="cov0" title="0"> {
-                                spec.Log.ParameterHasNoExample(qpn, "query", container)
-                        }</span>
-                }
+        add := func(qpn string, qpv string, container string) </span><span class="cov8" title="1">{
+                // if qry.Get(qpn) == "" {
+                if qpv != "" </span><span class="cov8" title="1">{
+                        qry.Add(qpn, qpv)
+                        spec.Log.UsingParameterExample(qpn, "query", container)
+                }</span> else<span class="cov8" title="1"> {
+                        spec.Log.ParameterHasNoExample(qpn, "query", container)
+                }</span>
+                // }
         }
 
-        <span class="cov0" title="0">useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov0" title="0">{
-                for _, specP := range specParams </span><span class="cov0" title="0">{
-                        if specP == nil || specP.Value == nil || specP.Value.In != "query" || !specP.Value.Required </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">var err error
+        // These are for error reporting.
+        present := make(map[string]bool)
+        missing := make(strings.SIMap)
+
+        useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov8" title="1">{
+                for _, specP := range specParams </span><span class="cov8" title="1">{
+                        if specP == nil || specP.Value == nil || specP.Value.In != "query" || !specP.Value.Required </span><span class="cov8" title="1">{
                                 continue</span>
                         }
 
-                        <span class="cov0" title="0">example := ""
-                        if specP.Value.Example != nil </span><span class="cov0" title="0">{
+                        <span class="cov8" title="1">example := ""
+                        if specP.Value.Example != nil </span><span class="cov8" title="1">{
                                 example = specP.Value.Example.(string)
-                        }</span>
+                                present[specP.Value.Name] = true
+                        }</span> else<span class="cov8" title="1"> if !present[specP.Value.Name] </span><span class="cov8" title="1">{
+                                missing[specP.Value.Name] = true
+                                continue</span>
+                        }
 
-                        <span class="cov0" title="0">add(specP.Value.Name, example, container)</span>
+                        <span class="cov8" title="1">add(specP.Value.Name, example, container)</span>
                 }
+
         }
 
-        <span class="cov0" title="0">for qpn, qpvs := range params.Query </span><span class="cov0" title="0">{
-                for _, qpv := range qpvs </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">for qpn, qpvs := range params.Query </span><span class="cov8" title="1">{
+                for _, qpv := range qpvs </span><span class="cov8" title="1">{
                         add(qpn, qpv, "override")
                 }</span>
         }
 
-        <span class="cov0" title="0">useParameters(oasOp.Parameters, "spec operation")
+        <span class="cov8" title="1">useParameters(oasOp.Parameters, "spec operation")
         useParameters(oasPathItem.Parameters, "spec path")
 
-        return &amp;qry</span>
+        if len(missing) &gt; 0 </span><span class="cov8" title="1">{
+                err = errors.NoParameters(missing.Keys(), nil)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;qry, err</span>
 }
 
 // GetProjectInfo returns project info from the spec.info object.
@@ -569,29 +592,29 @@ func (spec *Spec) GetProjectInfo() *api.ProjectInfo <span class="cov0" title="0"
 
 // GetHost returns an API host by requested description
 // from the spec.servers list.
-func (spec *Spec) GetHost(name string) *api.Host <span class="cov0" title="0">{
-        for _, oasServer := range spec.OAS.Servers </span><span class="cov0" title="0">{
-                if oasServer.Description == name </span><span class="cov0" title="0">{
+func (spec *Spec) GetHost(name string) (*api.Host, error) <span class="cov8" title="1">{
+        for _, oasServer := range spec.OAS.Servers </span><span class="cov8" title="1">{
+                if oasServer.Description == name </span><span class="cov8" title="1">{
                         return &amp;api.Host{
-                                Name:        name,
-                                Description: oasServer.Description,
-                                URL:         oasServer.URL,
-                        }
+                                Name: oasServer.Description,
+                                URL:  oasServer.URL,
+                        }, nil
                 }</span>
         }
-        <span class="cov0" title="0">return nil</span>
+
+        <span class="cov8" title="1">return nil, errors.HostNotFound(name, nil)</span>
 }
 
 // GetDefaultHost returns the fisr host from the spec.servers list as default.
-func (spec *Spec) GetDefaultHost() *api.Host <span class="cov0" title="0">{
-        if len(spec.OAS.Servers) &gt; 0 </span><span class="cov0" title="0">{
+func (spec *Spec) GetDefaultHost() (*api.Host, error) <span class="cov8" title="1">{
+        if len(spec.OAS.Servers) &gt; 0 </span><span class="cov8" title="1">{
                 return &amp;api.Host{
-                        Name:        "Default",
-                        Description: spec.OAS.Servers[0].Description,
-                        URL:         spec.OAS.Servers[0].URL,
-                }
+                        Name: spec.OAS.Servers[0].Description,
+                        URL:  spec.OAS.Servers[0].URL,
+                }, nil
         }</span>
-        <span class="cov0" title="0">return nil</span>
+
+        <span class="cov8" title="1">return nil, errors.HostNotFound("Default", nil)</span>
 }
 </pre>
 		

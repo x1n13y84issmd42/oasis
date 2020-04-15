@@ -45,17 +45,17 @@
 		},
 
 		{
-			"name": "Test",
+			"name": "Debug",
 			"type": "go",
 			"request": "launch",
 			"mode": "test",
 			"remotePath": "",
             "port": 2345,
             "host": "127.0.0.1",
-			"program": "${workspaceFolder}/src/utility/CLIQL_test.go",
+			"program": "${workspaceFolder}/src/api/openapi3/Spec_test.go",
 			"env": {},
 			"args": [
-				"./src/utility",
+				"./api/openapi3",
 				"-v",
 			]
 		}

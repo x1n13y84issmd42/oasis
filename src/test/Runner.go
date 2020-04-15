@@ -20,10 +20,10 @@ func (runner *Runner) UseHost(hostName string) bool {
 	var host *api.Host
 
 	if hostName != "" {
-		host = runner.Spec.GetHost(hostName)
+		host, _ = runner.Spec.GetHost(hostName)
 	} else {
 		runner.Log.UsingDefaultHost()
-		host = runner.Spec.GetDefaultHost()
+		host, _ = runner.Spec.GetDefaultHost()
 	}
 
 	if host != nil {
