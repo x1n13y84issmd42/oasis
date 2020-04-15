@@ -1,6 +1,6 @@
 package errors
 
-import "strings"
+import "github.com/x1n13y84issmd42/oasis/src/strings"
 
 // Base is a generic error used within Oasis.
 // It references it's root cause.
@@ -29,10 +29,14 @@ type ErrNoParameters struct {
 
 func (err ErrNoParameters) Error() string {
 	if len(err.MissingParams) == 1 {
-		return "Parameter " + err.MissingParams[0] + " is missing it's value."
+		return "Parameter '" + err.MissingParams[0] + "' is missing it's value."
 	}
 
-	return "Parameters " + strings.Join(err.MissingParams, ", ") + " are missing their values."
+	missing := strings.Map(err.MissingParams, func(s string) string {
+		return "'" + s + "'"
+	})
+
+	return "Parameters " + strings.EnumJoin(missing) + " are missing their values."
 }
 
 // NoParameters ...

@@ -15,6 +15,7 @@ import (
 	secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/strings"
 )
 
 func isstring(i interface{}) (s string) {
@@ -403,7 +404,9 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		return "", errors.NoParameters(lops, goerrors.New("XYNTA"))
+		return "", errors.NoParameters(strings.Map(lops, func(lop string) string {
+			return lop[1 : len(lop)-1]
+		}), goerrors.New("XYNTA"))
 	}
 
 	return path, nil
