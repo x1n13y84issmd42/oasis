@@ -41,6 +41,8 @@ run/oasis from spec/petstore.yaml \
       status 200 \
       CT application/json
 ```
+
+```
 run/oasis from spec/petstore.yaml \
     test getPetById \
     log at level 5 \
