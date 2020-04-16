@@ -126,6 +126,9 @@ github.com/x1n13y84issmd42/oasis/src/srx/SRX.go:366.3,366.13 1 1
 github.com/x1n13y84issmd42/oasis/src/srx/SRX.go:352.34,354.23 2 1
 github.com/x1n13y84issmd42/oasis/src/srx/SRX.go:354.23,357.5 2 1
 github.com/x1n13y84issmd42/oasis/src/srx/SRX.go:362.10,364.4 1 1
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:9.59,11.19 2 0
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:18.2,18.20 1 0
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:11.19,16.3 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:21.41,22.14 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:42.2,42.8 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:22.14,23.31 1 1
@@ -145,7 +148,7 @@ github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:58.24,60.5 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:64.51,74.3 9 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:80.102,81.51 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:85.2,85.51 1 0
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:115.2,115.46 1 0
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:115.2,115.49 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:81.51,83.3 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:85.51,86.32 1 0
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:89.3,89.33 1 0
@@ -240,8 +243,8 @@ github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:393.36,394.70 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:398.4,398.71 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:394.70,395.13 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:402.36,404.3 1 1
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:412.19,413.78 1 1
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:413.78,415.4 1 1
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:412.19,413.72 1 1
+github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:413.72,415.4 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:430.24,433.56 2 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:444.2,449.74 4 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:469.2,469.38 1 1
@@ -269,6 +272,3 @@ github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:498.36,503.4 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:510.55,511.31 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:518.2,518.49 1 1
 github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go:511.31,516.3 1 1
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:9.59,11.19 2 0
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:18.2,18.20 1 0
-github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go:11.19,16.3 1 0

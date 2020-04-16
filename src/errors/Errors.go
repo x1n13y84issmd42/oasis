@@ -1,6 +1,8 @@
 package errors
 
-import "github.com/x1n13y84issmd42/oasis/src/strings"
+import (
+	"github.com/x1n13y84issmd42/oasis/src/strings"
+)
 
 // Base is a generic error used within Oasis.
 // Having it's root cause is what makes it good.
@@ -24,15 +26,59 @@ func (err Base) Cause() error {
 	return err.TheCause
 }
 
-// ErrNoParameters happens when there are parameters missing
+// ErrOperationMalformed is returned when there is not enough data in the API spec,
+// or the data is incorrect, which makes operation creation impossible.
+type ErrOperationMalformed struct {
+	Base
+	OpID    string
+	Details string
+}
+
+func (err ErrOperationMalformed) Error() string {
+	return "Operation '" + err.OpID + "' has malformed or incomplete data. " + err.Details
+}
+
+// OperationMalformed creates a new ErrOperationMalformed error instance.
+func OperationMalformed(id string, details string, cause error) ErrOperationMalformed {
+	return ErrOperationMalformed{
+		Base: Base{
+			TheCause: cause,
+		},
+		OpID:    id,
+		Details: details,
+	}
+}
+
+// ErrOperationNotFound is returned from Spec.GetOperation() in case
+// there is no operation in the spec with requested name/id.
+type ErrOperationNotFound struct {
+	Base
+	OpID string
+}
+
+func (err ErrOperationNotFound) Error() string {
+	return "Operation '" + err.OpID + "' not found."
+}
+
+// OperationNotFound creates a new ErrOperationNotFound error instance.
+func OperationNotFound(id string, cause error) ErrOperationNotFound {
+	return ErrOperationNotFound{
+		Base: Base{
+			TheCause: cause,
+		},
+		OpID: id,
+	}
+}
+
+// ErrNoData happens when there are parameters missing
 // which are needed to build an operation before testing.
 // Usually happens in paths, queries & headers.
-type ErrNoParameters struct {
+type ErrNoData struct {
 	Base
 	MissingParams []string
 }
 
-func (err ErrNoParameters) Error() string {
+func (err ErrNoData) Error() string {
 	if len(err.MissingParams) == 1 {
 		return "Parameter '" + err.MissingParams[0] + "' is missing it's value."
 	}
@@ -44,9 +90,9 @@ func (err ErrNoParameters) Error() string {
 	return "Parameters " + strings.EnumJoin(missing) + " are missing their values."
 }
 
-// NoParameters creates a new ErrNoParameters error instance.
-func NoParameters(missingParams []string, cause error) ErrNoParameters {
-	return ErrNoParameters{
+// NoData creates a new ErrNoData error instance.
+func NoData(missingParams []string, cause error) ErrNoData {
+	return ErrNoData{
 		Base: Base{
 			TheCause: cause,
 		},

@@ -211,7 +211,7 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*a
                 }</span>
         }
 
-        <span class="cov0" title="0">return nil, api.OperationNotFound(name, nil)</span>
+        <span class="cov0" title="0">return nil, errors.OperationNotFound(name, nil)</span>
 }
 
 func (spec *Spec) makeOperation(
@@ -223,12 +223,12 @@ func (spec *Spec) makeOperation(
 ) (*api.Operation, error) <span class="cov0" title="0">{
         specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
         if err != nil </span><span class="cov0" title="0">{
-                return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
+                return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
         }</span>
 
         <span class="cov0" title="0">specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
         if err != nil </span><span class="cov0" title="0">{
-                return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
+                return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
         }</span>
 
         <span class="cov0" title="0">specRequests := []*api.Request{}
@@ -509,7 +509,7 @@ func (spec *Spec) CreatePath(
         RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
         lops := RX.FindAllString(path, -1)
         if len(lops) &gt; 0 </span><span class="cov8" title="1">{
-                return path, errors.NoParameters(strings.Map(lops, func(lop string) string </span><span class="cov8" title="1">{
+                return path, errors.NoData(strings.Map(lops, func(lop string) string </span><span class="cov8" title="1">{
                         return lop[1 : len(lop)-1]
                 }</span>), goerrors.New("XYNTA"))
         }
@@ -575,7 +575,7 @@ func (spec *Spec) CreateQuery(
         useParameters(oasPathItem.Parameters, "spec path")
 
         if len(missing) &gt; 0 </span><span class="cov8" title="1">{
-                err = errors.NoParameters(missing.Keys(), nil)
+                err = errors.NoData(missing.Keys(), nil)
         }</span>
 
         <span class="cov8" title="1">return &amp;qry, err</span>

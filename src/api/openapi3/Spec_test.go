@@ -91,7 +91,7 @@ func TestCreatePath(T *testing.T) {
 func TestCreatePath_ErrNoParameters(T *testing.T) {
 	path := "/foo/{param1}/bar/{param2}/{param3}/qeq/{param4}"
 	expectedPath := "/foo/p1_from_op/bar/{param2}/{param3}/qeq/{param4}"
-	expectedErr := errors.NoParameters([]string{"param2", "param3", "param4"}, nil)
+	expectedErr := errors.NoData([]string{"param2", "param3", "param4"}, nil)
 
 	OAS := &openapi3.Swagger{}
 	oasOperation := openapi3.Operation{
@@ -239,7 +239,7 @@ func TestCreateQuery_ErrNoParameters(T *testing.T) {
 		},
 	}
 
-	expectedErr := errors.NoParameters([]string{"q2", "q3", "q4"}, nil)
+	expectedErr := errors.NoData([]string{"q2", "q3", "q4"}, nil)
 
 	OAS := &openapi3.Swagger{}
 	oasOperation := openapi3.Operation{

@@ -112,7 +112,7 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*a
 		}
 	}
 
-	return nil, api.OperationNotFound(name, nil)
+	return nil, errors.OperationNotFound(name, nil)
 }
 
 func (spec *Spec) makeOperation(
@@ -124,12 +124,12 @@ func (spec *Spec) makeOperation(
 ) (*api.Operation, error) {
 	specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
 	if err != nil {
-		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
+		return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
 	}
 
 	specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
 	if err != nil {
-		return nil, api.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
+		return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
 	}
 
 	specRequests := []*api.Request{}
@@ -410,7 +410,7 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		return path, errors.NoParameters(strings.Map(lops, func(lop string) string {
+		return path, errors.NoData(strings.Map(lops, func(lop string) string {
 			return lop[1 : len(lop)-1]
 		}), goerrors.New("XYNTA"))
 	}
@@ -476,7 +476,7 @@ func (spec *Spec) CreateQuery(
 	useParameters(oasPathItem.Parameters, "spec path")
 
 	if len(missing) > 0 {
-		err = errors.NoParameters(missing.Keys(), nil)
+		err = errors.NoData(missing.Keys(), nil)
 	}
 
 	return &qry, err
