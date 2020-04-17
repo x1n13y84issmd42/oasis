@@ -3,7 +3,6 @@ package openapi3
 import (
 	"encoding/json"
 	goerrors "errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -112,7 +111,7 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*a
 		}
 	}
 
-	return nil, errors.OperationNotFound(name, nil)
+	return nil, errors.NotFound("Operation", name, nil)
 }
 
 func (spec *Spec) makeOperation(
@@ -132,6 +131,11 @@ func (spec *Spec) makeOperation(
 		return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
 	}
 
+	specSecurity, err := spec.MakeSecurity(oasOp.Security, params)
+	if err != nil {
+		return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation security.", err)
+	}
+
 	specRequests := []*api.Request{}
 	specResponses := []*api.Response{}
 
@@ -148,7 +152,12 @@ func (spec *Spec) makeOperation(
 
 	for oasRespStatus, oasResp := range oasOp.Responses {
 		if oasResp.Value != nil {
-			specResponses = append(specResponses, spec.MakeResponses(oasRespStatus, oasResp.Value)...)
+			specResps, specRespsErr := spec.MakeResponses(oasRespStatus, oasResp.Value)
+			if specRespsErr == nil {
+				specResponses = append(specResponses, specResps...)
+			} else {
+				return nil, errors.OperationMalformed(oasOp.OperationID, "Failed to create response bodies.", specRespsErr)
+			}
 		}
 	}
 
@@ -160,7 +169,7 @@ func (spec *Spec) makeOperation(
 		},
 		Method:    method,
 		Path:      specPath,
-		Security:  spec.MakeSecurity(oasOp.Security, params),
+		Security:  specSecurity,
 		Requests:  specRequests,
 		Responses: specResponses,
 	}, nil
@@ -170,61 +179,68 @@ func (spec *Spec) makeOperation(
 func (spec *Spec) MakeSecurity(
 	oasSecReqs *openapi3.SecurityRequirements,
 	params *api.OperationParameters,
-) api.ISecurity {
+) (api.ISecurity, error) {
 
 	var oasSec *openapi3.SecurityScheme
+	var oasSecErr error
 	oasSecurityToken := ""
-	oasSecurityName := ""
+	oasSecurityName := "[unnamed]"
 
-	getSecurity := func(n string) *openapi3.SecurityScheme {
+	getSecurity := func(n string) (*openapi3.SecurityScheme, error) {
 		oasSecR := spec.OAS.Components.SecuritySchemes[n]
 
 		if oasSecR == nil || oasSecR.Value == nil {
-			panic(fmt.Sprintf(`Security definition \"%s\" not found.`, n))
+			return nil, errors.SecurityNotFound(n, "", nil)
 		}
 
 		oasSecurityName = n
-		return oasSecR.Value
+		return oasSecR.Value, nil
 	}
 
 	if params.Security.SecurityHint != "" {
-		oasSec = getSecurity(params.Security.SecurityHint)
+		oasSec, oasSecErr = getSecurity(params.Security.SecurityHint)
 	} else if oasSecReqs != nil {
 		for _, oasSecReq := range *oasSecReqs {
 			for oasSecName := range oasSecReq {
-				oasSec = getSecurity(oasSecName)
-				break
-			}
-
-			if oasSec != nil {
+				oasSec, oasSecErr = getSecurity(oasSecName)
 				break
 			}
 		}
+	}
+
+	if oasSecErr != nil {
+		return nil, oasSecErr
 	}
 
 	if params.Security.HTTPAuthValue != "" {
 		oasSecurityToken = params.Security.HTTPAuthValue
 	} else if oasSec != nil && oasSec.Extensions["x-example"] != nil {
-		jre, isjre := oasSec.Extensions["x-example"].(json.RawMessage)
-		if isjre {
+		jre, ok := oasSec.Extensions["x-example"].(json.RawMessage)
+		if ok {
 			tokenErr := json.Unmarshal(jre, &oasSecurityToken)
 			if tokenErr != nil {
-				panic(tokenErr)
+				return nil, errors.NoParameters([]string{"x-example"}, nil)
 			}
+		} else {
+			return nil, errors.NoParameters([]string{"x-example"}, nil)
 		}
 	}
 
 	if oasSec != nil {
 		switch oasSec.Type {
 		case "apiKey":
-			return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log)
+			return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log), nil
 
 		case "http":
-			return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log)
+			return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log), nil
+
+		default:
+			return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)
 		}
 	}
 
-	return nil
+	//TODO: this looks wrong, rethink this entire flow.
+	return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.
@@ -265,7 +281,7 @@ func (spec *Spec) MakeRequest(
 func (spec *Spec) MakeResponses(
 	oasRespStatus string,
 	oasResp *openapi3.Response,
-) []*api.Response {
+) ([]*api.Response, error) {
 
 	specResponses := []*api.Response{}
 	specDescription := oasResp.Description
@@ -275,7 +291,11 @@ func (spec *Spec) MakeResponses(
 	// Headers.
 	for oasHeaderName, oasHeader := range oasResp.Headers {
 		if oasHeader.Value != nil {
-			specHeaders[oasHeaderName] = spec.MakeHeader(oasHeaderName, oasHeader.Value)
+			var specHeaderErr error
+			specHeaders[oasHeaderName], specHeaderErr = spec.MakeHeader(oasHeaderName, oasHeader.Value)
+			if specHeaderErr != nil {
+				return nil, errors.InvalidResponse("Failed to create a response header '"+oasHeaderName+"'schema.", specHeaderErr)
+			}
 		}
 	}
 
@@ -283,8 +303,12 @@ func (spec *Spec) MakeResponses(
 	if len(oasResp.Content) > 0 {
 		for oasRespContentType, oasRespContent := range oasResp.Content {
 			var specSchema *api.Schema
+			var specSchemaErr error
 			if oasRespContent.Schema != nil && oasRespContent.Schema.Value != nil {
-				specSchema = spec.MakeSchema("Response", oasRespContent.Schema.Value)
+				specSchema, specSchemaErr = spec.MakeSchema("Response", oasRespContent.Schema.Value)
+				if specSchemaErr != nil {
+					return nil, errors.InvalidResponse("Failed to create a response body schema.", specSchemaErr)
+				}
 			}
 			specResponses = append(specResponses, &api.Response{
 				Description: specDescription,
@@ -302,18 +326,22 @@ func (spec *Spec) MakeResponses(
 		})
 	}
 
-	return specResponses
+	return specResponses, nil
 }
 
 // MakeHeader creates an api.Rrequest instance from available operation spec data.
 func (spec *Spec) MakeHeader(
 	oasHeaderName string,
 	oasHeader *openapi3.Header,
-) *api.Header {
+) (*api.Header, error) {
 	var specSchema *api.Schema
+	var specSchemaErr error
 
 	if oasHeader.Schema != nil && oasHeader.Schema.Value != nil {
-		specSchema = spec.MakeSchema(oasHeaderName, oasHeader.Schema.Value)
+		specSchema, specSchemaErr = spec.MakeSchema(oasHeaderName, oasHeader.Schema.Value)
+		if specSchemaErr != nil {
+			return nil, specSchemaErr
+		}
 	}
 
 	return &api.Header{
@@ -321,46 +349,61 @@ func (spec *Spec) MakeHeader(
 		Description: oasHeader.Description,
 		Required:    oasHeader.Required,
 		Schema:      specSchema,
-	}
+	}, nil
 }
 
 // MakeSchema creates an api.Schema instance from available operation spec data.
 func (spec *Spec) MakeSchema(
 	name string,
 	oasSchema *openapi3.Schema,
-) *api.Schema {
+) (*api.Schema, error) {
 
 	if oasSchema != nil {
-		jsonSchema := spec.MakeJSONSchema(oasSchema)
-		return &api.Schema{
-			Name:       name,
-			JSONSchema: jsonSchema,
+		jsonSchema, jsonSchemaErr := spec.MakeJSONSchema(name, oasSchema)
+		if jsonSchemaErr == nil {
+			return &api.Schema{
+				Name:       name,
+				JSONSchema: jsonSchema,
+			}, nil
 		}
+
+		return nil, jsonSchemaErr
 	}
 
-	return nil
+	return nil, errors.NotFound("Schema", name, nil)
 }
 
 // MakeJSONSchema creates an api.Schema instance from available operation spec data.
 func (spec *Spec) MakeJSONSchema(
+	oasSchemaName string,
 	oasSchema *openapi3.Schema,
-) api.JSONSchema {
+) (api.JSONSchema, error) {
 	jsonSchema, jsonSchemaErr := json.Marshal(oasSchema)
 	if jsonSchemaErr == nil {
 		sch := make(api.JSONSchema)
-		json.Unmarshal(jsonSchema, &sch)
+		jsonSchemaErr = json.Unmarshal(jsonSchema, &sch)
+		if jsonSchemaErr == nil {
+			// Adding the components object to the JSON schema object because of $refs
+			jsonComps, jsonCompsErr := spec.OAS.Components.MarshalJSON()
+			if jsonCompsErr == nil {
+				comps := make(map[string]interface{})
+				jsonCompsErr = json.Unmarshal(jsonComps, &comps)
+				if jsonCompsErr == nil {
+					sch["components"] = comps
+				} else {
+					return nil, errors.InvalidSchema(oasSchemaName, "Failed to unmarshal Components.", jsonCompsErr)
+				}
+			} else {
+				return nil, errors.InvalidSchema(oasSchemaName, "Failed to marshal Components.", jsonCompsErr)
+			}
 
-		// Adding the components object to the JSON schema object because of $refs
-		jsonComps, jsonCompsErr := spec.OAS.Components.MarshalJSON()
-		if jsonCompsErr == nil {
-			comps := make(map[string]interface{})
-			json.Unmarshal(jsonComps, &comps)
-			sch["components"] = comps
+			return sch, nil
 		}
-		return sch
+
+		return nil, errors.InvalidSchema(oasSchemaName, "Failed to unmarshal the schema.", jsonSchemaErr)
 	}
 
-	return nil
+	return nil, errors.InvalidSchema(oasSchemaName, "Failed to marshal the schema.", jsonSchemaErr)
 }
 
 // CreatePath creates an operation path with parameters replaced by actual values from `example`.
@@ -410,7 +453,7 @@ func (spec *Spec) CreatePath(
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
 	lops := RX.FindAllString(path, -1)
 	if len(lops) > 0 {
-		return path, errors.NoData(strings.Map(lops, func(lop string) string {
+		return path, errors.NoParameters(strings.Map(lops, func(lop string) string {
 			return lop[1 : len(lop)-1]
 		}), goerrors.New("XYNTA"))
 	}
@@ -476,7 +519,7 @@ func (spec *Spec) CreateQuery(
 	useParameters(oasPathItem.Parameters, "spec path")
 
 	if len(missing) > 0 {
-		err = errors.NoData(missing.Keys(), nil)
+		err = errors.NoParameters(missing.Keys(), nil)
 	}
 
 	return &qry, err
@@ -503,7 +546,7 @@ func (spec *Spec) GetHost(name string) (*api.Host, error) {
 		}
 	}
 
-	return nil, errors.HostNotFound(name, nil)
+	return nil, errors.NotFound("Host", name, nil)
 }
 
 // GetDefaultHost returns the fisr host from the spec.servers list as default.
@@ -515,5 +558,5 @@ func (spec *Spec) GetDefaultHost() (*api.Host, error) {
 		}, nil
 	}
 
-	return nil, errors.HostNotFound("Default", nil)
+	return nil, errors.NotFound("Host", "Default", nil)
 }

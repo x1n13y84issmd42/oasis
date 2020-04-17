@@ -9,7 +9,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
 
-// HTTPResponse test checks basic response properties such as status code and headers.
+// HTTPResponse test checks basic response properties - status code and headers.
 func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
 	statusOK := specResp.StatusCode == uint64(resp.StatusCode)
 

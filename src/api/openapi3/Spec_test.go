@@ -91,7 +91,7 @@ func TestCreatePath(T *testing.T) {
 func TestCreatePath_ErrNoParameters(T *testing.T) {
 	path := "/foo/{param1}/bar/{param2}/{param3}/qeq/{param4}"
 	expectedPath := "/foo/p1_from_op/bar/{param2}/{param3}/qeq/{param4}"
-	expectedErr := errors.NoData([]string{"param2", "param3", "param4"}, nil)
+	expectedErr := errors.NoParameters([]string{"param2", "param3", "param4"}, nil)
 
 	OAS := &openapi3.Swagger{}
 	oasOperation := openapi3.Operation{
@@ -239,7 +239,7 @@ func TestCreateQuery_ErrNoParameters(T *testing.T) {
 		},
 	}
 
-	expectedErr := errors.NoData([]string{"q2", "q3", "q4"}, nil)
+	expectedErr := errors.NoParameters([]string{"q2", "q3", "q4"}, nil)
 
 	OAS := &openapi3.Swagger{}
 	oasOperation := openapi3.Operation{
@@ -344,8 +344,9 @@ func TestGetHost(T *testing.T) {
 }
 
 func TestGetHost_HostNotFound(T *testing.T) {
-	expectedErr := errors.ErrHostNotFound{
-		HostName: "Production localhost",
+	expectedErr := errors.ErrNotFound{
+		What: "Host",
+		Name: "Production localhost",
 	}
 
 	OAS := &openapi3.Swagger{}
@@ -400,9 +401,10 @@ func TestGetDefaultHost(T *testing.T) {
 	assert.Nil(T, actualErr)
 }
 
-func TestGetDefaultHost_HostNotFound(T *testing.T) {
-	expectedErr := errors.ErrHostNotFound{
-		HostName: "Default",
+func TestGetDefaultHost_NotFound(T *testing.T) {
+	expectedErr := errors.ErrNotFound{
+		What: "Host",
+		Name: "Default",
 	}
 
 	OAS := &openapi3.Swagger{}
@@ -414,5 +416,224 @@ func TestGetDefaultHost_HostNotFound(T *testing.T) {
 	actualHost, actualErr := spec.GetDefaultHost()
 
 	assert.Nil(T, actualHost)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeJSONSchema_ErrSchemaMarshal(T *testing.T) {
+	schemaName := "schema_one"
+	expectedErr := errors.InvalidSchema(schemaName, "Failed to marshal the schema.", nil)
+
+	schema := openapi3.Schema{
+		Type:    "object",
+		Example: make(chan int),
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeJSONSchema(schemaName, &schema)
+
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeJSONSchema_ErrComponentsMarshal(T *testing.T) {
+	schemaName := "schema_one"
+	expectedErr := errors.InvalidSchema(schemaName, "Failed to marshal Components.", nil)
+
+	schema := openapi3.Schema{
+		Type: "object",
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			Schemas: map[string]*openapi3.SchemaRef{
+				"Errorneous component": {
+					Value: &openapi3.Schema{
+						Example: make(chan int),
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeJSONSchema(schemaName, &schema)
+
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeJSONSchema(T *testing.T) {
+	schemaName := "schema_one"
+	// expectedSchema := api.JSONSchema{}
+	expectedSchema := api.JSONSchema{
+		"components": map[string]interface{}{
+			"schemas": map[string]interface{}{
+				"User": map[string]interface{}{
+					"example": "yolo",
+				},
+			},
+		},
+		"properties": map[string]interface{}{
+			"x": map[string]interface{}{
+				"type": "integer",
+			},
+			"y": map[string]interface{}{
+				"$ref": "#/components/schemas/User",
+			},
+		},
+		"type": "object",
+	}
+
+	schema := openapi3.Schema{
+		Type: "object",
+		Properties: map[string]*openapi3.SchemaRef{
+			"x": {
+				Value: &openapi3.Schema{
+					Type: "integer",
+				},
+			},
+			"y": {
+				Ref: "#/components/schemas/User",
+			},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			Schemas: map[string]*openapi3.SchemaRef{
+				"User": {
+					Value: &openapi3.Schema{
+						Example: "yolo",
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeJSONSchema(schemaName, &schema)
+
+	assert.Equal(T, expectedSchema, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeSchema(T *testing.T) {
+	schemaName := "schema_one"
+	// expectedSchema := api.JSONSchema{}
+	expectedSchema := &api.Schema{
+		Name: schemaName,
+		JSONSchema: api.JSONSchema{
+			"components": map[string]interface{}{
+				"schemas": map[string]interface{}{
+					"User": map[string]interface{}{
+						"example": "yolo",
+					},
+				},
+			},
+			"properties": map[string]interface{}{
+				"x": map[string]interface{}{
+					"type": "integer",
+				},
+				"y": map[string]interface{}{
+					"$ref": "#/components/schemas/User",
+				},
+			},
+			"type": "object",
+		},
+	}
+
+	schema := openapi3.Schema{
+		Type: "object",
+		Properties: map[string]*openapi3.SchemaRef{
+			"x": {
+				Value: &openapi3.Schema{
+					Type: "integer",
+				},
+			},
+			"y": {
+				Ref: "#/components/schemas/User",
+			},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			Schemas: map[string]*openapi3.SchemaRef{
+				"User": {
+					Value: &openapi3.Schema{
+						Example: "yolo",
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSchema(schemaName, &schema)
+
+	assert.Equal(T, expectedSchema, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeSchema_ErrPassThrough(T *testing.T) {
+	schemaName := "schema_one"
+	expectedErr := errors.InvalidSchema(schemaName, "Failed to marshal the schema.", nil)
+
+	schema := openapi3.Schema{
+		Type:    "object",
+		Example: make(chan int),
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSchema(schemaName, &schema)
+
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSchema_ErrNotFound(T *testing.T) {
+	schemaName := "schema_one"
+	expectedErr := errors.NotFound("Schema", schemaName, nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSchema(schemaName, nil)
+
+	assert.Nil(T, actual)
 	assert.Equal(T, expectedErr.Error(), actualErr.Error())
 }

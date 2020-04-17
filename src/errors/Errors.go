@@ -8,6 +8,7 @@ import (
 // Having it's root cause is what makes it good.
 type Base struct {
 	TheCause error
+	Details  string
 }
 
 // IError is an error interface.
@@ -43,42 +44,21 @@ func OperationMalformed(id string, details string, cause error) ErrOperationMalf
 	return ErrOperationMalformed{
 		Base: Base{
 			TheCause: cause,
-		},
-		OpID:    id,
-		Details: details,
-	}
-}
-
-// ErrOperationNotFound is returned from Spec.GetOperation() in case
-// there is no operation in the spec with requested name/id.
-type ErrOperationNotFound struct {
-	Base
-	OpID string
-}
-
-func (err ErrOperationNotFound) Error() string {
-	return "Operation '" + err.OpID + "' not found."
-}
-
-// OperationNotFound creates a new ErrOperationNotFound error instance.
-func OperationNotFound(id string, cause error) ErrOperationNotFound {
-	return ErrOperationNotFound{
-		Base: Base{
-			TheCause: cause,
+			Details:  details,
 		},
 		OpID: id,
 	}
 }
 
-// ErrNoData happens when there are parameters missing
+// ErrNoParameters happens when there are parameters missing
 // which are needed to build an operation before testing.
 // Usually happens in paths, queries & headers.
-type ErrNoData struct {
+type ErrNoParameters struct {
 	Base
 	MissingParams []string
 }
 
-func (err ErrNoData) Error() string {
+func (err ErrNoParameters) Error() string {
 	if len(err.MissingParams) == 1 {
 		return "Parameter '" + err.MissingParams[0] + "' is missing it's value."
 	}
@@ -90,9 +70,9 @@ func (err ErrNoData) Error() string {
 	return "Parameters " + strings.EnumJoin(missing) + " are missing their values."
 }
 
-// NoData creates a new ErrNoData error instance.
-func NoData(missingParams []string, cause error) ErrNoData {
-	return ErrNoData{
+// NoParameters creates a new ErrNoData error instance.
+func NoParameters(missingParams []string, cause error) ErrNoParameters {
+	return ErrNoParameters{
 		Base: Base{
 			TheCause: cause,
 		},
@@ -100,20 +80,83 @@ func NoData(missingParams []string, cause error) ErrNoData {
 	}
 }
 
-// ErrHostNotFound may be returned from host-related methods of specs.
-type ErrHostNotFound struct {
+// ErrNotFound may be returned from host-related methods of specs.
+type ErrNotFound struct {
 	Base
-	HostName string
+	What string
+	Name string
 }
 
-func (err ErrHostNotFound) Error() string {
-	return "Host '" + err.HostName + "' not found in the spec."
+func (err ErrNotFound) Error() string {
+	return err.What + " '" + err.Name + "' not found in the spec."
 }
 
-// HostNotFound creates a new ErrHostNotFound error instance.
-func HostNotFound(hn string, cause error) ErrHostNotFound {
-	return ErrHostNotFound{
-		Base:     Base{TheCause: cause},
-		HostName: hn,
+// NotFound creates a new ErrHostNotFound error instance.
+func NotFound(what string, hn string, cause error) ErrNotFound {
+	return ErrNotFound{
+		Base: Base{TheCause: cause},
+		What: what,
+		Name: hn,
+	}
+}
+
+// ErrInvalidSchema may be returned from schema-related methods of specs.
+type ErrInvalidSchema struct {
+	Base
+	SchemaName string
+}
+
+func (err ErrInvalidSchema) Error() string {
+	return "Schema " + err.SchemaName + " is invalid. " + err.Details
+}
+
+// InvalidSchema creates a new ErrInvalidSchema error instance.
+func InvalidSchema(sn string, details string, cause error) ErrInvalidSchema {
+	return ErrInvalidSchema{
+		Base: Base{
+			TheCause: cause,
+			Details:  details,
+		},
+		SchemaName: sn,
+	}
+}
+
+// ErrInvalidResponse may be returned from response-related methods of specs.
+type ErrInvalidResponse struct {
+	Base
+}
+
+func (err ErrInvalidResponse) Error() string {
+	return "Response spec is invalid."
+}
+
+// InvalidResponse creates a new ErrInvalidResponse error instance.
+func InvalidResponse(details string, cause error) ErrInvalidResponse {
+	return ErrInvalidResponse{
+		Base: Base{
+			TheCause: cause,
+			Details:  details,
+		},
+	}
+}
+
+// ErrSecurityNotFound may be returned from security-related methods of specs.
+type ErrSecurityNotFound struct {
+	Base
+	Name string
+}
+
+func (err ErrSecurityNotFound) Error() string {
+	return "Security definition '" + err.Name + "' not found in the spec."
+}
+
+// SecurityNotFound creates a new ErrSecurityNotFound error instance.
+func SecurityNotFound(sn string, details string, cause error) ErrSecurityNotFound {
+	return ErrSecurityNotFound{
+		Base: Base{
+			TheCause: cause,
+			Details:  details,
+		},
+		Name: sn,
 	}
 }
