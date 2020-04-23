@@ -2,7 +2,6 @@ package openapi3
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"testing"
 
@@ -802,9 +801,6 @@ func TestMakeResponses_Bodies(T *testing.T) {
 	}
 
 	actual, actualErr := spec.MakeResponses("200", oasResp)
-
-	fmt.Printf("EXPECTED: %#v\n", expected[1])
-	fmt.Printf("ACTUAL: %#v\n", actual[1])
 
 	assert.Equal(T, expected, actual)
 	assert.Nil(T, actualErr)
