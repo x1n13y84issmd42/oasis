@@ -35,6 +35,19 @@ paths:
           description: OK
       security:
         - HTTP Basic: []
+  /api/secure/http-digest/get:
+    get:
+      tags:
+        - secure
+        - primitive
+      operationId: secure-http-digest
+      summary: Secure HTTP Digest
+      description: 'Requires a Digest HTTP Security & responds with a 200 status.'
+      responses:
+        '200':
+          description: OK
+      security:
+        - HTTP Digest: []
   /api/public/meta/headers/boolean/fail/schema:
     get:
       tags:
@@ -721,6 +734,7 @@ components:
     HTTP Digest:
       type: http
       scheme: digest
+      x-example: Digest username="user", realm="Oasis", nonce="7e50fdb3cf9024da3bdf1f15f1c41372", uri="/api/secure/http-digest/get", response="bb656d0dae95403f6e2f99a321e149c9", opaque="823c8ce66a22b4c84642acff2b852354"
     HTTP Bearer:
       type: http
       scheme: bearer

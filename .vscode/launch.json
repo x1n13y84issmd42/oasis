@@ -16,8 +16,8 @@
 				"../../spec/oasis.yaml",
 				"test",
 				// "meta-headers-echo-body",
-				// "secure-http-basic",
-				"meta-headers-echo-body",
+				"secure-http-basic",
+				// "meta-headers-echo-body",
 				"log",
 				"at",
 				"level",
@@ -45,7 +45,7 @@
 		},
 
 		{
-			"name": "Debug",
+			"name": "UT",
 			"type": "go",
 			"request": "launch",
 			"mode": "test",

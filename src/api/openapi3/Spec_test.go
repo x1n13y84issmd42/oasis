@@ -1,12 +1,16 @@
 package openapi3
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/url"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	apikey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+	http "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
@@ -636,4 +640,591 @@ func TestMakeSchema_ErrNotFound(T *testing.T) {
 
 	assert.Nil(T, actual)
 	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeHeader_Err(T *testing.T) {
+	headerName := "x-tested"
+	expectedErr := errors.InvalidSchema(headerName, "Failed to marshal the schema.", nil)
+
+	oasHeader := &openapi3.Header{
+		Description: "i am a header",
+		Required:    true,
+		Schema: &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type:    "object",
+				Example: make(chan int),
+			},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeHeader(headerName, oasHeader)
+
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeHeader(T *testing.T) {
+	headerName := "x-tested"
+	expected := &api.Header{
+		Name:        headerName,
+		Description: "i am a header",
+		Required:    true,
+		Schema: &api.Schema{
+			Name: headerName,
+			JSONSchema: api.JSONSchema{
+				"type":       "integer",
+				"example":    float64(42),
+				"components": map[string]interface{}{},
+			},
+		},
+	}
+
+	oasHeader := &openapi3.Header{
+		Description: "i am a header",
+		Required:    true,
+		Schema: &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type:    "integer",
+				Example: 42,
+			},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeHeader("x-tested", oasHeader)
+
+	assert.Equal(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeResponses_NoBodies(T *testing.T) {
+	expected := []*api.Response{
+		{
+			Description: "A successful test response",
+			StatusCode:  200,
+			Headers:     api.Headers{},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	oasResp := &openapi3.Response{
+		Description: "A successful test response",
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeResponses("200", oasResp)
+	assert.Equal(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeResponses_Bodies(T *testing.T) {
+	expected := []*api.Response{
+		{
+			Description: "test responses",
+			ContentType: "application/json",
+			StatusCode:  200,
+			Schema: &api.Schema{
+				Name: "Response",
+				JSONSchema: api.JSONSchema{
+					"components": map[string]interface{}{},
+					"type":       "integer",
+				},
+			},
+			Headers: api.Headers{},
+		},
+		{
+			Description: "test responses",
+			ContentType: "application/xml",
+			StatusCode:  200,
+			Schema: &api.Schema{
+				Name: "Response",
+				JSONSchema: api.JSONSchema{
+					"components": map[string]interface{}{},
+					"type":       "integer",
+				},
+			},
+			Headers: api.Headers{},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	oasResp := &openapi3.Response{
+		Description: "test responses",
+		Content: openapi3.Content{
+			"application/json": &openapi3.MediaType{
+				Schema: &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type: "integer",
+					},
+				},
+			},
+
+			"application/xml": &openapi3.MediaType{
+				Schema: &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type: "integer",
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeResponses("200", oasResp)
+
+	fmt.Printf("EXPECTED: %#v\n", expected[1])
+	fmt.Printf("ACTUAL: %#v\n", actual[1])
+
+	assert.Equal(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeResponses_Err_Headers(T *testing.T) {
+	headerName := "x-bugged"
+	expectedErr := errors.InvalidResponse("Failed to create a response header '"+headerName+"' schema.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	oasResp := &openapi3.Response{
+		Headers: map[string]*openapi3.HeaderRef{
+			headerName: {
+				Value: &openapi3.Header{
+					Description: "i am a header",
+					Required:    true,
+					Schema: &openapi3.SchemaRef{
+						Value: &openapi3.Schema{
+							Type:    "object",
+							Example: make(chan int),
+						},
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeResponses("200", oasResp)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeResponses_Err_Content(T *testing.T) {
+	respCT := "application/json"
+	expectedErr := errors.InvalidResponse("Failed to create a '"+respCT+"' response body schema.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	oasResp := &openapi3.Response{
+		Content: openapi3.Content{
+			respCT: &openapi3.MediaType{
+				Schema: &openapi3.SchemaRef{
+					Value: &openapi3.Schema{
+						Type:    "object",
+						Example: make(chan int),
+					},
+				},
+			},
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeResponses("200", oasResp)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Err_NotFound_unnamed(T *testing.T) {
+	expectedErr := errors.SecurityNotFound("[unnamed]", "No security name has been supplied.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{}
+
+	params := &api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Err_NotFound(T *testing.T) {
+	secName := "nonexistent_sec"
+	expectedErr := errors.SecurityNotFound(secName, "", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				"sec_1": {
+					Value: &openapi3.SecurityScheme{},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			SecurityHint: secName,
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Err_NotFound_unknown(T *testing.T) {
+	secName := "sec_1"
+	secType := "weirdsec"
+	expectedErr := errors.SecurityNotFound(secName, "Security type '"+secType+"' is unknown.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type: secType,
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			SecurityHint: secName,
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Err_JSON(T *testing.T) {
+	secName := "sec_1"
+	expectedErr := errors.Oops("The 'x-example' does not contain any JSON data.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type: "http",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": make(chan int),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			SecurityHint: secName,
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Err_Unmarshal(T *testing.T) {
+	secName := "sec_1"
+	expectedErr := errors.Oops("Cannot unmarshal the 'x-example' field.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type: "http",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\\\\ a totally invalid JSON //"),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			SecurityHint: secName,
+		},
+	}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.Nil(T, actual)
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+}
+
+func TestMakeSecurity_Params(T *testing.T) {
+	logger := log.NewFestive(0)
+	secName := "sec_1"
+	expected := http.Basic{
+		Security: http.Security{
+			Name:  secName,
+			Token: "42",
+			Log:   logger,
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				"sec_99": {
+					Value: &openapi3.SecurityScheme{
+						Type: "apikey",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"9966\""),
+							},
+						},
+					},
+				},
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type:   "http",
+						Scheme: "basic",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"42\""),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{
+		{
+			"sec_99": nil,
+		},
+	}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			SecurityHint: secName,
+		},
+	}
+
+	spec := Spec{
+		Log: logger,
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.EqualValues(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeSecurity_Requirements(T *testing.T) {
+	logger := log.NewFestive(0)
+	secName := "sec_99"
+	paramName := "creds"
+	expected := apikey.Query{
+		Security: apikey.Security{
+			Name:      secName,
+			Log:       logger,
+			ParamName: paramName,
+			Value:     "9966",
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type: "apiKey",
+						In:   "query",
+						Name: paramName,
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"9966\""),
+							},
+						},
+					},
+				},
+				"sec_1": {
+					Value: &openapi3.SecurityScheme{
+						Type:   "http",
+						Scheme: "basic",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"42\""),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{
+		{
+			secName: nil,
+		},
+	}
+
+	params := &api.OperationParameters{}
+
+	spec := Spec{
+		Log: logger,
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.EqualValues(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
+
+func TestMakeSecurity_Params_Value(T *testing.T) {
+	logger := log.NewFestive(0)
+	secName := "sec_99"
+	paramName := "creds"
+	expected := apikey.Query{
+		Security: apikey.Security{
+			Name:      secName,
+			Log:       logger,
+			ParamName: paramName,
+			Value:     "YOLO",
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				secName: {
+					Value: &openapi3.SecurityScheme{
+						Type: "apiKey",
+						In:   "query",
+						Name: paramName,
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"9966\""),
+							},
+						},
+					},
+				},
+				"sec_1": {
+					Value: &openapi3.SecurityScheme{
+						Type:   "http",
+						Scheme: "basic",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"42\""),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasSecReqs := &openapi3.SecurityRequirements{
+		{
+			secName: nil,
+		},
+	}
+
+	params := &api.OperationParameters{
+		Security: api.OperationSecurityParameters{
+			HTTPAuthValue: "YOLO",
+		},
+	}
+
+	spec := Spec{
+		Log: logger,
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
+	assert.EqualValues(T, expected, actual)
+	assert.Nil(T, actualErr)
 }

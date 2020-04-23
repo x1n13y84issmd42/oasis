@@ -27,6 +27,25 @@ func (err Base) Cause() error {
 	return err.TheCause
 }
 
+// ErrOops is a generic error with a message.
+type ErrOops struct {
+	Base
+}
+
+func (err ErrOops) Error() string {
+	return err.Details
+}
+
+// Oops creates a new ErrOops error instance.
+func Oops(msg string, cause error) ErrOops {
+	return ErrOops{
+		Base: Base{
+			TheCause: cause,
+			Details:  msg,
+		},
+	}
+}
+
 // ErrOperationMalformed is returned when there is not enough data in the API spec,
 // or the data is incorrect, which makes operation creation impossible.
 type ErrOperationMalformed struct {
@@ -127,7 +146,7 @@ type ErrInvalidResponse struct {
 }
 
 func (err ErrInvalidResponse) Error() string {
-	return "Response spec is invalid."
+	return "Response spec is invalid. " + err.Details
 }
 
 // InvalidResponse creates a new ErrInvalidResponse error instance.

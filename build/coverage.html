@@ -56,7 +56,7 @@
 				
 				<option value="file0">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go (0.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (38.1%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (65.8%)</option>
 				
 				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
@@ -105,7 +105,9 @@ import (
         "net/http"
         "net/url"
         "regexp"
+        "sort"
         "strconv"
+        gostrings "strings"
 
         "github.com/getkin/kin-openapi/openapi3"
         "github.com/x1n13y84issmd42/oasis/src/api"
@@ -278,68 +280,66 @@ func (spec *Spec) makeOperation(
 func (spec *Spec) MakeSecurity(
         oasSecReqs *openapi3.SecurityRequirements,
         params *api.OperationParameters,
-) (api.ISecurity, error) <span class="cov0" title="0">{
+) (api.ISecurity, error) <span class="cov8" title="1">{
 
         var oasSec *openapi3.SecurityScheme
         var oasSecErr error
         oasSecurityToken := ""
-        oasSecurityName := "[unnamed]"
 
-        getSecurity := func(n string) (*openapi3.SecurityScheme, error) </span><span class="cov0" title="0">{
-                oasSecR := spec.OAS.Components.SecuritySchemes[n]
+        getSecurity := func(n string) (*openapi3.SecurityScheme, error) </span><span class="cov8" title="1">{
+                oasSecRef := spec.OAS.Components.SecuritySchemes[n]
 
-                if oasSecR == nil || oasSecR.Value == nil </span><span class="cov0" title="0">{
+                if oasSecRef == nil || oasSecRef.Value == nil </span><span class="cov8" title="1">{
                         return nil, errors.SecurityNotFound(n, "", nil)
                 }</span>
 
-                <span class="cov0" title="0">oasSecurityName = n
-                return oasSecR.Value, nil</span>
+                <span class="cov8" title="1">return oasSecRef.Value, nil</span>
         }
 
-        <span class="cov0" title="0">if params.Security.SecurityHint != "" </span><span class="cov0" title="0">{
-                oasSec, oasSecErr = getSecurity(params.Security.SecurityHint)
-        }</span> else<span class="cov0" title="0"> if oasSecReqs != nil </span><span class="cov0" title="0">{
-                for _, oasSecReq := range *oasSecReqs </span><span class="cov0" title="0">{
-                        for oasSecName := range oasSecReq </span><span class="cov0" title="0">{
-                                oasSec, oasSecErr = getSecurity(oasSecName)
+        <span class="cov8" title="1">oasSecName := ""
+        if params.Security.SecurityHint != "" </span><span class="cov8" title="1">{
+                oasSecName = params.Security.SecurityHint
+        }</span> else<span class="cov8" title="1"> if oasSecReqs != nil </span><span class="cov8" title="1">{
+                for _, oasSecReq := range *oasSecReqs </span><span class="cov8" title="1">{
+                        for oasSecName = range oasSecReq </span><span class="cov8" title="1">{
                                 break</span>
                         }
                 }
         }
 
-        <span class="cov0" title="0">if oasSecErr != nil </span><span class="cov0" title="0">{
-                return nil, oasSecErr
+        <span class="cov8" title="1">if oasSecName != "" </span><span class="cov8" title="1">{
+                oasSec, oasSecErr = getSecurity(oasSecName)
+                if oasSecErr != nil </span><span class="cov8" title="1">{
+                        return nil, oasSecErr
+                }</span>
+        } else<span class="cov8" title="1"> {
+                return nil, errors.SecurityNotFound("[unnamed]", "No security name has been supplied.", nil)
         }</span>
 
-        <span class="cov0" title="0">if params.Security.HTTPAuthValue != "" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if params.Security.HTTPAuthValue != "" </span><span class="cov8" title="1">{
                 oasSecurityToken = params.Security.HTTPAuthValue
-        }</span> else<span class="cov0" title="0"> if oasSec != nil &amp;&amp; oasSec.Extensions["x-example"] != nil </span><span class="cov0" title="0">{
-                jre, ok := oasSec.Extensions["x-example"].(json.RawMessage)
-                if ok </span><span class="cov0" title="0">{
+        }</span> else<span class="cov8" title="1"> if oasSec != nil &amp;&amp; oasSec.Extensions["x-example"] != nil </span><span class="cov8" title="1">{
+                x := oasSec.Extensions["x-example"]
+                jre, ok := x.(json.RawMessage)
+                if ok </span><span class="cov8" title="1">{
                         tokenErr := json.Unmarshal(jre, &amp;oasSecurityToken)
-                        if tokenErr != nil </span><span class="cov0" title="0">{
-                                return nil, errors.NoParameters([]string{"x-example"}, nil)
+                        if tokenErr != nil </span><span class="cov8" title="1">{
+                                return nil, errors.Oops("Cannot unmarshal the 'x-example' field.", tokenErr)
                         }</span>
-                } else<span class="cov0" title="0"> {
-                        return nil, errors.NoParameters([]string{"x-example"}, nil)
+                } else<span class="cov8" title="1"> {
+                        return nil, errors.Oops("The 'x-example' does not contain any JSON data.", nil)
                 }</span>
         }
 
-        <span class="cov0" title="0">if oasSec != nil </span><span class="cov0" title="0">{
-                switch oasSec.Type </span>{
-                case "apiKey":<span class="cov0" title="0">
-                        return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log), nil</span>
+        <span class="cov8" title="1">switch oasSec.Type </span>{
+        case "apiKey":<span class="cov8" title="1">
+                return secAPIKey.New(oasSecName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log), nil</span>
 
-                case "http":<span class="cov0" title="0">
-                        return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log), nil</span>
-
-                default:<span class="cov0" title="0">
-                        return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)</span>
-                }
+        case "http":<span class="cov8" title="1">
+                return secHTTP.New(oasSecName, oasSec.Scheme, oasSecurityToken, spec.Log), nil</span>
         }
 
-        //TODO: this looks wrong, rethink this entire flow.
-        <span class="cov0" title="0">return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)</span>
+        <span class="cov8" title="1">return nil, errors.SecurityNotFound(oasSecName, "Security type '"+oasSec.Type+"' is unknown.", nil)</span>
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.
@@ -380,7 +380,7 @@ func (spec *Spec) MakeRequest(
 func (spec *Spec) MakeResponses(
         oasRespStatus string,
         oasResp *openapi3.Response,
-) ([]*api.Response, error) <span class="cov0" title="0">{
+) ([]*api.Response, error) <span class="cov8" title="1">{
 
         specResponses := []*api.Response{}
         specDescription := oasResp.Description
@@ -388,28 +388,28 @@ func (spec *Spec) MakeResponses(
         specHeaders := api.Headers{}
 
         // Headers.
-        for oasHeaderName, oasHeader := range oasResp.Headers </span><span class="cov0" title="0">{
-                if oasHeader.Value != nil </span><span class="cov0" title="0">{
+        for oasHeaderName, oasHeader := range oasResp.Headers </span><span class="cov8" title="1">{
+                if oasHeader.Value != nil </span><span class="cov8" title="1">{
                         var specHeaderErr error
                         specHeaders[oasHeaderName], specHeaderErr = spec.MakeHeader(oasHeaderName, oasHeader.Value)
-                        if specHeaderErr != nil </span><span class="cov0" title="0">{
-                                return nil, errors.InvalidResponse("Failed to create a response header '"+oasHeaderName+"'schema.", specHeaderErr)
+                        if specHeaderErr != nil </span><span class="cov8" title="1">{
+                                return nil, errors.InvalidResponse("Failed to create a response header '"+oasHeaderName+"' schema.", specHeaderErr)
                         }</span>
                 }
         }
 
         // Bodies.
-        <span class="cov0" title="0">if len(oasResp.Content) &gt; 0 </span><span class="cov0" title="0">{
-                for oasRespContentType, oasRespContent := range oasResp.Content </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if len(oasResp.Content) &gt; 0 </span><span class="cov8" title="1">{
+                for oasRespContentType, oasRespContent := range oasResp.Content </span><span class="cov8" title="1">{
                         var specSchema *api.Schema
                         var specSchemaErr error
-                        if oasRespContent.Schema != nil &amp;&amp; oasRespContent.Schema.Value != nil </span><span class="cov0" title="0">{
+                        if oasRespContent.Schema != nil &amp;&amp; oasRespContent.Schema.Value != nil </span><span class="cov8" title="1">{
                                 specSchema, specSchemaErr = spec.MakeSchema("Response", oasRespContent.Schema.Value)
-                                if specSchemaErr != nil </span><span class="cov0" title="0">{
-                                        return nil, errors.InvalidResponse("Failed to create a response body schema.", specSchemaErr)
+                                if specSchemaErr != nil </span><span class="cov8" title="1">{
+                                        return nil, errors.InvalidResponse("Failed to create a '"+oasRespContentType+"' response body schema.", specSchemaErr)
                                 }</span>
                         }
-                        <span class="cov0" title="0">specResponses = append(specResponses, &amp;api.Response{
+                        <span class="cov8" title="1">specResponses = append(specResponses, &amp;api.Response{
                                 Description: specDescription,
                                 StatusCode:  specStatusCode,
                                 Headers:     specHeaders,
@@ -417,7 +417,7 @@ func (spec *Spec) MakeResponses(
                                 Schema:      specSchema,
                         })</span>
                 }
-        } else<span class="cov0" title="0"> {
+        } else<span class="cov8" title="1"> {
                 specResponses = append(specResponses, &amp;api.Response{
                         Description: specDescription,
                         StatusCode:  specStatusCode,
@@ -425,25 +425,29 @@ func (spec *Spec) MakeResponses(
                 })
         }</span>
 
-        <span class="cov0" title="0">return specResponses, nil</span>
+        <span class="cov8" title="1">sort.Slice(specResponses, func(a, b int) bool </span><span class="cov8" title="1">{
+                return gostrings.Compare(specResponses[a].ContentType, specResponses[b].ContentType) &lt; 0
+        }</span>)
+
+        <span class="cov8" title="1">return specResponses, nil</span>
 }
 
 // MakeHeader creates an api.Rrequest instance from available operation spec data.
 func (spec *Spec) MakeHeader(
         oasHeaderName string,
         oasHeader *openapi3.Header,
-) (*api.Header, error) <span class="cov0" title="0">{
+) (*api.Header, error) <span class="cov8" title="1">{
         var specSchema *api.Schema
         var specSchemaErr error
 
-        if oasHeader.Schema != nil &amp;&amp; oasHeader.Schema.Value != nil </span><span class="cov0" title="0">{
+        if oasHeader.Schema != nil &amp;&amp; oasHeader.Schema.Value != nil </span><span class="cov8" title="1">{
                 specSchema, specSchemaErr = spec.MakeSchema(oasHeaderName, oasHeader.Schema.Value)
-                if specSchemaErr != nil </span><span class="cov0" title="0">{
+                if specSchemaErr != nil </span><span class="cov8" title="1">{
                         return nil, specSchemaErr
                 }</span>
         }
 
-        <span class="cov0" title="0">return &amp;api.Header{
+        <span class="cov8" title="1">return &amp;api.Header{
                 Name:        oasHeaderName,
                 Description: oasHeader.Description,
                 Required:    oasHeader.Required,

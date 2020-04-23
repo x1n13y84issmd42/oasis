@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strconv"
+	gostrings "strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
@@ -184,63 +186,61 @@ func (spec *Spec) MakeSecurity(
 	var oasSec *openapi3.SecurityScheme
 	var oasSecErr error
 	oasSecurityToken := ""
-	oasSecurityName := "[unnamed]"
 
 	getSecurity := func(n string) (*openapi3.SecurityScheme, error) {
-		oasSecR := spec.OAS.Components.SecuritySchemes[n]
+		oasSecRef := spec.OAS.Components.SecuritySchemes[n]
 
-		if oasSecR == nil || oasSecR.Value == nil {
+		if oasSecRef == nil || oasSecRef.Value == nil {
 			return nil, errors.SecurityNotFound(n, "", nil)
 		}
 
-		oasSecurityName = n
-		return oasSecR.Value, nil
+		return oasSecRef.Value, nil
 	}
 
+	oasSecName := ""
 	if params.Security.SecurityHint != "" {
-		oasSec, oasSecErr = getSecurity(params.Security.SecurityHint)
+		oasSecName = params.Security.SecurityHint
 	} else if oasSecReqs != nil {
 		for _, oasSecReq := range *oasSecReqs {
-			for oasSecName := range oasSecReq {
-				oasSec, oasSecErr = getSecurity(oasSecName)
+			for oasSecName = range oasSecReq {
 				break
 			}
 		}
 	}
 
-	if oasSecErr != nil {
-		return nil, oasSecErr
+	if oasSecName != "" {
+		oasSec, oasSecErr = getSecurity(oasSecName)
+		if oasSecErr != nil {
+			return nil, oasSecErr
+		}
+	} else {
+		return nil, errors.SecurityNotFound("[unnamed]", "No security name has been supplied.", nil)
 	}
 
 	if params.Security.HTTPAuthValue != "" {
 		oasSecurityToken = params.Security.HTTPAuthValue
 	} else if oasSec != nil && oasSec.Extensions["x-example"] != nil {
-		jre, ok := oasSec.Extensions["x-example"].(json.RawMessage)
+		x := oasSec.Extensions["x-example"]
+		jre, ok := x.(json.RawMessage)
 		if ok {
 			tokenErr := json.Unmarshal(jre, &oasSecurityToken)
 			if tokenErr != nil {
-				return nil, errors.NoParameters([]string{"x-example"}, nil)
+				return nil, errors.Oops("Cannot unmarshal the 'x-example' field.", tokenErr)
 			}
 		} else {
-			return nil, errors.NoParameters([]string{"x-example"}, nil)
+			return nil, errors.Oops("The 'x-example' does not contain any JSON data.", nil)
 		}
 	}
 
-	if oasSec != nil {
-		switch oasSec.Type {
-		case "apiKey":
-			return secAPIKey.New(oasSecurityName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log), nil
+	switch oasSec.Type {
+	case "apiKey":
+		return secAPIKey.New(oasSecName, oasSec.In, oasSec.Name, oasSecurityToken, spec.Log), nil
 
-		case "http":
-			return secHTTP.New(oasSecurityName, oasSec.Scheme, oasSecurityToken, spec.Log), nil
-
-		default:
-			return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)
-		}
+	case "http":
+		return secHTTP.New(oasSecName, oasSec.Scheme, oasSecurityToken, spec.Log), nil
 	}
 
-	//TODO: this looks wrong, rethink this entire flow.
-	return nil, errors.SecurityNotFound(oasSecurityName, "The last chance error.", nil)
+	return nil, errors.SecurityNotFound(oasSecName, "Security type '"+oasSec.Type+"' is unknown.", nil)
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.
@@ -294,7 +294,7 @@ func (spec *Spec) MakeResponses(
 			var specHeaderErr error
 			specHeaders[oasHeaderName], specHeaderErr = spec.MakeHeader(oasHeaderName, oasHeader.Value)
 			if specHeaderErr != nil {
-				return nil, errors.InvalidResponse("Failed to create a response header '"+oasHeaderName+"'schema.", specHeaderErr)
+				return nil, errors.InvalidResponse("Failed to create a response header '"+oasHeaderName+"' schema.", specHeaderErr)
 			}
 		}
 	}
@@ -307,7 +307,7 @@ func (spec *Spec) MakeResponses(
 			if oasRespContent.Schema != nil && oasRespContent.Schema.Value != nil {
 				specSchema, specSchemaErr = spec.MakeSchema("Response", oasRespContent.Schema.Value)
 				if specSchemaErr != nil {
-					return nil, errors.InvalidResponse("Failed to create a response body schema.", specSchemaErr)
+					return nil, errors.InvalidResponse("Failed to create a '"+oasRespContentType+"' response body schema.", specSchemaErr)
 				}
 			}
 			specResponses = append(specResponses, &api.Response{
@@ -325,6 +325,10 @@ func (spec *Spec) MakeResponses(
 			Headers:     specHeaders,
 		})
 	}
+
+	sort.Slice(specResponses, func(a, b int) bool {
+		return gostrings.Compare(specResponses[a].ContentType, specResponses[b].ContentType) < 0
+	})
 
 	return specResponses, nil
 }
