@@ -58,7 +58,7 @@
 				
 				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/ParameterExtractor.go (100.0%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (59.2%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (65.3%)</option>
 				
 				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
@@ -409,7 +409,7 @@ func (spec *Spec) MakeRequest(
         oasCT string,
         oasMT *openapi3.MediaType,
         params *api.OperationParameters,
-) *api.Request <span class="cov0" title="0">{
+) *api.Request <span class="cov8" title="1">{
 
         specReq := &amp;api.Request{}
         specReq.Method = method
@@ -418,19 +418,21 @@ func (spec *Spec) MakeRequest(
 
         specReq.Headers = http.Header{}
 
-        params.Request.Headers.ForEach(func(hn, hv string) </span><span class="cov0" title="0">{
+        params.Request.Headers.ForEach(func(hn, hv string) </span><span class="cov8" title="1">{
                 specReq.Headers.Add(hn, hv)
         }</span>)
 
-        <span class="cov0" title="0">pex := NewParameterExtractor()
-        pex.Extract(&amp;oasOp.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">pex := NewParameterExtractor()
+        pex.Extract(&amp;oasOp.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
                 specReq.Headers.Add(specP.Name, example)
         }</span>)
-        <span class="cov0" title="0">pex.Extract(&amp;oasPathItem.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">pex.Extract(&amp;oasPathItem.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
                 specReq.Headers.Add(specP.Name, example)
         }</span>)
 
-        <span class="cov0" title="0">return specReq</span>
+        //TODO: body
+
+        <span class="cov8" title="1">return specReq</span>
 }
 
 // MakeResponses creates a list of api.Response instances from available operation spec data.

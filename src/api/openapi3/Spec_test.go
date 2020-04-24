@@ -2,14 +2,15 @@ package openapi3
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	apikey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
-	http "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
+	APIKey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+	HTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
 )
@@ -1041,8 +1042,8 @@ func TestMakeSecurity_Err_Unmarshal(T *testing.T) {
 func TestMakeSecurity_Params(T *testing.T) {
 	logger := log.NewFestive(0)
 	secName := "sec_1"
-	expected := http.Basic{
-		Security: http.Security{
+	expected := HTTP.Basic{
+		Security: HTTP.Security{
 			Name:  secName,
 			Token: "42",
 			Log:   logger,
@@ -1103,8 +1104,8 @@ func TestMakeSecurity_Requirements(T *testing.T) {
 	logger := log.NewFestive(0)
 	secName := "sec_99"
 	paramName := "creds"
-	expected := apikey.Query{
-		Security: apikey.Security{
+	expected := APIKey.Query{
+		Security: APIKey.Security{
 			Name:      secName,
 			Log:       logger,
 			ParamName: paramName,
@@ -1164,8 +1165,8 @@ func TestMakeSecurity_Params_Value(T *testing.T) {
 	logger := log.NewFestive(0)
 	secName := "sec_99"
 	paramName := "creds"
-	expected := apikey.Query{
-		Security: apikey.Security{
+	expected := APIKey.Query{
+		Security: APIKey.Security{
 			Name:      secName,
 			Log:       logger,
 			ParamName: paramName,
@@ -1223,4 +1224,88 @@ func TestMakeSecurity_Params_Value(T *testing.T) {
 	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
 	assert.EqualValues(T, expected, actual)
 	assert.Nil(T, actualErr)
+}
+
+func TestCreateRequest(T *testing.T) {
+	logger := log.NewFestive(0)
+
+	method := "GET"
+	path := "/foo/bar"
+	CT := "application/json"
+	query := url.Values{
+		"qp1": []string{
+			"v1",
+			"v_two",
+		},
+	}
+
+	params := api.OperationParameters{
+		Request: api.OperationRequestParameters{
+			Headers: api.HTTPHeaders{
+				"x-ghosts": []string{
+					"casper",
+				},
+			},
+		},
+	}
+
+	oasOp := openapi3.Operation{
+		Parameters: openapi3.Parameters{
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "header",
+					Required: true,
+					Name:     "x-ghosts",
+					Example:  "stay puft",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:      "header",
+					Name:    "x-ghosts",
+					Example: "slimer",
+				},
+			},
+		},
+	}
+
+	oasPathItem := openapi3.PathItem{
+		Parameters: openapi3.Parameters{
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "header",
+					Required: true,
+					Name:     "x-ghosts",
+					Example:  "ghost rider",
+				},
+			},
+		},
+	}
+
+	oasMT := openapi3.MediaType{}
+
+	expected := &api.Request{
+		Method: method,
+		Path:   path,
+		Query:  &query,
+		Headers: http.Header{
+			"X-Ghosts": []string{
+				"casper",
+				"stay puft",
+				"ghost rider",
+			},
+		},
+		//TODO: body
+	}
+
+	spec := Spec{
+		Log: logger,
+		OAS: &openapi3.Swagger{
+			Components: openapi3.Components{},
+		},
+	}
+
+	actual := spec.MakeRequest(method, path, &query, &oasOp, &oasPathItem, CT, &oasMT, &params)
+	assert.EqualValues(T, expected, actual)
 }
