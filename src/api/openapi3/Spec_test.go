@@ -87,7 +87,7 @@ func TestCreatePath(T *testing.T) {
 
 	actualPath, err := spec.CreatePath(path, oasPathItem, &oasOperation, &params)
 
-	assert.Equal(T, actualPath, expectedPath)
+	assert.Equal(T, expectedPath, actualPath)
 	assert.Nil(T, err)
 }
 
@@ -132,7 +132,7 @@ func TestCreatePath_ErrNoParameters(T *testing.T) {
 
 	actualPath, err := spec.CreatePath(path, oasPathItem, &oasOperation, &params)
 
-	assert.Equal(T, actualPath, expectedPath)
+	assert.Equal(T, expectedPath, actualPath)
 	assert.Equal(T, err.Error(), expectedErr.Error())
 }
 
@@ -211,7 +211,7 @@ func TestCreateQuery(T *testing.T) {
 	OAS.Paths[path] = oasPathItem
 
 	params := api.OperationParameters{
-		Query: url.Values{
+		Query: api.QueryValues{
 			"q1": []string{
 				"q1_from_override",
 			},

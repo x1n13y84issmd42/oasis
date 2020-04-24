@@ -260,19 +260,19 @@ func (spec *Spec) MakeRequest(
 	specReq.Path = specPath
 	specReq.Query = specQuery
 
-	specHeaders := http.Header{}
+	specReq.Headers = http.Header{}
 
-	for _, oasOpParam := range oasOp.Parameters {
-		if oasOpParam.Value == nil || oasOpParam.Value.In != "header" {
-			continue
-		}
+	params.Request.Headers.ForEach(func(hn, hv string) {
+		specReq.Headers.Add(hn, hv)
+	})
 
-		specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))
-	}
-
-	//TODO: same params from oasPathItem & params
-
-	specReq.Headers = specHeaders
+	pex := NewParameterExtractor()
+	pex.Extract(&oasOp.Parameters, "header", func(specP *openapi3.Parameter, example string) {
+		specReq.Headers.Add(specP.Name, example)
+	})
+	pex.Extract(&oasPathItem.Parameters, "header", func(specP *openapi3.Parameter, example string) {
+		specReq.Headers.Add(specP.Name, example)
+	})
 
 	return specReq
 }
@@ -436,22 +436,17 @@ func (spec *Spec) CreatePath(
 		}
 	}
 
-	useParameters := func(specParams openapi3.Parameters, container string) {
-		for _, specP := range specParams {
-			if specP == nil || specP.Value == nil || specP.Value.In != "path" {
-				continue
-			}
-
-			fixPath(specP.Value.Name, isstring(specP.Value.Example), container)
-		}
-	}
-
-	for ppn, ppv := range params.Path {
+	params.Path.ForEach(func(ppn, ppv string) {
 		fixPath(ppn, ppv, "override")
-	}
+	})
 
-	useParameters(oasOp.Parameters, "spec operation")
-	useParameters(oasPathItem.Parameters, "spec path")
+	pex := NewParameterExtractor()
+	pex.Extract(&oasOp.Parameters, "path", func(specP *openapi3.Parameter, example string) {
+		fixPath(specP.Name, example, "spec operation")
+	})
+	pex.Extract(&oasPathItem.Parameters, "path", func(specP *openapi3.Parameter, example string) {
+		fixPath(specP.Name, example, "spec path")
+	})
 
 	// Checking for leftover params.
 	RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
@@ -462,7 +457,7 @@ func (spec *Spec) CreatePath(
 		}), goerrors.New("XYNTA"))
 	}
 
-	return path, nil
+	return path, pex.Error()
 }
 
 // CreateQuery creates a query string for an operation request using values from `example`.
@@ -478,55 +473,27 @@ func (spec *Spec) CreateQuery(
 	qry := make(url.Values)
 
 	add := func(qpn string, qpv string, container string) {
-		// if qry.Get(qpn) == "" {
 		if qpv != "" {
 			qry.Add(qpn, qpv)
 			spec.Log.UsingParameterExample(qpn, "query", container)
 		} else {
 			spec.Log.ParameterHasNoExample(qpn, "query", container)
 		}
-		// }
 	}
 
-	var err error
-	// These are for error reporting.
-	present := make(map[string]bool)
-	missing := make(strings.SIMap)
+	params.Query.ForEach(func(qpn, qpv string) {
+		add(qpn, qpv, "override")
+	})
 
-	useParameters := func(specParams openapi3.Parameters, container string) {
-		for _, specP := range specParams {
-			if specP == nil || specP.Value == nil || specP.Value.In != "query" || !specP.Value.Required {
-				continue
-			}
+	pex := NewParameterExtractor()
+	pex.Extract(&oasOp.Parameters, "query", func(specP *openapi3.Parameter, example string) {
+		add(specP.Name, example, "spec operation")
+	})
+	pex.Extract(&oasPathItem.Parameters, "query", func(specP *openapi3.Parameter, example string) {
+		add(specP.Name, example, "spec path")
+	})
 
-			example := ""
-			if specP.Value.Example != nil {
-				example = specP.Value.Example.(string)
-				present[specP.Value.Name] = true
-			} else if !present[specP.Value.Name] {
-				missing[specP.Value.Name] = true
-				continue
-			}
-
-			add(specP.Value.Name, example, container)
-		}
-
-	}
-
-	for qpn, qpvs := range params.Query {
-		for _, qpv := range qpvs {
-			add(qpn, qpv, "override")
-		}
-	}
-
-	useParameters(oasOp.Parameters, "spec operation")
-	useParameters(oasPathItem.Parameters, "spec path")
-
-	if len(missing) > 0 {
-		err = errors.NoParameters(missing.Keys(), nil)
-	}
-
-	return &qry, err
+	return &qry, pex.Error()
 }
 
 // GetProjectInfo returns project info from the spec.info object.

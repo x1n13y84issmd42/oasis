@@ -56,13 +56,15 @@
 				
 				<option value="file0">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go (0.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (65.8%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/ParameterExtractor.go (100.0%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (59.2%)</option>
 				
-				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
+				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
-				<option value="file4">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
+				<option value="file4">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
+				
+				<option value="file5">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
 				</select>
 			</div>
@@ -100,6 +102,61 @@ func Load(path string, logger log.ILogger) (*Spec, error) <span class="cov0" tit
 		<pre class="file" id="file1" style="display: none">package openapi3
 
 import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/errors"
+        "github.com/x1n13y84issmd42/oasis/src/strings"
+)
+
+// ParameterExtractor is a utility type concerned with extraction of parameters from Open API specs.
+type ParameterExtractor struct {
+        Present map[string]bool
+        Missing strings.SIMap
+}
+
+// NewParameterExtractor creates a new ParameterExtractor instance.
+func NewParameterExtractor() *ParameterExtractor <span class="cov8" title="1">{
+        return &amp;ParameterExtractor{
+                Present: make(map[string]bool),
+                Missing: make(strings.SIMap),
+        }
+}</span>
+
+// ExtractorFunc is a function to handle parameters.
+type ExtractorFunc = func(p *openapi3.Parameter, example string)
+
+// Extract extracts parameters and passes them to the provided handler function.
+func (pe *ParameterExtractor) Extract(params *openapi3.Parameters, in string, handler ExtractorFunc) <span class="cov8" title="1">{
+        for _, specP := range *params </span><span class="cov8" title="1">{
+                if specP == nil || specP.Value == nil || specP.Value.In != in || !specP.Value.Required </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">example := ""
+                if specP.Value.Example != nil </span><span class="cov8" title="1">{
+                        example = specP.Value.Example.(string)
+                        pe.Present[specP.Value.Name] = true
+                }</span> else<span class="cov8" title="1"> if !pe.Present[specP.Value.Name] </span><span class="cov8" title="1">{
+                        pe.Missing[specP.Value.Name] = true
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">handler(specP.Value, example)</span>
+        }
+}
+
+// Error returns an ErrNoParameters error instance if there were missing parameters.
+func (pe *ParameterExtractor) Error() error <span class="cov8" title="1">{
+        if len(pe.Missing) &gt; 0 </span><span class="cov8" title="1">{
+                return errors.NoParameters(pe.Missing.Keys(), nil)
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package openapi3
+
+import (
         "encoding/json"
         goerrors "errors"
         "net/http"
@@ -118,28 +175,28 @@ import (
         "github.com/x1n13y84issmd42/oasis/src/strings"
 )
 
-func isstring(i interface{}) (s string) <span class="cov8" title="1">{
-        if i != nil </span><span class="cov8" title="1">{
-                if iv, ok := i.(string); ok </span><span class="cov8" title="1">{
+func isstring(i interface{}) (s string) <span class="cov0" title="0">{
+        if i != nil </span><span class="cov0" title="0">{
+                if iv, ok := i.(string); ok </span><span class="cov0" title="0">{
                         s = iv
                 }</span>
 
-                <span class="cov8" title="1">if iv, ok := i.(int64); ok </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if iv, ok := i.(int64); ok </span><span class="cov0" title="0">{
                         s = string(iv)
                 }</span>
 
-                <span class="cov8" title="1">if iv, ok := i.(uint64); ok </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if iv, ok := i.(uint64); ok </span><span class="cov0" title="0">{
                         s = string(iv)
                 }</span>
 
                 //TODO: fix this
                 // Long float values (as 9223372036854663000) work incorrectly here.
-                <span class="cov8" title="1">if iv, ok := i.(float64); ok </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if iv, ok := i.(float64); ok </span><span class="cov0" title="0">{
                         s = strconv.FormatFloat(iv, 'f', 0, 64)
                 }</span>
         }
 
-        <span class="cov8" title="1">return</span>
+        <span class="cov0" title="0">return</span>
 }
 
 // Spec is an OAS3-backed API test spec.
@@ -359,21 +416,21 @@ func (spec *Spec) MakeRequest(
         specReq.Path = specPath
         specReq.Query = specQuery
 
-        specHeaders := http.Header{}
+        specReq.Headers = http.Header{}
 
-        for _, oasOpParam := range oasOp.Parameters </span><span class="cov0" title="0">{
-                if oasOpParam.Value == nil || oasOpParam.Value.In != "header" </span><span class="cov0" title="0">{
-                        continue</span>
-                }
+        params.Request.Headers.ForEach(func(hn, hv string) </span><span class="cov0" title="0">{
+                specReq.Headers.Add(hn, hv)
+        }</span>)
 
-                <span class="cov0" title="0">specHeaders.Add(oasOpParam.Value.Name, isstring(oasOpParam.Value.Example))</span>
-        }
+        <span class="cov0" title="0">pex := NewParameterExtractor()
+        pex.Extract(&amp;oasOp.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov0" title="0">{
+                specReq.Headers.Add(specP.Name, example)
+        }</span>)
+        <span class="cov0" title="0">pex.Extract(&amp;oasPathItem.Parameters, "header", func(specP *openapi3.Parameter, example string) </span><span class="cov0" title="0">{
+                specReq.Headers.Add(specP.Name, example)
+        }</span>)
 
-        //TODO: same params from oasPathItem &amp; params
-
-        <span class="cov0" title="0">specReq.Headers = specHeaders
-
-        return specReq</span>
+        <span class="cov0" title="0">return specReq</span>
 }
 
 // MakeResponses creates a list of api.Response instances from available operation spec data.
@@ -535,25 +592,20 @@ func (spec *Spec) CreatePath(
                 }
         }
 
-        <span class="cov8" title="1">useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov8" title="1">{
-                for _, specP := range specParams </span><span class="cov8" title="1">{
-                        if specP == nil || specP.Value == nil || specP.Value.In != "path" </span><span class="cov8" title="1">{
-                                continue</span>
-                        }
-
-                        <span class="cov8" title="1">fixPath(specP.Value.Name, isstring(specP.Value.Example), container)</span>
-                }
-        }
-
-        <span class="cov8" title="1">for ppn, ppv := range params.Path </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">params.Path.ForEach(func(ppn, ppv string) </span><span class="cov8" title="1">{
                 fixPath(ppn, ppv, "override")
-        }</span>
+        }</span>)
 
-        <span class="cov8" title="1">useParameters(oasOp.Parameters, "spec operation")
-        useParameters(oasPathItem.Parameters, "spec path")
+        <span class="cov8" title="1">pex := NewParameterExtractor()
+        pex.Extract(&amp;oasOp.Parameters, "path", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
+                fixPath(specP.Name, example, "spec operation")
+        }</span>)
+        <span class="cov8" title="1">pex.Extract(&amp;oasPathItem.Parameters, "path", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
+                fixPath(specP.Name, example, "spec path")
+        }</span>)
 
         // Checking for leftover params.
-        RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
+        <span class="cov8" title="1">RX, _ := regexp.Compile("\\{[\\w\\d-_]+\\}")
         lops := RX.FindAllString(path, -1)
         if len(lops) &gt; 0 </span><span class="cov8" title="1">{
                 return path, errors.NoParameters(strings.Map(lops, func(lop string) string </span><span class="cov8" title="1">{
@@ -561,7 +613,7 @@ func (spec *Spec) CreatePath(
                 }</span>), goerrors.New("XYNTA"))
         }
 
-        <span class="cov8" title="1">return path, nil</span>
+        <span class="cov8" title="1">return path, pex.Error()</span>
 }
 
 // CreateQuery creates a query string for an operation request using values from `example`.
@@ -577,55 +629,27 @@ func (spec *Spec) CreateQuery(
         qry := make(url.Values)
 
         add := func(qpn string, qpv string, container string) </span><span class="cov8" title="1">{
-                // if qry.Get(qpn) == "" {
                 if qpv != "" </span><span class="cov8" title="1">{
                         qry.Add(qpn, qpv)
                         spec.Log.UsingParameterExample(qpn, "query", container)
                 }</span> else<span class="cov8" title="1"> {
                         spec.Log.ParameterHasNoExample(qpn, "query", container)
                 }</span>
-                // }
         }
 
-        <span class="cov8" title="1">var err error
-        // These are for error reporting.
-        present := make(map[string]bool)
-        missing := make(strings.SIMap)
+        <span class="cov8" title="1">params.Query.ForEach(func(qpn, qpv string) </span><span class="cov8" title="1">{
+                add(qpn, qpv, "override")
+        }</span>)
 
-        useParameters := func(specParams openapi3.Parameters, container string) </span><span class="cov8" title="1">{
-                for _, specP := range specParams </span><span class="cov8" title="1">{
-                        if specP == nil || specP.Value == nil || specP.Value.In != "query" || !specP.Value.Required </span><span class="cov8" title="1">{
-                                continue</span>
-                        }
+        <span class="cov8" title="1">pex := NewParameterExtractor()
+        pex.Extract(&amp;oasOp.Parameters, "query", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
+                add(specP.Name, example, "spec operation")
+        }</span>)
+        <span class="cov8" title="1">pex.Extract(&amp;oasPathItem.Parameters, "query", func(specP *openapi3.Parameter, example string) </span><span class="cov8" title="1">{
+                add(specP.Name, example, "spec path")
+        }</span>)
 
-                        <span class="cov8" title="1">example := ""
-                        if specP.Value.Example != nil </span><span class="cov8" title="1">{
-                                example = specP.Value.Example.(string)
-                                present[specP.Value.Name] = true
-                        }</span> else<span class="cov8" title="1"> if !present[specP.Value.Name] </span><span class="cov8" title="1">{
-                                missing[specP.Value.Name] = true
-                                continue</span>
-                        }
-
-                        <span class="cov8" title="1">add(specP.Value.Name, example, container)</span>
-                }
-
-        }
-
-        <span class="cov8" title="1">for qpn, qpvs := range params.Query </span><span class="cov8" title="1">{
-                for _, qpv := range qpvs </span><span class="cov8" title="1">{
-                        add(qpn, qpv, "override")
-                }</span>
-        }
-
-        <span class="cov8" title="1">useParameters(oasOp.Parameters, "spec operation")
-        useParameters(oasPathItem.Parameters, "spec path")
-
-        if len(missing) &gt; 0 </span><span class="cov8" title="1">{
-                err = errors.NoParameters(missing.Keys(), nil)
-        }</span>
-
-        <span class="cov8" title="1">return &amp;qry, err</span>
+        <span class="cov8" title="1">return &amp;qry, pex.Error()</span>
 }
 
 // GetProjectInfo returns project info from the spec.info object.
@@ -665,7 +689,7 @@ func (spec *Spec) GetDefaultHost() (*api.Host, error) <span class="cov8" title="
 }
 </pre>
 		
-		<pre class="file" id="file2" style="display: none">package srx
+		<pre class="file" id="file3" style="display: none">package srx
 
 // Cursor is a pair of argument list and an index of a current argument.
 type Cursor struct {
@@ -714,7 +738,7 @@ func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">package srx
+		<pre class="file" id="file4" style="display: none">package srx
 
 // String is a shorthand function to create a String() expression.
 func String(f string) *SRX <span class="cov8" title="1">{
@@ -781,7 +805,7 @@ func Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package srx
+		<pre class="file" id="file5" style="display: none">package srx
 
 import (
         "strconv"
