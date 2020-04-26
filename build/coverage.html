@@ -58,7 +58,7 @@
 				
 				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/ParameterExtractor.go (100.0%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (65.3%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (74.6%)</option>
 				
 				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
@@ -211,7 +211,7 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 
         addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) </span><span class="cov0" title="0">{
                 if oasOp != nil </span><span class="cov0" title="0">{
-                        specOp, specOpErr := spec.makeOperation(method, oasOp, oasPath, oasPathItem, params)
+                        specOp, specOpErr := spec.MakeOperation(method, oasOp, oasPath, oasPathItem, params)
                         if specOpErr == nil </span><span class="cov0" title="0">{
                                 ops = append(ops, specOp)
                         }</span>
@@ -241,60 +241,61 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*a
 
         <span class="cov0" title="0">for oasPath, oasPathItem := range spec.OAS.Paths </span><span class="cov0" title="0">{
                 if filterOp(oasPathItem.Get) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("GET", oasPathItem.Get, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("GET", oasPathItem.Get, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Post) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("POST", oasPathItem.Post, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("POST", oasPathItem.Post, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Put) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Delete) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Patch) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Head) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Options) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Connect) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem, params)
                 }</span>
                 <span class="cov0" title="0">if filterOp(oasPathItem.Trace) </span><span class="cov0" title="0">{
-                        return spec.makeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem, params)
+                        return spec.MakeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem, params)
                 }</span>
         }
 
         <span class="cov0" title="0">return nil, errors.NotFound("Operation", name, nil)</span>
 }
 
-func (spec *Spec) makeOperation(
+// MakeOperation creates an Operation instance from available spec data.
+func (spec *Spec) MakeOperation(
         method string,
         oasOp *openapi3.Operation,
         oasPath string,
         oasPathItem *openapi3.PathItem,
         params *api.OperationParameters,
-) (*api.Operation, error) <span class="cov0" title="0">{
+) (*api.Operation, error) <span class="cov8" title="1">{
         specPath, err := spec.CreatePath(oasPath, oasPathItem, oasOp, params)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation path.", err)
         }</span>
 
-        <span class="cov0" title="0">specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">specQuery, err := spec.CreateQuery(oasPathItem, oasOp, params)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation query.", err)
         }</span>
 
-        <span class="cov0" title="0">specSecurity, err := spec.MakeSecurity(oasOp.Security, params)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">specSecurity, err := spec.MakeSecurity(oasOp.Security, params)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, errors.OperationMalformed(oasOp.OperationID, "Could not create operation security.", err)
         }</span>
 
-        <span class="cov0" title="0">specRequests := []*api.Request{}
+        <span class="cov8" title="1">specRequests := []*api.Request{}
         specResponses := []*api.Response{}
 
         // In case there is a reponse body with certain Content-Type is expected,
@@ -303,23 +304,23 @@ func (spec *Spec) makeOperation(
                 for oasCT, oasMT := range oasOp.RequestBody.Value.Content </span><span class="cov0" title="0">{
                         specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, oasCT, oasMT, params))
                 }</span>
-        } else<span class="cov0" title="0"> {
+        } else<span class="cov8" title="1"> {
                 // Otherwise making a single contentless response.
                 specRequests = append(specRequests, spec.MakeRequest(method, specPath, specQuery, oasOp, oasPathItem, "", nil, params))
         }</span>
 
-        <span class="cov0" title="0">for oasRespStatus, oasResp := range oasOp.Responses </span><span class="cov0" title="0">{
-                if oasResp.Value != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">for oasRespStatus, oasResp := range oasOp.Responses </span><span class="cov8" title="1">{
+                if oasResp.Value != nil </span><span class="cov8" title="1">{
                         specResps, specRespsErr := spec.MakeResponses(oasRespStatus, oasResp.Value)
-                        if specRespsErr == nil </span><span class="cov0" title="0">{
+                        if specRespsErr == nil </span><span class="cov8" title="1">{
                                 specResponses = append(specResponses, specResps...)
-                        }</span> else<span class="cov0" title="0"> {
+                        }</span> else<span class="cov8" title="1"> {
                                 return nil, errors.OperationMalformed(oasOp.OperationID, "Failed to create response bodies.", specRespsErr)
                         }</span>
                 }
         }
 
-        <span class="cov0" title="0">return &amp;api.Operation{
+        <span class="cov8" title="1">return &amp;api.Operation{
                 OperationDesc: api.OperationDesc{
                         ID:          oasOp.OperationID,
                         Name:        oasOp.Summary,

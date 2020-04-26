@@ -55,7 +55,7 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 
 	addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) {
 		if oasOp != nil {
-			specOp, specOpErr := spec.makeOperation(method, oasOp, oasPath, oasPathItem, params)
+			specOp, specOpErr := spec.MakeOperation(method, oasOp, oasPath, oasPathItem, params)
 			if specOpErr == nil {
 				ops = append(ops, specOp)
 			}
@@ -85,38 +85,39 @@ func (spec *Spec) GetOperation(name string, params *api.OperationParameters) (*a
 
 	for oasPath, oasPathItem := range spec.OAS.Paths {
 		if filterOp(oasPathItem.Get) {
-			return spec.makeOperation("GET", oasPathItem.Get, oasPath, oasPathItem, params)
+			return spec.MakeOperation("GET", oasPathItem.Get, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Post) {
-			return spec.makeOperation("POST", oasPathItem.Post, oasPath, oasPathItem, params)
+			return spec.MakeOperation("POST", oasPathItem.Post, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Put) {
-			return spec.makeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem, params)
+			return spec.MakeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Delete) {
-			return spec.makeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem, params)
+			return spec.MakeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Patch) {
-			return spec.makeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem, params)
+			return spec.MakeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Head) {
-			return spec.makeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem, params)
+			return spec.MakeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Options) {
-			return spec.makeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem, params)
+			return spec.MakeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Connect) {
-			return spec.makeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem, params)
+			return spec.MakeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem, params)
 		}
 		if filterOp(oasPathItem.Trace) {
-			return spec.makeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem, params)
+			return spec.MakeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem, params)
 		}
 	}
 
 	return nil, errors.NotFound("Operation", name, nil)
 }
 
-func (spec *Spec) makeOperation(
+// MakeOperation creates an Operation instance from available spec data.
+func (spec *Spec) MakeOperation(
 	method string,
 	oasOp *openapi3.Operation,
 	oasPath string,

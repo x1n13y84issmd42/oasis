@@ -55,7 +55,7 @@ type ErrOperationMalformed struct {
 }
 
 func (err ErrOperationMalformed) Error() string {
-	return "Operation '" + err.OpID + "' has malformed or incomplete data. " + err.Details
+	return "Operation '" + err.OpID + "' has malformed or incomplete data. " + err.Base.Details
 }
 
 // OperationMalformed creates a new ErrOperationMalformed error instance.
@@ -126,7 +126,7 @@ type ErrInvalidSchema struct {
 }
 
 func (err ErrInvalidSchema) Error() string {
-	return "Schema " + err.SchemaName + " is invalid. " + err.Details
+	return "Schema " + err.SchemaName + " is invalid. " + err.Base.Details
 }
 
 // InvalidSchema creates a new ErrInvalidSchema error instance.
@@ -146,7 +146,7 @@ type ErrInvalidResponse struct {
 }
 
 func (err ErrInvalidResponse) Error() string {
-	return "Response spec is invalid. " + err.Details
+	return "Response spec is invalid. " + err.Base.Details
 }
 
 // InvalidResponse creates a new ErrInvalidResponse error instance.

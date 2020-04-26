@@ -36,6 +36,7 @@ func New(name string, location string, paramName string, value string, logger lo
 		}
 	}
 
+	//TODO: return error
 	panic(fmt.Sprintf("Unknown location \"%s\" for the API Key security parameter \"%s\".", location, paramName))
 }
 

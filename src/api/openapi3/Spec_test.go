@@ -1309,3 +1309,379 @@ func TestCreateRequest(T *testing.T) {
 	actual := spec.MakeRequest(method, path, &query, &oasOp, &oasPathItem, CT, &oasMT, &params)
 	assert.EqualValues(T, expected, actual)
 }
+
+func TestMakeOperation_Malformed_Path(T *testing.T) {
+	method := "GET"
+	opID := "testOp"
+	path := "/foo/{param1}/bar/{param2}/{param3}/qeq/{param4}"
+	expectedErr := errors.OperationMalformed(opID, "Could not create operation path.", nil)
+
+	OAS := &openapi3.Swagger{}
+	oasOperation := openapi3.Operation{
+		OperationID: opID,
+		Parameters: openapi3.Parameters{
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "path",
+					Name:     "param1",
+					Required: true,
+					Example:  "p1_from_op",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:      "query",
+					Name:    "param2",
+					Example: "p2_from_op",
+				},
+			},
+		},
+	}
+
+	oasPathItem := &openapi3.PathItem{
+		Get: &oasOperation,
+	}
+
+	OAS.Paths = openapi3.Paths{}
+	OAS.Paths[path] = oasPathItem
+
+	params := api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeOperation(method, &oasOperation, path, oasPathItem, &params)
+
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	assert.Nil(T, actual)
+}
+
+func TestMakeOperation_Malformed_Query(T *testing.T) {
+	method := "GET"
+	opID := "testOp"
+	path := "/foo"
+	expectedErr := errors.OperationMalformed(opID, "Could not create operation query.", nil)
+
+	OAS := &openapi3.Swagger{}
+	oasOperation := openapi3.Operation{
+		OperationID: opID,
+		Parameters: openapi3.Parameters{
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "query",
+					Required: true,
+					Name:     "q1",
+					Example:  "q1_from_op",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "query",
+					Required: true,
+					Name:     "q2",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:      "query",
+					Name:    "q3",
+					Example: "q3_from_op",
+				},
+			},
+		},
+	}
+
+	oasPathItem := &openapi3.PathItem{
+		Get: &oasOperation,
+		Parameters: openapi3.Parameters{
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "query",
+					Required: true,
+					Name:     "q1",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "query",
+					Required: true,
+					Name:     "q3",
+				},
+			},
+
+			&openapi3.ParameterRef{
+				Value: &openapi3.Parameter{
+					In:       "query",
+					Required: true,
+					Name:     "q4",
+				},
+			},
+		},
+	}
+
+	OAS.Paths = openapi3.Paths{}
+	OAS.Paths[path] = oasPathItem
+
+	params := api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeOperation(method, &oasOperation, path, oasPathItem, &params)
+
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	assert.Nil(T, actual)
+}
+
+func TestMakeOperation_Malformed_Security(T *testing.T) {
+	method := "GET"
+	opID := "testOp"
+	path := "/foo"
+	expectedErr := errors.OperationMalformed(opID, "Could not create operation security.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				"sec_1": {
+					Value: &openapi3.SecurityScheme{},
+				},
+			},
+		},
+	}
+
+	oasOperation := openapi3.Operation{
+		OperationID: opID,
+		Security: &openapi3.SecurityRequirements{
+			{
+				"nonexistent_sec": []string{},
+			},
+		},
+	}
+
+	oasPathItem := &openapi3.PathItem{
+		Get: &oasOperation,
+	}
+
+	OAS.Paths = openapi3.Paths{}
+	OAS.Paths[path] = oasPathItem
+
+	params := api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeOperation(method, &oasOperation, path, oasPathItem, &params)
+
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	assert.Nil(T, actual)
+}
+
+func TestMakeOperation_Malformed_Responses(T *testing.T) {
+	method := "GET"
+	opID := "testOp"
+	path := "/foo"
+	expectedErr := errors.OperationMalformed(opID, "Failed to create response bodies.", nil)
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				"sec_99": {
+					Value: &openapi3.SecurityScheme{
+						Type: "apiKey",
+						In:   "query",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"9966\""),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasOperation := openapi3.Operation{
+		OperationID: opID,
+
+		Security: &openapi3.SecurityRequirements{
+			{
+				"sec_99": nil,
+			},
+		},
+
+		Responses: openapi3.Responses{
+			"200": &openapi3.ResponseRef{
+				Value: &openapi3.Response{
+					Content: openapi3.Content{
+						"application/json": &openapi3.MediaType{
+							Schema: &openapi3.SchemaRef{
+								Value: &openapi3.Schema{
+									Type:    "object",
+									Example: make(chan int),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasPathItem := &openapi3.PathItem{
+		Get: &oasOperation,
+	}
+
+	OAS.Paths = openapi3.Paths{}
+	OAS.Paths[path] = oasPathItem
+
+	params := api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeOperation(method, &oasOperation, path, oasPathItem, &params)
+
+	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	assert.Nil(T, actual)
+}
+
+func TestMakeOperation(T *testing.T) {
+	logger := log.NewFestive(0)
+
+	method := "GET"
+	opID := "testOp"
+	path := "/foo"
+	opName := "Test op"
+	opDesc := "Test op"
+	expected := &api.Operation{
+		OperationDesc: api.OperationDesc{
+			ID:          opID,
+			Name:        opName,
+			Description: opDesc,
+		},
+		Method: method,
+		Path:   path,
+		Security: APIKey.Query{
+			Security: APIKey.Security{
+				Name:      "sec_99",
+				Log:       logger,
+				ParamName: "thekey",
+				Value:     "9966",
+			},
+		},
+		Requests: []*api.Request{
+			{
+				Method:  method,
+				Path:    path,
+				Query:   &url.Values{},
+				Headers: http.Header{},
+				//TODO: body
+			},
+		},
+		Responses: []*api.Response{
+			{
+				Description: "test JSON response",
+				ContentType: "application/json",
+				StatusCode:  200,
+				Schema: &api.Schema{
+					Name: "Response",
+					JSONSchema: api.JSONSchema{
+						"components": map[string]interface{}{
+							"securitySchemes": map[string]interface{}{
+								"sec_99": map[string]interface{}{
+									"type":      "apiKey",
+									"in":        "query",
+									"name":      "thekey",
+									"x-example": "9966",
+								},
+							},
+						},
+						"type":    "integer",
+						"example": "9988",
+					},
+				},
+				Headers: api.Headers{},
+			},
+		},
+	}
+
+	OAS := &openapi3.Swagger{
+		Components: openapi3.Components{
+			SecuritySchemes: map[string]*openapi3.SecuritySchemeRef{
+				"sec_99": {
+					Value: &openapi3.SecurityScheme{
+						Type: "apiKey",
+						In:   "query",
+						Name: "thekey",
+						ExtensionProps: openapi3.ExtensionProps{
+							Extensions: map[string]interface{}{
+								"x-example": json.RawMessage("\"9966\""),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasOperation := openapi3.Operation{
+		OperationID: opID,
+		Summary:     opName,
+		Description: opDesc,
+
+		Security: &openapi3.SecurityRequirements{
+			{
+				"sec_99": nil,
+			},
+		},
+
+		Responses: openapi3.Responses{
+			"200": &openapi3.ResponseRef{
+				Value: &openapi3.Response{
+					Description: "test JSON response",
+					Content: openapi3.Content{
+						"application/json": &openapi3.MediaType{
+							Schema: &openapi3.SchemaRef{
+								Value: &openapi3.Schema{
+									Type:    "integer",
+									Example: "9988",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	oasPathItem := &openapi3.PathItem{
+		Get: &oasOperation,
+	}
+
+	OAS.Paths = openapi3.Paths{}
+	OAS.Paths[path] = oasPathItem
+
+	params := api.OperationParameters{}
+
+	spec := Spec{
+		Log: log.NewFestive(0),
+		OAS: OAS,
+	}
+
+	actual, actualErr := spec.MakeOperation(method, &oasOperation, path, oasPathItem, &params)
+
+	assert.Equal(T, expected, actual)
+	assert.Nil(T, actualErr)
+}
