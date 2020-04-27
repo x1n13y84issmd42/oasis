@@ -5,7 +5,6 @@ import (
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/log"
-	// "github.com/x1n13y84issmd42/oasis/src/test/security"
 )
 
 // Operation performs a test of an operation by requesting a path
@@ -22,13 +21,16 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 
 	specReq := SelectRequest(specOp, params)
 	specResp := SelectResponse(specOp, params)
+	//TODO: check if these != nil
 
 	req := specReq.CreateRequest(specHost)
 
+	// Adding auth credentials.
 	if specOp.Security != nil {
 		specOp.Security.Secure(req)
 	}
 
+	// Requesting.
 	logger.Requesting(req.Method, req.URL.String())
 	response, err := client.Do(req)
 
@@ -37,8 +39,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 		return false
 	}
 
-	// fmt.Printf("Op response: %#v\n", response)
-
+	// Actual testing starts here.
 	res := Response(response, specResp, logger)
 
 	if res {
@@ -50,7 +51,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 	return res
 }
 
-// SelectRequest ...
+// SelectRequest selects a request data to use based on the params.Request.ContentTypeHint value.
 func SelectRequest(specOp *api.Operation, params *api.OperationParameters) *api.Request {
 	filterCT := func(specReq *api.Request) bool { return true }
 
@@ -69,7 +70,7 @@ func SelectRequest(specOp *api.Operation, params *api.OperationParameters) *api.
 	return nil
 }
 
-// SelectResponse ...
+// SelectResponse selects response data to use based on the params.Response data.
 func SelectResponse(specOp *api.Operation, params *api.OperationParameters) *api.Response {
 	filterCT := func(specResp *api.Response) bool { return true }
 	filterStatus := func(specResp *api.Response) bool { return true }
@@ -94,101 +95,3 @@ func SelectResponse(specOp *api.Operation, params *api.OperationParameters) *api
 
 	return nil
 }
-
-/* func (test Operation) pickExample(examples spec.ExampleList) ([]byte, string) {
-	for specReqExampleName, specReqExample := range examples {
-		jsonReqExample, jsonReqExampleErr := json.Marshal(specReqExample)
-
-		if jsonReqExampleErr == nil {
-			fmt.Printf("\tThe example \"%s\" value: '%s'\n", specReqExampleName, jsonReqExample)
-			return jsonReqExample, specReqExampleName
-		}
-
-		fmt.Printf("\tThe example \"%s\" has errors: %s\n", specReqExampleName, jsonReqExampleErr.Error())
-	}
-
-	return nil, ""
-} */
-
-/* // createRequest creates a Request instance and configures it with
-// needed headers, params & a request body.
-func (test Operation) createRequest(CT string) *http.Request {
-	URL := test.createURL()
-
-	predRequestCT := func(specCT string) bool {
-		return specCT == CT
-	}
-
-	if CT == "*" {
-		predRequestCT = func(specCT string) bool { return true }
-	}
-
-	// Choosing a request body.
-	var reqBody *bytes.Buffer = nil
-
-	for _, specReq := range *test.Operation.Requests {
-		if predRequestCT(specReq.ContentType) {
-			// Trying to find example data in the request first.
-			specReqExample, specReqExampleName := test.pickExample(specReq.Examples)
-			if specReqExample != nil {
-				fmt.Printf("\tUsing the \"%s\" example (from operation) as request data.\n", specReqExampleName)
-				reqBody = bytes.NewBuffer(specReqExample)
-			} else if specReq.Schema != nil {
-				// Then in the request body schema, if present.
-				specReqExample, specReqExampleName := test.pickExample(specReq.Schema.Examples)
-				if specReqExample != nil {
-					fmt.Printf("\tUsing the \"%s\" example (from schema) as request data.\n", specReqExampleName)
-					reqBody = bytes.NewBuffer(specReqExample)
-				}
-			}
-
-			if reqBody != nil {
-				break
-			}
-		}
-	}
-
-	var req *http.Request
-
-	if reqBody != nil {
-		req, _ = http.NewRequest(test.Operation.Method, URL, reqBody)
-	} else {
-		//TODO: check the op method name to see if body is necessary?..
-		fmt.Printf("\tNo request body is available.\n")
-		req, _ = http.NewRequest(test.Operation.Method, URL, nil)
-	}
-
-	req.Header.Add("Content-Type", CT)
-
-	test.addQueryParameters(req)
-	test.addHeaders(req)
-
-	return req
-} */
-
-/* // getResponse finds a response spec object to validate an actual response against.
-func (test Operation) getResponse(status int, CT string) *api.Response {
-	filterCT := func(apiResp spec.Response) bool {
-		return apiResp.ContentType == CT
-	}
-
-	filterStatus := func(apiResp spec.Response) bool {
-		return apiResp.StatusCode == status
-	}
-
-	if CT == "*" {
-		filterCT = func(spec.Response) bool { return true }
-	}
-
-	if status == 0 {
-		filterStatus = func(spec.Response) bool { return true }
-	}
-
-	for _, resp := range *test.Operation.Responses {
-		if filterStatus(resp) && filterCT(resp) {
-			return &resp
-		}
-	}
-
-	return nil
-} */

@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -46,7 +45,7 @@ func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) b
 				contentOK = JSONResponse(resp, specResp, logger)
 
 			default:
-				fmt.Printf("The Content-Type of '%s' is not supported.\n", specResp.ContentType)
+				logger.NOMESSAGE("The Content-Type of '%s' is not supported.\n", specResp.ContentType)
 			}
 		}
 	}
