@@ -66,7 +66,7 @@
 				
 				<option value="file5">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
-				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (0.0%)</option>
+				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (69.2%)</option>
 				
 				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (0.0%)</option>
 				
@@ -1199,24 +1199,24 @@ import (
 // Header tests HTTP response headers.
 // If the header API spec says the header is required, it must present in the response with any value.
 // If the header API spec has a schema for the header, the response header value must conform to it.
-func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []string, logger log.ILogger) bool <span class="cov0" title="0">{
+func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []string, logger log.ILogger) bool <span class="cov8" title="1">{
         OK := true
         requiredOK := true
 
         // Testing the 'required'.
         // It is considered valid if respHeaderValues is not empty.
-        if specHeader.Required </span><span class="cov0" title="0">{
+        if specHeader.Required </span><span class="cov8" title="1">{
                 requiredOK = (len(respHeaderValues) &gt; 0)
 
-                if !requiredOK </span><span class="cov0" title="0">{
+                if !requiredOK </span><span class="cov8" title="1">{
                         logger.HeaderHasNoValue(specHeader)
                 }</span>
 
-                <span class="cov0" title="0">OK = OK &amp;&amp; requiredOK</span>
+                <span class="cov8" title="1">OK = OK &amp;&amp; requiredOK</span>
         }
 
         // Testing the schema.
-        <span class="cov0" title="0">if requiredOK &amp;&amp; specHeader.Schema != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if requiredOK &amp;&amp; specHeader.Schema != nil </span><span class="cov0" title="0">{
                 schemaOK := true
                 for _, respHeader := range respHeaderValues </span><span class="cov0" title="0">{
                         schemaOK = Schema(specHeader.Schema.Cast(respHeader), specHeader.Schema, logger) &amp;&amp; schemaOK
@@ -1225,7 +1225,7 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
                 <span class="cov0" title="0">OK = OK &amp;&amp; schemaOK</span>
         }
 
-        <span class="cov0" title="0">return OK</span>
+        <span class="cov8" title="1">return OK</span>
 }
 </pre>
 		
@@ -1358,10 +1358,12 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
 
         req := specReq.CreateRequest(specHost)
 
+        // Adding auth credentials.
         if specOp.Security != nil </span><span class="cov0" title="0">{
                 specOp.Security.Secure(req)
         }</span>
 
+        // Requesting.
         <span class="cov0" title="0">logger.Requesting(req.Method, req.URL.String())
         response, err := client.Do(req)
 
@@ -1370,8 +1372,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
                 return false
         }</span>
 
-        // fmt.Printf("Op response: %#v\n", response)
-
+        // Actual testing starts here.
         <span class="cov0" title="0">res := Response(response, specResp, logger)
 
         if res </span><span class="cov0" title="0">{
@@ -1383,7 +1384,7 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
         <span class="cov0" title="0">return res</span>
 }
 
-// SelectRequest ...
+// SelectRequest selects a request data to use based on the params.Request.ContentTypeHint value.
 func SelectRequest(specOp *api.Operation, params *api.OperationParameters) *api.Request <span class="cov8" title="1">{
         filterCT := func(specReq *api.Request) bool </span><span class="cov8" title="1">{ return true }</span>
 
@@ -1402,7 +1403,7 @@ func SelectRequest(specOp *api.Operation, params *api.OperationParameters) *api.
         <span class="cov8" title="1">return nil</span>
 }
 
-// SelectResponse ...
+// SelectResponse selects response data to use based on the params.Response data.
 func SelectResponse(specOp *api.Operation, params *api.OperationParameters) *api.Response <span class="cov8" title="1">{
         filterCT := func(specResp *api.Response) bool </span><span class="cov8" title="1">{ return true }</span>
         <span class="cov8" title="1">filterStatus := func(specResp *api.Response) bool </span><span class="cov8" title="1">{ return true }</span>
@@ -1502,6 +1503,7 @@ func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool <span
 
         result, err := gojsonschema.Validate(schemaLoader, dataLoader)
         if err != nil </span><span class="cov0" title="0">{
+                //TODO: return an error? Or just log it?
                 panic(err.Error())</span>
         }
 

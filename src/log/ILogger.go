@@ -7,7 +7,7 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// ILogger - interface for execution loggers
+// ILogger - interface for test execution loggers.
 type ILogger interface {
 	NOMESSAGE(msg string, args ...interface{})
 

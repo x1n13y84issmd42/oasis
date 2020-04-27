@@ -39,7 +39,6 @@ func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) b
 
 	if httpOK {
 		if specResp.ContentType != "" {
-			//TODO: test contents with content-specific tests.
 			switch specResp.ContentType {
 			case "application/json":
 				contentOK = JSONResponse(resp, specResp, logger)

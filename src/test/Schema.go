@@ -15,6 +15,7 @@ func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool {
 
 	result, err := gojsonschema.Validate(schemaLoader, dataLoader)
 	if err != nil {
+		//TODO: return an error? Or just log it?
 		panic(err.Error())
 	}
 
