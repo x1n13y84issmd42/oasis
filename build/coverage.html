@@ -66,15 +66,15 @@
 				
 				<option value="file5">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
-				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (69.2%)</option>
+				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (100.0%)</option>
 				
-				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (0.0%)</option>
+				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (75.7%)</option>
 				
 				<option value="file8">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (56.1%)</option>
 				
-				<option value="file9">github.com/x1n13y84issmd42/oasis/src/test/Response.go (0.0%)</option>
+				<option value="file9">github.com/x1n13y84issmd42/oasis/src/test/Response.go (94.7%)</option>
 				
-				<option value="file10">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (0.0%)</option>
+				<option value="file10">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (90.9%)</option>
 				
 				</select>
 			</div>
@@ -1216,13 +1216,13 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
         }
 
         // Testing the schema.
-        <span class="cov8" title="1">if requiredOK &amp;&amp; specHeader.Schema != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if requiredOK &amp;&amp; specHeader.Schema != nil </span><span class="cov8" title="1">{
                 schemaOK := true
-                for _, respHeader := range respHeaderValues </span><span class="cov0" title="0">{
+                for _, respHeader := range respHeaderValues </span><span class="cov8" title="1">{
                         schemaOK = Schema(specHeader.Schema.Cast(respHeader), specHeader.Schema, logger) &amp;&amp; schemaOK
                 }</span>
 
-                <span class="cov0" title="0">OK = OK &amp;&amp; schemaOK</span>
+                <span class="cov8" title="1">OK = OK &amp;&amp; schemaOK</span>
         }
 
         <span class="cov8" title="1">return OK</span>
@@ -1242,8 +1242,12 @@ import (
 )
 
 // JSONResponse test response bodies.
-func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov0" title="0">{
-        respData, _ := ioutil.ReadAll(resp.Body)
+func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov8" title="1">{
+        if resp.Body == nil </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        <span class="cov8" title="1">respData, _ := ioutil.ReadAll(resp.Body)
         // fmt.Println("JSONResponseString body: ", string(respData))
         // fmt.Println("JSONResponseString status: ", resp.StatusCode)
 
@@ -1253,25 +1257,27 @@ func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := tryJSONArrayResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := tryJSONArrayResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := tryJSONStringResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := tryJSONStringResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := tryJSONNumberResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := tryJSONNumberResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := tryJSONBooleanResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := tryJSONBooleanResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov0" title="0">fmt.Printf("JSONResponse Error: %s", err.Error())
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                fmt.Printf("JSONResponse Error: %s", err.Error())
+        }</span>
 
-        return false</span>
+        <span class="cov8" title="1">return false</span>
 }
 
 type (
@@ -1283,29 +1289,29 @@ type (
 )
 
 // tryJSONStringResponse tryes to unmarshal respData as a string.
-func tryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) <span class="cov0" title="0">{
+func tryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // tryJSONNumberResponse tryes to unmarshal respData as a string.
-func tryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) <span class="cov0" title="0">{
+func tryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // tryJSONBooleanResponse tryes to unmarshal respData as a string.
-func tryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) <span class="cov0" title="0">{
+func tryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // tryJSONObjectResponse tryes to unmarshal respData as a string.
-func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) <span class="cov0" title="0">{
+func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) <span class="cov8" title="1">{
         v := make(JSONMap)
         err = json.Unmarshal(*respData, &amp;v)
 
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 res = &amp;v
                 return nil, err
         }</span>
@@ -1316,11 +1322,11 @@ func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.
 }
 
 // tryJSONArrayResponse tryes to unmarshal respData as a string.
-func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) <span class="cov0" title="0">{
+func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) <span class="cov8" title="1">{
         var v JSONArray
         err = json.Unmarshal(*respData, &amp;v)
 
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 res = &amp;v
                 return nil, err
         }</span>
@@ -1441,39 +1447,38 @@ import (
 )
 
 // HTTPResponse test checks basic response properties - status code and headers.
-func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov0" title="0">{
+func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov8" title="1">{
         statusOK := specResp.StatusCode == uint64(resp.StatusCode)
 
-        //FIXME: this is to get rid of the "; charset=utf-8" part.
+        // This is to get rid of the possible "; charset=utf-8" part.
         respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
         CTOK := (specResp.ContentType == "") || (specResp.ContentType == respCT)
 
         headersOK := true
-        for specHeaderName, specHeaderValues := range specResp.Headers </span><span class="cov0" title="0">{
+        for specHeaderName, specHeaderValues := range specResp.Headers </span><span class="cov8" title="1">{
                 headersOK = Header(specHeaderName, specHeaderValues, resp.Header.Values(specHeaderName), logger) &amp;&amp; headersOK
         }</span>
 
-        <span class="cov0" title="0">if !statusOK </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !statusOK </span><span class="cov8" title="1">{
                 logger.ResponseHasWrongStatus(specResp, resp.StatusCode)
         }</span>
 
-        <span class="cov0" title="0">if !CTOK </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !CTOK </span><span class="cov8" title="1">{
                 logger.ResponseHasWrongContentType(specResp, resp.Header.Get("Content-Type"))
         }</span>
 
-        <span class="cov0" title="0">return statusOK &amp;&amp; CTOK &amp;&amp; headersOK</span>
+        <span class="cov8" title="1">return statusOK &amp;&amp; CTOK &amp;&amp; headersOK</span>
 }
 
 // Response test response bodies.
-func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov0" title="0">{
+func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov8" title="1">{
         httpOK := HTTPResponse(resp, specResp, logger)
         contentOK := true
 
-        if httpOK </span><span class="cov0" title="0">{
-                if specResp.ContentType != "" </span><span class="cov0" title="0">{
-                        //TODO: test contents with content-specific tests.
+        if httpOK </span><span class="cov8" title="1">{
+                if specResp.ContentType != "" </span><span class="cov8" title="1">{
                         switch specResp.ContentType </span>{
-                        case "application/json":<span class="cov0" title="0">
+                        case "application/json":<span class="cov8" title="1">
                                 contentOK = JSONResponse(resp, specResp, logger)</span>
 
                         default:<span class="cov0" title="0">
@@ -1482,7 +1487,7 @@ func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) b
                 }
         }
 
-        <span class="cov0" title="0">return httpOK &amp;&amp; contentOK</span>
+        <span class="cov8" title="1">return httpOK &amp;&amp; contentOK</span>
 }
 </pre>
 		
@@ -1495,7 +1500,7 @@ import (
 )
 
 // Schema validates data against the provided schema.
-func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool <span class="cov0" title="0">{
+func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool <span class="cov8" title="1">{
         logger.SchemaTesting(schema, data)
 
         schemaLoader := gojsonschema.NewGoLoader(schema.JSONSchema)
@@ -1507,12 +1512,12 @@ func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool <span
                 panic(err.Error())</span>
         }
 
-        <span class="cov0" title="0">if result.Valid() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if result.Valid() </span><span class="cov8" title="1">{
                 logger.SchemaOK(schema)
                 return true
         }</span>
 
-        <span class="cov0" title="0">logger.SchemaFail(schema, result.Errors())
+        <span class="cov8" title="1">logger.SchemaFail(schema, result.Errors())
 
         return false</span>
 }

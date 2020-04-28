@@ -12,6 +12,10 @@ import (
 
 // JSONResponse test response bodies.
 func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+	if resp.Body == nil {
+		return false
+	}
+
 	respData, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println("JSONResponseString body: ", string(respData))
 	// fmt.Println("JSONResponseString status: ", resp.StatusCode)
@@ -38,7 +42,9 @@ func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
 		return Schema(res, specResp.Schema, logger)
 	}
 
-	fmt.Printf("JSONResponse Error: %s", err.Error())
+	if err != nil {
+		fmt.Printf("JSONResponse Error: %s", err.Error())
+	}
 
 	return false
 }
