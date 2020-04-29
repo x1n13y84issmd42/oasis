@@ -68,7 +68,7 @@
 				
 				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (100.0%)</option>
 				
-				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (75.7%)</option>
+				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (97.3%)</option>
 				
 				<option value="file8">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (56.1%)</option>
 				
@@ -1233,7 +1233,6 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
 
 import (
         "encoding/json"
-        "fmt"
         "io/ioutil"
         "net/http"
 
@@ -1241,40 +1240,38 @@ import (
         "github.com/x1n13y84issmd42/oasis/src/log"
 )
 
-// JSONResponse test response bodies.
+// JSONResponse tests JSON response bodies.
 func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool <span class="cov8" title="1">{
         if resp.Body == nil </span><span class="cov8" title="1">{
                 return false
         }</span>
 
         <span class="cov8" title="1">respData, _ := ioutil.ReadAll(resp.Body)
-        // fmt.Println("JSONResponseString body: ", string(respData))
-        // fmt.Println("JSONResponseString status: ", resp.StatusCode)
 
         var err error = nil
 
-        if res, err := tryJSONObjectResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        if res, err := TryJSONObjectResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov8" title="1">if res, err := tryJSONArrayResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := TryJSONArrayResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov8" title="1">if res, err := tryJSONStringResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := TryJSONStringResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov8" title="1">if res, err := tryJSONNumberResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if res, err := TryJSONNumberResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
-        <span class="cov8" title="1">if res, err := tryJSONBooleanResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if res, err := TryJSONBooleanResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov8" title="1">{
                 return Schema(res, specResp.Schema, logger)
         }</span>
 
         <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
-                fmt.Printf("JSONResponse Error: %s", err.Error())
+                logger.Error(err)
         }</span>
 
         <span class="cov8" title="1">return false</span>
@@ -1288,26 +1285,26 @@ type (
         JSONArray = []interface{}
 )
 
-// tryJSONStringResponse tryes to unmarshal respData as a string.
-func tryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) <span class="cov8" title="1">{
+// TryJSONStringResponse tries to unmarshal respData as a string.
+func TryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
-// tryJSONNumberResponse tryes to unmarshal respData as a string.
-func tryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) <span class="cov8" title="1">{
+// TryJSONNumberResponse tries to unmarshal respData as a number.
+func TryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
-// tryJSONBooleanResponse tryes to unmarshal respData as a string.
-func tryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) <span class="cov8" title="1">{
+// TryJSONBooleanResponse tries to unmarshal respData as a boolean.
+func TryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
-// tryJSONObjectResponse tryes to unmarshal respData as a string.
-func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) <span class="cov8" title="1">{
+// TryJSONObjectResponse tries to unmarshal respData as an object.
+func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) <span class="cov8" title="1">{
         v := make(JSONMap)
         err = json.Unmarshal(*respData, &amp;v)
 
@@ -1316,13 +1313,13 @@ func tryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">res = &amp;v
+        <span class="cov8" title="1">res = &amp;v
 
         return</span>
 }
 
-// tryJSONArrayResponse tryes to unmarshal respData as a string.
-func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) <span class="cov8" title="1">{
+// TryJSONArrayResponse tries to unmarshal respData as an array.
+func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) <span class="cov8" title="1">{
         var v JSONArray
         err = json.Unmarshal(*respData, &amp;v)
 
@@ -1331,7 +1328,7 @@ func tryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.I
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">res = &amp;v
+        <span class="cov8" title="1">res = &amp;v
 
         return</span>
 }
