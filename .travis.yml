@@ -13,7 +13,7 @@ go:
 
 before_install:
   - go get github.com/gookit/color
-  - go get github.com/gookit/gotest
+  - go get github.com/rakyll/gotest
   - go get github.com/getkin/kin-openapi
   - go get github.com/xeipuuv/gojsonschema
   - go get github.com/stretchr/testify/assert
