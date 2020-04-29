@@ -1,6 +1,6 @@
 language: go
 go:
-  - "1.4.x"
+  - "1.14.x"
 
 before_install:
   - go get github.com/gookit/color
