@@ -74,7 +74,7 @@
 				
 				<option value="file9">github.com/x1n13y84issmd42/oasis/src/test/Response.go (94.7%)</option>
 				
-				<option value="file10">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (90.9%)</option>
+				<option value="file10">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -1507,10 +1507,10 @@ func Schema(data interface{}, schema *api.Schema, logger log.ILogger) bool <span
         dataLoader := gojsonschema.NewGoLoader(data)
 
         result, err := gojsonschema.Validate(schemaLoader, dataLoader)
-        if err != nil </span><span class="cov0" title="0">{
-                //TODO: return an error? Or just log it?
-                panic(err.Error())</span>
-        }
+        if err != nil </span><span class="cov8" title="1">{
+                logger.Error(err)
+                return false
+        }</span>
 
         <span class="cov8" title="1">if result.Valid() </span><span class="cov8" title="1">{
                 logger.SchemaOK(schema)
