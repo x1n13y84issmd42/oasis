@@ -10,5 +10,8 @@ before_install:
   - go get github.com/stretchr/testify/assert
 
 script:
-  - run/citest
+  # - run/citest
+  - gotest ./src/api/openapi3 -v -cover
+  - gotest ./src/test -v -cover
+  - gotest ./src/srx -v -cover
   - go build src/main/*.go
