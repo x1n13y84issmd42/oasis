@@ -10,12 +10,14 @@ go:
   - "1.11.x"
   - "1.12.x"
   - "1.13.x"
+
 before_install:
   - go get github.com/gookit/color
   - go get github.com/gookit/gotest
   - go get github.com/getkin/kin-openapi
   - go get github.com/xeipuuv/gojsonschema
   - go get github.com/stretchr/testify/assert
+
 script:
   - gotest
   - go build src/main/*.go
