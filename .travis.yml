@@ -2,6 +2,10 @@ language: go
 go:
   - "1.14.x"
 
+env:
+  global:
+    - CC_TEST_REPORTER_ID=67fce5d899aed890516d85a67dfd5cda1bd4ed9b37d4c75a9f41b50256425472
+
 before_install:
   - go get github.com/gookit/color
   - go get github.com/rakyll/gotest
@@ -9,9 +13,15 @@ before_install:
   - go get github.com/xeipuuv/gojsonschema
   - go get github.com/stretchr/testify/assert
 
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
 script:
   # - run/citest
-  - gotest ./src/api/openapi3 -v -cover
-  - gotest ./src/test -v -cover
-  - gotest ./src/srx -v -cover
+  - gotest -v -coverprofile c.out ./...
   - go build src/main/*.go
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
