@@ -1,7 +1,7 @@
 # OASIS
 Open API Specification Intelligence Services. Or in a less fancy way, a tool to test APIs which uses OAS/Swagger spec files as a test suite.
 
-[![Build Status](https://travis-ci.org/x1n13y84issmd42/oasis.svg?branch=master)](https://travis-ci.org/x1n13y84issmd42/oasis)
+[![Build Status](https://travis-ci.com/x1n13y84issmd42/oasis.svg?branch=master)](https://travis-ci.com/x1n13y84issmd42/oasis)
 <a href="https://codeclimate.com/github/x1n13y84issmd42/oasis/maintainability"><img src="https://api.codeclimate.com/v1/badges/a6348253063e179ba44f/maintainability" /></a>
 <a href="https://codeclimate.com/github/x1n13y84issmd42/oasis/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a6348253063e179ba44f/test_coverage" /></a>
 
