@@ -70,7 +70,7 @@
 				
 				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (97.3%)</option>
 				
-				<option value="file8">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (56.1%)</option>
+				<option value="file8">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (46.9%)</option>
 				
 				<option value="file9">github.com/x1n13y84issmd42/oasis/src/test/Response.go (94.7%)</option>
 				
@@ -358,7 +358,7 @@ func (spec *Spec) MakeSecurity(
                 oasSecRef := spec.OAS.Components.SecuritySchemes[n]
 
                 if oasSecRef == nil || oasSecRef.Value == nil </span><span class="cov8" title="1">{
-                        return nil, errors.SecurityNotFound(n, "", nil)
+                        return nil, errors.SecurityNotFound(n, "No value.", nil)
                 }</span>
 
                 <span class="cov8" title="1">return oasSecRef.Value, nil</span>
@@ -407,7 +407,8 @@ func (spec *Spec) MakeSecurity(
                 return secHTTP.New(oasSecName, oasSec.Scheme, oasSecurityToken, spec.Log), nil</span>
         }
 
-        <span class="cov8" title="1">return nil, errors.SecurityNotFound(oasSecName, "Security type '"+oasSec.Type+"' is unknown.", nil)</span>
+        <span class="cov8" title="1">return nil, nil</span>
+        // return nil, errors.SecurityNotFound(oasSecName, "Security type '"+oasSec.Type+"' is unknown.", nil)
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.
@@ -1343,10 +1344,38 @@ import (
         "github.com/x1n13y84issmd42/oasis/src/log"
 )
 
+// OperationResult describes the outcome of an operation test.
+// It is bo te used as a possible source of data for subsequent tests.
+type OperationResult struct {
+        Success      bool
+        SpecRequest  *api.Request
+        HTTPRequest  *http.Request
+        SpecResponse *api.Response
+        HTTPResponse *http.Response
+}
+
+// And creates a new OperationResult instance with the Success field assigned
+// the result of r1.Success &amp;&amp; r2.Success.
+func (r1 *OperationResult) And(r2 *OperationResult) *OperationResult <span class="cov0" title="0">{
+        return &amp;OperationResult{
+                Success: r1.Success &amp;&amp; r2.Success,
+        }
+}</span>
+
+// Success creates a new OperationResult instance with
+// the Success field set to true to assure maximum SUCCESS.
+func Success() *OperationResult <span class="cov0" title="0">{
+        return &amp;OperationResult{
+                Success: true,
+        }
+}</span>
+
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers &amp; content against
 // the definitions founds in an OAS spec file.
-func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationParameters, logger log.ILogger) bool <span class="cov0" title="0">{
+func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationParameters, logger log.ILogger) (result *OperationResult) <span class="cov0" title="0">{
+        result = &amp;OperationResult{}
+
         logger.TestingOperation(specOp)
         // Creating a request.
         client := http.Client{
@@ -1359,7 +1388,11 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
         specResp := SelectResponse(specOp, params)
         //TODO: check if these != nil
 
+        result.SpecRequest = specReq
+        result.SpecResponse = specResp
+
         req := specReq.CreateRequest(specHost)
+        result.HTTPRequest = req
 
         // Adding auth credentials.
         if specOp.Security != nil </span><span class="cov0" title="0">{
@@ -1369,22 +1402,24 @@ func Operation(specHost *api.Host, specOp *api.Operation, params *api.OperationP
         // Requesting.
         <span class="cov0" title="0">logger.Requesting(req.Method, req.URL.String())
         response, err := client.Do(req)
+        result.HTTPResponse = response
 
         if err != nil </span><span class="cov0" title="0">{
                 logger.Error(err)
-                return false
+                result.Success = false
+                return
         }</span>
 
         // Actual testing starts here.
-        <span class="cov0" title="0">res := Response(response, specResp, logger)
+        <span class="cov0" title="0">result.Success = Response(response, specResp, logger)
 
-        if res </span><span class="cov0" title="0">{
+        if result.Success </span><span class="cov0" title="0">{
                 logger.OperationOK(specOp)
         }</span> else<span class="cov0" title="0"> {
                 logger.OperationFail(specOp)
         }</span>
 
-        <span class="cov0" title="0">return res</span>
+        <span class="cov0" title="0">return</span>
 }
 
 // SelectRequest selects a request data to use based on the params.Request.ContentTypeHint value.

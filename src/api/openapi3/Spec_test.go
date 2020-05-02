@@ -896,7 +896,7 @@ func TestMakeSecurity_Err_NotFound_unnamed(T *testing.T) {
 
 func TestMakeSecurity_Err_NotFound(T *testing.T) {
 	secName := "nonexistent_sec"
-	expectedErr := errors.SecurityNotFound(secName, "", nil)
+	expectedErr := errors.SecurityNotFound(secName, "No value.", nil)
 
 	OAS := &openapi3.Swagger{
 		Components: openapi3.Components{
@@ -929,7 +929,6 @@ func TestMakeSecurity_Err_NotFound(T *testing.T) {
 func TestMakeSecurity_Err_NotFound_unknown(T *testing.T) {
 	secName := "sec_1"
 	secType := "weirdsec"
-	expectedErr := errors.SecurityNotFound(secName, "Security type '"+secType+"' is unknown.", nil)
 
 	OAS := &openapi3.Swagger{
 		Components: openapi3.Components{
@@ -958,7 +957,7 @@ func TestMakeSecurity_Err_NotFound_unknown(T *testing.T) {
 
 	actual, actualErr := spec.MakeSecurity(oasSecReqs, params)
 	assert.Nil(T, actual)
-	assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	assert.Nil(T, actualErr)
 }
 
 func TestMakeSecurity_Err_JSON(T *testing.T) {

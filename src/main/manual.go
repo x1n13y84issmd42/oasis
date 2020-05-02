@@ -38,12 +38,12 @@ func Manual(args *env.Args, logger log.ILogger) {
 			return
 		}
 
-		testResult := true
+		result := test.Success()
 		printOps := false
 		for _, inOp := range args.Ops {
 			specOp, specOpErr := spec.GetOperation(inOp, params)
 			if specOpErr == nil {
-				testResult = test.Operation(specHost, specOp, params, logger) && testResult
+				result = result.And(test.Operation(specHost, specOp, params, logger))
 			} else {
 				logger.Error(specOpErr)
 				printOps = true
@@ -54,7 +54,7 @@ func Manual(args *env.Args, logger log.ILogger) {
 			// logger.PrintOperations(spec.GetOperations(params))
 		}
 
-		if !testResult {
+		if !result.Success {
 			os.Exit(255)
 		}
 	} else {

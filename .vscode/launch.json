@@ -36,11 +36,14 @@
 				"from",
 				"../../spec/petstore.yaml",
 				"test",
-				"getPetById",
+				"findPetsByStatus",
 				"log",
 				"at",
 				"level",
-				"4"
+				"4",
+				"use",
+				"query",
+				"status=pending",
 			]
 		},
 

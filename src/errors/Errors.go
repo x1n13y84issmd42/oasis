@@ -166,7 +166,7 @@ type ErrSecurityNotFound struct {
 }
 
 func (err ErrSecurityNotFound) Error() string {
-	return "Security definition '" + err.Name + "' not found in the spec."
+	return "Security definition '" + err.Name + "' not found in the spec. " + err.Details
 }
 
 // SecurityNotFound creates a new ErrSecurityNotFound error instance.

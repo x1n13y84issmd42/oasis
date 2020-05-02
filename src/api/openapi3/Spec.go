@@ -192,7 +192,7 @@ func (spec *Spec) MakeSecurity(
 		oasSecRef := spec.OAS.Components.SecuritySchemes[n]
 
 		if oasSecRef == nil || oasSecRef.Value == nil {
-			return nil, errors.SecurityNotFound(n, "", nil)
+			return nil, errors.SecurityNotFound(n, "No value.", nil)
 		}
 
 		return oasSecRef.Value, nil
@@ -241,7 +241,7 @@ func (spec *Spec) MakeSecurity(
 		return secHTTP.New(oasSecName, oasSec.Scheme, oasSecurityToken, spec.Log), nil
 	}
 
-	return nil, errors.SecurityNotFound(oasSecName, "Security type '"+oasSec.Type+"' is unknown.", nil)
+	return nil, nil
 }
 
 // MakeRequest creates an api.Request instance from available operation spec data.
