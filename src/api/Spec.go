@@ -11,6 +11,7 @@ type Spec interface {
 	GetProjectInfo() *ProjectInfo
 	GetHost(name string) (*Host, error)
 	GetDefaultHost() (*Host, error)
+	ListOperations() *[]string
 	GetOperations(params *OperationParameters) []*Operation
 	GetOperation(name string, params *OperationParameters) (*Operation, error)
 }

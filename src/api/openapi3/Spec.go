@@ -2,7 +2,6 @@ package openapi3
 
 import (
 	"encoding/json"
-	goerrors "errors"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -58,6 +57,8 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 			specOp, specOpErr := spec.MakeOperation(method, oasOp, oasPath, oasPathItem, params)
 			if specOpErr == nil {
 				ops = append(ops, specOp)
+			} else {
+				spec.Log.Error(specOpErr)
 			}
 		}
 	}
@@ -75,6 +76,35 @@ func (spec *Spec) GetOperations(params *api.OperationParameters) []*api.Operatio
 	}
 
 	return ops
+}
+
+// ListOperations returns a list of all available test operation names from the spec.
+func (spec *Spec) ListOperations() *[]string {
+	ops := []string{}
+
+	addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) {
+		if oasOp != nil {
+			if oasOp.OperationID != "" {
+				ops = append(ops, oasOp.OperationID)
+			} else if oasOp.Summary != "" {
+				ops = append(ops, oasOp.Summary)
+			}
+		}
+	}
+
+	for oasPath, oasPathItem := range spec.OAS.Paths {
+		addOp(oasPathItem.Get, "GET", oasPath, oasPathItem)
+		addOp(oasPathItem.Post, "POST", oasPath, oasPathItem)
+		addOp(oasPathItem.Put, "PUT", oasPath, oasPathItem)
+		addOp(oasPathItem.Delete, "DELETE", oasPath, oasPathItem)
+		addOp(oasPathItem.Patch, "PATCH", oasPath, oasPathItem)
+		addOp(oasPathItem.Head, "HEAD", oasPath, oasPathItem)
+		addOp(oasPathItem.Options, "OPTIONS", oasPath, oasPathItem)
+		addOp(oasPathItem.Trace, "TRACE", oasPath, oasPathItem)
+		addOp(oasPathItem.Connect, "CONNECT", oasPath, oasPathItem)
+	}
+
+	return &ops
 }
 
 // GetOperation returns a list of all available test operations from the spec.
@@ -183,6 +213,10 @@ func (spec *Spec) MakeSecurity(
 	oasSecReqs *openapi3.SecurityRequirements,
 	params *api.OperationParameters,
 ) (api.ISecurity, error) {
+
+	if oasSecReqs == nil {
+		return nil, nil
+	}
 
 	var oasSec *openapi3.SecurityScheme
 	var oasSecErr error
@@ -457,7 +491,7 @@ func (spec *Spec) CreatePath(
 	if len(lops) > 0 {
 		return path, errors.NoParameters(strings.Map(lops, func(lop string) string {
 			return lop[1 : len(lop)-1]
-		}), goerrors.New("XYNTA"))
+		}), nil)
 	}
 
 	return path, pex.Error()

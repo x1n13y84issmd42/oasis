@@ -52,6 +52,13 @@ func (fn TabFn) Shift() TabFn {
 	}
 }
 
+// Error outputs errors. It accepts both built-in errors as well as errors.IError instances.
+// The latter carry their cause error, if any, and those will be recursively printed.
+func (log Log) Error(err error) {
+	log.XError(err, log.Style, Tab(0))
+	log.Println(1, "")
+}
+
 // XError is an internal error handling function. It handles both
 // built-in errors and errors.IError instances.
 func (log Log) XError(err error, style IStyle, tab TabFn) {
@@ -72,12 +79,6 @@ func (log Log) Usage() {
 	fmt.Println("Please specify at least a spec file & an operation to test.")
 	fmt.Println("Example:")
 	fmt.Println("oasis from path/to/oas_spec.yaml test operation_id")
-}
-
-// Error outputs errors. It accepts both built-in errors as well as errors.IError instances.
-// The latter carry their cause error, if any, and those will be recursively printed.
-func (log Log) Error(err error) {
-	log.XError(err, log.Style, Tab(0))
 }
 
 // LoadingSpec informs about the API specification being used.
