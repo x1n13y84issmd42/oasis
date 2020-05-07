@@ -4,6 +4,7 @@ Open API Specification Intelligence Services. Or in a less fancy way, a tool to 
 [![Build Status](https://travis-ci.com/x1n13y84issmd42/oasis.svg?branch=master)](https://travis-ci.com/x1n13y84issmd42/oasis)
 <a href="https://codeclimate.com/github/x1n13y84issmd42/oasis/maintainability"><img src="https://api.codeclimate.com/v1/badges/a6348253063e179ba44f/maintainability" /></a>
 <a href="https://codeclimate.com/github/x1n13y84issmd42/oasis/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a6348253063e179ba44f/test_coverage" /></a>
+[![Go Report Card](https://goreportcard.com/badge/github.com/x1n13y84issmd42/oasis)](https://goreportcard.com/report/github.com/x1n13y84issmd42/oasis)
 
 Work in progress.
 - [Usage](#usage)
