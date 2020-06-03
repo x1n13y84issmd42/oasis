@@ -165,7 +165,7 @@ func TestJSONResponse_Object_False_Schema(T *testing.T) {
 
 func TestJSONResponse_Object_False_Unmarshal(T *testing.T) {
 	httpResp := &http.Response{
-		Body: ioutil.NopCloser(bytes.NewReader([]byte("ame\":false,\"age\":\"42\"}"))),
+		Body: ioutil.NopCloser(bytes.NewReader([]byte("... INVALID JSON }"))),
 	}
 
 	specResp := &api.Response{
@@ -230,7 +230,7 @@ func TestJSONResponse_Array_False_Schema(T *testing.T) {
 
 func TestJSONResponse_Array_False_Unmarshal(T *testing.T) {
 	httpResp := &http.Response{
-		Body: ioutil.NopCloser(bytes.NewReader([]byte("[1, 2, \"3', "))),
+		Body: ioutil.NopCloser(bytes.NewReader([]byte("[1, 2, \"3', 3RRR0RRR "))),
 	}
 
 	specResp := &api.Response{
