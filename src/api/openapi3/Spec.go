@@ -194,6 +194,15 @@ func (spec *Spec) MakeOperation(
 		}
 	}
 
+	sort.Slice(specResponses, func(a, b int) bool {
+		strc := gostrings.Compare(specResponses[a].ContentType, specResponses[b].ContentType)
+		if strc != 0 {
+			return specResponses[a].StatusCode < specResponses[b].StatusCode
+		}
+
+		return strc < 0
+	})
+
 	return &api.Operation{
 		OperationDesc: api.OperationDesc{
 			ID:          oasOp.OperationID,
@@ -362,10 +371,6 @@ func (spec *Spec) MakeResponses(
 			Headers:     specHeaders,
 		})
 	}
-
-	sort.Slice(specResponses, func(a, b int) bool {
-		return gostrings.Compare(specResponses[a].ContentType, specResponses[b].ContentType) < 0
-	})
 
 	return specResponses, nil
 }
