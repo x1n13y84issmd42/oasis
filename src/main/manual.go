@@ -39,19 +39,16 @@ func Manual(args *env.Args, logger log.ILogger) {
 		}
 
 		result := test.Success()
-		printOps := false
-		for _, inOp := range args.Ops {
-			specOp, specOpErr := spec.GetOperation(inOp, params)
-			if specOpErr == nil {
-				result = result.And(test.Operation(specHost, specOp, params, logger))
-			} else {
-				logger.Error(specOpErr)
-				printOps = true
-			}
-		}
+		resolver := utility.NewOperationResolver(spec, logger)
+		specOps := resolver.Resolve(args.Ops, params)
 
-		if printOps {
-			// logger.PrintOperations(spec.GetOperations(params))
+		if len(specOps) > 0 {
+			for _, specOp := range specOps {
+				result = result.And(test.Operation(specHost, specOp, params, logger))
+			}
+
+		} else {
+			logger.PrintOperations(spec.GetOperations(params))
 		}
 
 		if !result.Success {
