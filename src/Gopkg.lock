@@ -54,6 +54,20 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:97291a89f913ef7acd91e154b9fbe9170dcfefc9061375ac9600b6fee6e083b2"
+  name = "github.com/x1n13y84issmd42/gog"
+  packages = [
+    "graph",
+    "graph/collection",
+    "graph/contract",
+    "graph/iterator",
+    "graph/storage",
+  ]
+  pruneopts = "UT"
+  revision = "6bfaca312801449a58b9c7480df84c626dac0d03"
+
+[[projects]]
+  branch = "master"
   digest = "1:87fe9bca786484cef53d52adeec7d1c52bc2bfbee75734eddeb75fc5c7023871"
   name = "github.com/xeipuuv/gojsonpointer"
   packages = ["."]
@@ -91,6 +105,7 @@
     "github.com/getkin/kin-openapi/openapi3",
     "github.com/gookit/color",
     "github.com/stretchr/testify/assert",
+    "github.com/x1n13y84issmd42/gog/graph",
     "github.com/xeipuuv/gojsonschema",
   ]
   solver-name = "gps-cdcl"
