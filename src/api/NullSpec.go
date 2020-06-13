@@ -4,40 +4,38 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 
 // NullSpec ...
 type NullSpec struct {
+	contract.NullObjectPrototype
+
 	Log   contract.Logger
 	Error error
 }
 
-func (spec NullSpec) report() {
-	spec.Log.Error(spec.Error)
-}
-
 // Operations ...
 func (spec NullSpec) Operations() contract.OperationIterator {
-	spec.report()
+	spec.Report()
 	return nil
 }
 
 // GetOperation ...
 func (spec NullSpec) GetOperation(name string) contract.Operation {
-	spec.report()
+	spec.Report()
 	return nil
 }
 
 // Title return project title.
 func (spec NullSpec) Title() string {
-	spec.report()
+	spec.Report()
 	return ""
 }
 
 // Description return project description.
 func (spec NullSpec) Description() string {
-	spec.report()
+	spec.Report()
 	return ""
 }
 
 // Version return project version.
 func (spec NullSpec) Version() string {
-	spec.report()
+	spec.Report()
 	return ""
 }
