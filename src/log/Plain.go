@@ -2,13 +2,15 @@ package log
 
 import (
 	"fmt"
+
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // Plain - a plain & simple test execution logger style.
 type Plain struct{}
 
 // NewPlain creates a new Plain logger style instance.
-func NewPlain(level int64) ILogger {
+func NewPlain(level int64) contract.Logger {
 	return Log{
 		Level: level,
 		Style: Plain{},

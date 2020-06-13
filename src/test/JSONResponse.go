@@ -6,11 +6,11 @@ import (
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // JSONResponse tests JSON response bodies.
-func JSONResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+func JSONResponse(resp *http.Response, specResp *api.Response, logger contract.Logger) bool {
 	if resp.Body == nil {
 		return false
 	}
@@ -55,25 +55,25 @@ type (
 )
 
 // TryJSONStringResponse tries to unmarshal respData as a string.
-func TryJSONStringResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res string, err error) {
+func TryJSONStringResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res string, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONNumberResponse tries to unmarshal respData as a number.
-func TryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res int64, err error) {
+func TryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res int64, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONBooleanResponse tries to unmarshal respData as a boolean.
-func TryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res bool, err error) {
+func TryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res bool, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONObjectResponse tries to unmarshal respData as an object.
-func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONMap, err error) {
+func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONMap, err error) {
 	v := make(JSONMap)
 	err = json.Unmarshal(*respData, &v)
 
@@ -88,7 +88,7 @@ func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger log.
 }
 
 // TryJSONArrayResponse tries to unmarshal respData as an array.
-func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger log.ILogger) (res *JSONArray, err error) {
+func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONArray, err error) {
 	var v JSONArray
 	err = json.Unmarshal(*respData, &v)
 

@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // Security implements the 'http' security type.
@@ -15,7 +14,7 @@ type Security struct {
 	Token    string
 	Username string
 	Password string
-	Log      log.ILogger
+	Log      contract.Logger
 }
 
 // WWWAuthenticateQoP is a type for the Quality of Protection value.
@@ -37,7 +36,7 @@ type WWWAuthenticate struct {
 }
 
 // New creates a new HTTP security.
-func New(name string, scheme string, value string, logger log.ILogger) api.ISecurity {
+func New(name string, scheme string, value string, logger contract.Logger) contract.Security {
 	switch scheme {
 	case "basic":
 		return Basic{

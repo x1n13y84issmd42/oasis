@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 //TODO: mock logger & test the Operation() function.
@@ -51,24 +52,24 @@ func TestSelectRequest(T *testing.T) {
 
 	cases := []struct {
 		ExReq  *api.Request
-		Params *api.OperationParameters
+		Params *contract.OperationParameters
 	}{
 		{
 			ExReq:  specReq1,
-			Params: &api.OperationParameters{},
+			Params: &contract.OperationParameters{},
 		},
 		{
 			ExReq: specReq2,
-			Params: &api.OperationParameters{
-				Request: api.OperationRequestParameters{
+			Params: &contract.OperationParameters{
+				Request: contract.OperationRequestParameters{
 					ContentTypeHint: "application/xml",
 				},
 			},
 		},
 		{
 			ExReq: nil,
-			Params: &api.OperationParameters{
-				Request: api.OperationRequestParameters{
+			Params: &contract.OperationParameters{
+				Request: contract.OperationRequestParameters{
 					ContentTypeHint: "text/csv",
 				},
 			},
@@ -122,32 +123,32 @@ func TestSelectResponse(T *testing.T) {
 
 	cases := []struct {
 		ExResp *api.Response
-		Params *api.OperationParameters
+		Params *contract.OperationParameters
 	}{
 		{
 			ExResp: specResp1,
-			Params: &api.OperationParameters{},
+			Params: &contract.OperationParameters{},
 		},
 		{
 			ExResp: specResp2,
-			Params: &api.OperationParameters{
-				Response: api.OperationResponseExpectation{
+			Params: &contract.OperationParameters{
+				Response: contract.OperationResponseExpectation{
 					ContentTypeHint: "application/xml",
 				},
 			},
 		},
 		{
 			ExResp: specResp1,
-			Params: &api.OperationParameters{
-				Response: api.OperationResponseExpectation{
+			Params: &contract.OperationParameters{
+				Response: contract.OperationResponseExpectation{
 					ContentTypeHint: "application/json",
 				},
 			},
 		},
 		{
 			ExResp: specResp3,
-			Params: &api.OperationParameters{
-				Response: api.OperationResponseExpectation{
+			Params: &contract.OperationParameters{
+				Response: contract.OperationResponseExpectation{
 					ContentTypeHint: "application/json",
 					StatusHint:      400,
 				},
@@ -155,8 +156,8 @@ func TestSelectResponse(T *testing.T) {
 		},
 		{
 			ExResp: nil,
-			Params: &api.OperationParameters{
-				Response: api.OperationResponseExpectation{
+			Params: &contract.OperationParameters{
+				Response: contract.OperationResponseExpectation{
 					ContentTypeHint: "text/csv",
 				},
 			},

@@ -2,13 +2,13 @@ package test
 
 import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // Header tests HTTP response headers.
 // If the header API spec says the header is required, it must present in the response with any value.
 // If the header API spec has a schema for the header, the response header value must conform to it.
-func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []string, logger log.ILogger) bool {
+func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []string, logger contract.Logger) bool {
 	OK := true
 	requiredOK := true
 
@@ -18,7 +18,7 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
 		requiredOK = (len(respHeaderValues) > 0)
 
 		if !requiredOK {
-			logger.HeaderHasNoValue(specHeader)
+			// logger.HeaderHasNoValue(specHeader)
 		}
 
 		OK = OK && requiredOK

@@ -2,13 +2,14 @@ package log
 
 import (
 	"github.com/gookit/color"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // Festive - a colorized test execution log style.
 type Festive struct{}
 
 // NewFestive creates a new Festive logger style instance.
-func NewFestive(level int64) ILogger {
+func NewFestive(level int64) contract.Logger {
 	return &Log{
 		Level: level,
 		Style: Festive{},

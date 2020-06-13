@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -12,7 +13,24 @@ import (
 // Log is a base type for loggers.
 type Log struct {
 	Level int64
-	Style IStyle
+	Style contract.LogStyle
+}
+
+// New creates a new logger based on the provided log style & level.
+func New(style string, level int64) contract.Logger {
+	switch style {
+	case "plain":
+		return NewPlain(level)
+
+	case "festive":
+		return NewFestive(level)
+	}
+
+	fmt.Printf("The \"%s\" log style is unknown.\nAvailable loggers are:\n", style)
+	fmt.Println("\tplain - a simple text logger")
+	fmt.Println("\tfestive - a nicer colorized logger")
+
+	panic("No way.")
 }
 
 // Print prints.
@@ -34,34 +52,16 @@ func (log Log) NOMESSAGE(msg string, args ...interface{}) {
 	log.Println(1, "\t"+msg, args...)
 }
 
-// TabFn produces indentation when printing nested errors.
-type TabFn func(log Log)
-
-// Tab creates an indentation function.
-func Tab(level uint) TabFn {
-	return func(log Log) {
-		log.Print(1, ""+strings.Repeat("  ", int(level)))
-	}
-}
-
-// Shift produces a new indentation function by adding a level to it.
-func (fn TabFn) Shift() TabFn {
-	return func(log Log) {
-		fn(log)
-		log.Print(1, "  ")
-	}
-}
-
 // Error outputs errors. It accepts both built-in errors as well as errors.IError instances.
 // The latter carry their cause error, if any, and those will be recursively printed.
 func (log Log) Error(err error) {
-	log.XError(err, log.Style, Tab(0))
+	log.XError(err, log.Style, contract.Tab(0))
 	log.Println(1, "")
 }
 
 // XError is an internal error handling function. It handles both
 // built-in errors and errors.IError instances.
-func (log Log) XError(err error, style IStyle, tab TabFn) {
+func (log Log) XError(err error, style contract.LogStyle, tab contract.TabFn) {
 	tab(log)
 	log.Println(1, "%s", style.Error(err.Error()))
 
@@ -87,11 +87,11 @@ func (log Log) LoadingSpec(path string) {
 }
 
 // PrintOperations prints the list of available operations.
-func (log Log) PrintOperations(ops []*api.Operation) {
-	for _, op := range ops {
-		if op.ID != "" {
+func (log Log) PrintOperations(ops contract.OperationIterator) {
+	for op := range ops {
+		if op.ID() != "" {
 			log.Println(1, "\t%s [%s]", log.Style.Op(op.Name), log.Style.Op(op.ID))
-			if op.Description != "" {
+			if op.Description() != "" {
 				log.Println(1, "\t%s", op.Description)
 			}
 		} else {
@@ -103,14 +103,14 @@ func (log Log) PrintOperations(ops []*api.Operation) {
 }
 
 // TestingProject informs about the project being tested.
-func (log Log) TestingProject(pi *api.ProjectInfo) {
+func (log Log) TestingProject(pi contract.ProjectInfo) {
 	log.Println(2, "Testing the %s @ %s", log.Style.Op(pi.Title), log.Style.ID(pi.Version))
 }
 
 // UsingHost informs about the API host being used for testing.
-func (log Log) UsingHost(host *api.Host) {
-	log.Println(2, "Using the %s host @ %s", log.Style.Op(host.Name), log.Style.URL(host.URL))
-}
+// func (log Log) UsingHost(host *api.Host) {
+// 	log.Println(2, "Using the %s host @ %s", log.Style.Op(host.Name), log.Style.URL(host.URL))
+// }
 
 // UsingDefaultHost informs that a default host has been chosen fr testing.
 func (log Log) UsingDefaultHost() {
@@ -127,12 +127,12 @@ func (log Log) HostNotFound(h string) {
 }
 
 // UsingSecurity informs about security mechanisms being used during testing.
-func (log Log) UsingSecurity(sec api.ISecurity) {
+func (log Log) UsingSecurity(sec contract.Security) {
 	log.Println(3, "\tUsing the %s security settings.", log.Style.ID(sec.GetName()))
 }
 
 // SecurityHasNoData informs that the selected security settings has no data to use in requests.
-func (log Log) SecurityHasNoData(sec api.ISecurity) {
+func (log Log) SecurityHasNoData(sec contract.Security) {
 	log.Println(3, "\tThe security %s contains no data to use in request.", log.Style.ID(sec.GetName()))
 }
 
@@ -182,20 +182,20 @@ func (log Log) ResponseHasWrongContentType(resp *api.Response, actualCT string) 
 }
 
 // TestingOperation informs about an operation being tested.
-func (log Log) TestingOperation(op *api.Operation) {
-	log.Print(1, "Testing the %s operation... ", log.Style.Op(op.Name))
+func (log Log) TestingOperation(op contract.Operation) {
+	log.Print(1, "Testing the %s operation... ", log.Style.Op(op.Name()))
 	log.Print(2, "\n")
 }
 
 // OperationOK informs that the operation has finished successfully.
-func (log Log) OperationOK(res *api.Operation) {
+func (log Log) OperationOK(res contract.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.Style.OK("SUCCESS"))
 	log.Print(2, "\n")
 }
 
 // OperationFail informs that the operation has failed.
-func (log Log) OperationFail(res *api.Operation) {
+func (log Log) OperationFail(res contract.Operation) {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.Style.Failure("FAILURE"))
 	log.Print(2, "\n")

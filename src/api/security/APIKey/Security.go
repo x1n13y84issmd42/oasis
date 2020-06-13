@@ -3,8 +3,7 @@ package apikey
 import (
 	"fmt"
 
-	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // Security implements the security type that requires a unique API key
@@ -14,11 +13,11 @@ type Security struct {
 	Name      string
 	ParamName string
 	Value     string
-	Log       log.ILogger
+	Log       contract.Logger
 }
 
 // New creates a new API Key security scheme.
-func New(name string, location string, paramName string, value string, logger log.ILogger) api.ISecurity {
+func New(name string, location string, paramName string, value string, logger contract.Logger) contract.Security {
 	switch location {
 	case "cookie":
 		return Cookie{

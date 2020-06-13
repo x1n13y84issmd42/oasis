@@ -32,16 +32,16 @@
 			"mode": "auto",
 			"program": "${workspaceFolder}/src/main",
 			"env": {},
-			"args": [
-				"from",
-				"../../spec/petstore.yaml",
-				"test",
-				"findd*",
-				"log",
-				"at",
-				"level",
-				"4",
-			]
+			// "args": [
+			// 	"from",
+			// 	"../../spec/petstore.yaml",
+			// 	"test",
+			// 	"findd*",
+			// 	"log",
+			// 	"at",
+			// 	"level",
+			// 	"4",
+			// ]
 			// "args": [
 			// 	"from",
 			// 	"../../spec/petstore.yaml",
@@ -55,6 +55,20 @@
 			// 	"query",
 			// 	"status=pending",
 			// ]
+			"args": [
+				"from",
+				"../../spec/petstore.yaml",
+				"test",
+				"getPetById",
+				"log",
+				"at",
+				"level",
+				"4",
+				"use",
+				"path",
+				"parameters",
+				"petId=9",
+			]
 		},
 
 		{

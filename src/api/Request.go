@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -17,10 +16,10 @@ type Request struct {
 
 // CreateRequest creates a Request instance, already configured
 // to make requests to the operation URL.
-func (specReq *Request) CreateRequest(host *Host) *http.Request {
-	URL := fmt.Sprintf("%s%s", host.URL, specReq.Path)
-	req, _ := http.NewRequest(specReq.Method, URL, nil)
-	req.URL.RawQuery = specReq.Query.Encode()
-	req.Header = specReq.Headers
-	return req
-}
+// func (specReq *Request) CreateRequest(host *Host) *http.Request {
+// 	URL := fmt.Sprintf("%s%s", host.URL, specReq.Path)
+// 	req, _ := http.NewRequest(specReq.Method, URL, nil)
+// 	req.URL.RawQuery = specReq.Query.Encode()
+// 	req.Header = specReq.Headers
+// 	return req
+// }

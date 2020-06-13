@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
-	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // HTTPResponse test checks basic response properties - status code and headers.
-func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+func HTTPResponse(resp *http.Response, specResp *api.Response, logger contract.Logger) bool {
 	statusOK := specResp.StatusCode == uint64(resp.StatusCode)
 
 	// This is to get rid of the possible "; charset=utf-8" part.
@@ -22,18 +22,18 @@ func HTTPResponse(resp *http.Response, specResp *api.Response, logger log.ILogge
 	}
 
 	if !statusOK {
-		logger.ResponseHasWrongStatus(specResp, resp.StatusCode)
+		// logger.ResponseHasWrongStatus(specResp, resp.StatusCode)
 	}
 
 	if !CTOK {
-		logger.ResponseHasWrongContentType(specResp, resp.Header.Get("Content-Type"))
+		// logger.ResponseHasWrongContentType(specResp, resp.Header.Get("Content-Type"))
 	}
 
 	return statusOK && CTOK && headersOK
 }
 
 // Response test response bodies.
-func Response(resp *http.Response, specResp *api.Response, logger log.ILogger) bool {
+func Response(resp *http.Response, specResp *api.Response, logger contract.Logger) bool {
 	httpOK := HTTPResponse(resp, specResp, logger)
 	contentOK := true
 
