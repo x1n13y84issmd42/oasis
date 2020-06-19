@@ -100,7 +100,7 @@ func (spec *Spec) MakeOperation(
 
 	op.OperationPrototype.Operation = op
 
-	op.Data.URL = params.URL()
+	op.Data.URL = params.URL(oasPath, spec.Log)
 	op.Data.URL.AddSource(contract.ParameterSourceSpecPath, PathParameterSource(&op.SpecPath.Parameters))
 	op.Data.URL.AddSource(contract.ParameterSourceSpecOp, PathParameterSource(&op.SpecOp.Parameters))
 

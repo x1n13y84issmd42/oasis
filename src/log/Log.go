@@ -27,7 +27,7 @@ func New(style string, level int64) contract.Logger {
 	}
 
 	fmt.Printf("The \"%s\" log style is unknown.\nAvailable loggers are:\n", style)
-	fmt.Println("\tplain - a simple text logger")
+	fmt.Println("\tplain - a plain text logger")
 	fmt.Println("\tfestive - a nicer colorized logger")
 
 	panic("No way.")

@@ -11,19 +11,24 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 // 		spec path
 type URLParameters struct {
 	*contract.ParameterProviderPrototype
+	contract.EntityTrait
+
+	Path string
 }
 
 // URL creates a new URLParameters instance.
-func URL() *URLParameters {
+func URL(path string, log contract.Logger) *URLParameters {
 	return &URLParameters{
 		ParameterProviderPrototype: contract.NewParameterProviderPrototype(),
+		EntityTrait:                contract.Entity(log),
+		Path:                       path,
 	}
 }
 
 // Make creates a URL string value.
 func (params URLParameters) Make() string {
 	if err := params.Validate(); err != nil {
-
+		params.Log.Error(err)
 	}
 
 	return ""
