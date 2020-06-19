@@ -68,7 +68,7 @@
 				
 				<option value="file6">github.com/x1n13y84issmd42/oasis/src/params/Headers.go (0.0%)</option>
 				
-				<option value="file7">github.com/x1n13y84issmd42/oasis/src/params/MemoryParameterSource.go (0.0%)</option>
+				<option value="file7">github.com/x1n13y84issmd42/oasis/src/params/MemoryParameterSource.go (100.0%)</option>
 				
 				<option value="file8">github.com/x1n13y84issmd42/oasis/src/params/Query.go (0.0%)</option>
 				
@@ -618,7 +618,11 @@ func (params HeadersParameters) Apply(req *http.Request) <span class="cov0" titl
 		
 		<pre class="file" id="file7" style="display: none">package params
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+        "sort"
+
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
 
 // MemoryParameterSource is a parameter source which uses a native map as a storage.
 type MemoryParameterSource struct {
@@ -626,30 +630,37 @@ type MemoryParameterSource struct {
 }
 
 // NewMemoryParameterSource creates a new MemoryParameterSource instance.
-func NewMemoryParameterSource() *MemoryParameterSource <span class="cov0" title="0">{
+func NewMemoryParameterSource() *MemoryParameterSource <span class="cov8" title="1">{
         return &amp;MemoryParameterSource{
                 Data: map[string]string{},
         }
 }</span>
 
 // Get returns a parameter by it's name.
-func (ds *MemoryParameterSource) Get(pn string) string <span class="cov0" title="0">{
+func (ds *MemoryParameterSource) Get(pn string) string <span class="cov8" title="1">{
         return ds.Data[pn]
 }</span>
 
 // Iterate returns an iterable channel to receive parameter tuples.
-func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span class="cov0" title="0">{
+func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span class="cov8" title="1">{
         ch := make(contract.ParameterIterator)
 
-        go func() </span><span class="cov0" title="0">{
-                for pn, pv := range ds.Data </span><span class="cov0" title="0">{
-                        ch &lt;- contract.ParameterTuple{pn, pv}
+        go func() </span><span class="cov8" title="1">{
+                keys := []string{}
+                for pn := range ds.Data </span><span class="cov8" title="1">{
+                        keys = append(keys, pn)
                 }</span>
 
-                <span class="cov0" title="0">close(ch)</span>
+                <span class="cov8" title="1">sort.Strings(keys)
+
+                for _, pn := range keys </span><span class="cov8" title="1">{
+                        ch &lt;- contract.ParameterTuple{pn, ds.Data[pn]}
+                }</span>
+
+                <span class="cov8" title="1">close(ch)</span>
         }()
 
-        <span class="cov0" title="0">return ch</span>
+        <span class="cov8" title="1">return ch</span>
 }
 </pre>
 		

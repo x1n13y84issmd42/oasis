@@ -1,6 +1,10 @@
 package params
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+	"sort"
+
+	"github.com/x1n13y84issmd42/oasis/src/contract"
+)
 
 // MemoryParameterSource is a parameter source which uses a native map as a storage.
 type MemoryParameterSource struct {
@@ -24,8 +28,15 @@ func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator {
 	ch := make(contract.ParameterIterator)
 
 	go func() {
-		for pn, pv := range ds.Data {
-			ch <- contract.ParameterTuple{pn, pv}
+		keys := []string{}
+		for pn := range ds.Data {
+			keys = append(keys, pn)
+		}
+
+		sort.Strings(keys)
+
+		for _, pn := range keys {
+			ch <- contract.ParameterTuple{pn, ds.Data[pn]}
 		}
 
 		close(ch)
