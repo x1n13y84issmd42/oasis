@@ -12,3 +12,9 @@ func Entity(log Logger) EntityTrait {
 		Log: log,
 	}
 }
+
+// Error is an error handler.
+func (e EntityTrait) Error(err error) {
+	e.Log.Error(err)
+	panic("AAAAAAAAAAAA")
+}

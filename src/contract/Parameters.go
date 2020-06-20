@@ -11,7 +11,7 @@ import (
 // (spec path, spec op, cli input, test output) needed in order to build
 // an http.Request instance.
 type DataProvider struct {
-	URL     ParameterMaker
+	URL     ParameterEnrichment
 	Query   ParameterEnrichment
 	Headers ParameterEnrichment
 }

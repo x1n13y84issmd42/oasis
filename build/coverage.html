@@ -66,29 +66,33 @@
 				
 				<option value="file5">github.com/x1n13y84issmd42/oasis/src/contract/Parameters.go (100.0%)</option>
 				
-				<option value="file6">github.com/x1n13y84issmd42/oasis/src/params/Headers.go (0.0%)</option>
+				<option value="file6">github.com/x1n13y84issmd42/oasis/src/contract/Request.go (0.0%)</option>
 				
-				<option value="file7">github.com/x1n13y84issmd42/oasis/src/params/MemoryParameterSource.go (100.0%)</option>
+				<option value="file7">github.com/x1n13y84issmd42/oasis/src/params/Headers.go (0.0%)</option>
 				
-				<option value="file8">github.com/x1n13y84issmd42/oasis/src/params/Query.go (0.0%)</option>
+				<option value="file8">github.com/x1n13y84issmd42/oasis/src/params/MemoryParameterSource.go (100.0%)</option>
 				
-				<option value="file9">github.com/x1n13y84issmd42/oasis/src/params/URL.go (0.0%)</option>
+				<option value="file9">github.com/x1n13y84issmd42/oasis/src/params/Query.go (0.0%)</option>
 				
-				<option value="file10">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
+				<option value="file10">github.com/x1n13y84issmd42/oasis/src/params/URL.go (0.0%)</option>
 				
-				<option value="file11">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
+				<option value="file11">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
 				
-				<option value="file12">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
+				<option value="file12">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
 				
-				<option value="file13">github.com/x1n13y84issmd42/oasis/src/test/Header.go (66.7%)</option>
+				<option value="file13">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
 				
-				<option value="file14">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (0.0%)</option>
+				<option value="file14">github.com/x1n13y84issmd42/oasis/src/test/Header.go (66.7%)</option>
 				
-				<option value="file15">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (0.0%)</option>
+				<option value="file15">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (0.0%)</option>
 				
-				<option value="file16">github.com/x1n13y84issmd42/oasis/src/test/Response.go (0.0%)</option>
+				<option value="file16">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (0.0%)</option>
 				
-				<option value="file17">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (0.0%)</option>
+				<option value="file17">github.com/x1n13y84issmd42/oasis/src/test/Request.go (0.0%)</option>
+				
+				<option value="file18">github.com/x1n13y84issmd42/oasis/src/test/Response.go (0.0%)</option>
+				
+				<option value="file19">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (0.0%)</option>
 				
 				</select>
 			</div>
@@ -116,6 +120,12 @@ func Entity(log Logger) EntityTrait <span class="cov0" title="0">{
                 Log: log,
         }
 }</span>
+
+// Error is an error handler.
+func (e EntityTrait) Error(err error) <span class="cov0" title="0">{
+        e.Log.Error(err)
+        panic("AAAAAAAAAAAA")</span>
+}
 </pre>
 		
 		<pre class="file" id="file1" style="display: none">package contract
@@ -251,9 +261,10 @@ func NewOperationPrototype() *OperationPrototype <span class="cov0" title="0">{
 
 // CreateRequest creates an http.Request instance and prepares it to make an API request.
 func (op *OperationPrototype) CreateRequest() *http.Request <span class="cov0" title="0">{
-        res, _ := http.NewRequest(op.Method(), op.Data.URL.Make(), nil)
-        op.Data.Query.Apply(res)
-        op.Data.Headers.Apply(res)
+        res, _ := http.NewRequest(op.Method(), "http://example.com", nil)
+        op.Data.URL.Enrich(res)
+        op.Data.Query.Enrich(res)
+        op.Data.Headers.Enrich(res)
         return res
 }</span>
 </pre>
@@ -370,9 +381,9 @@ import (
 // (spec path, spec op, cli input, test output) needed in order to build
 // an http.Request instance.
 type DataProvider struct {
-        URL     ParameterMaker
-        Query   ParameterApplicator
-        Headers ParameterApplicator
+        URL     ParameterEnrichment
+        Query   ParameterEnrichment
+        Headers ParameterEnrichment
 }
 
 // ParameterTuple is a pair of parameter name and it's value.
@@ -417,10 +428,10 @@ type ParameterProvider interface {
         Iterate() ParameterIterator
 }
 
-// ParameterApplicator is a parameter provider which applies it's data directly to a http.Request instance.
-type ParameterApplicator interface {
+// ParameterEnrichment is a parameter provider which applies it's data directly to a http.Request instance.
+type ParameterEnrichment interface {
         ParameterProvider
-        Apply(req *http.Request)
+        Enrich(req *http.Request)
 }
 
 // ParameterMaker is a parameter provider which provides it's data as a string value.
@@ -494,13 +505,13 @@ func (provider *ParameterProviderPrototype) Validate() error <span class="cov8" 
 
 // POCTParameterProvider returns parameters from the sources,
 // and takes them in the specified hierarchical order:
-//                spec Path
-//                spec Operation
-//                CLI input
 //                Test output
+//                CLI input
+//                spec Operation
+//                spec Path
 // hence the POCT. This means that if 'foo' is requested,
-// the provider first tries to get it from the 'Path',
-// then from 'Operation', and so on.
+// the provider first tries to get it from the 'Test output' source,
+// then from 'CLI' one, and so on.
 type POCTParameterProvider struct {
         *ParameterProviderPrototype
 }
@@ -582,7 +593,36 @@ func (provider *POCTParameterProvider) EachSource(fn SourceFn) <span class="cov8
 }
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package params
+		<pre class="file" id="file6" style="display: none">package contract
+
+import (
+        "net/http"
+)
+
+// OperationResult describes the outcome of an operation test.
+// It is bo te used as a possible source of data for subsequent tests.
+type OperationResult struct {
+        Success      bool
+        HTTPRequest  *http.Request
+        HTTPResponse *http.Response
+}
+
+// And creates a new OperationResult instance with the Success field assigned
+// the result of r1.Success &amp;&amp; r2.Success.
+func (r1 *OperationResult) And(r2 *OperationResult) *OperationResult <span class="cov0" title="0">{
+        return &amp;OperationResult{
+                Success: r1.Success &amp;&amp; r2.Success,
+        }
+}</span>
+
+// Request represents an operation HTTP request.
+type Request interface {
+        Enrich(en RequestEnrichment)
+        Execute() *OperationResult
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package params
 
 import (
         "net/http"
@@ -608,15 +648,15 @@ func Headers() *HeadersParameters <span class="cov0" title="0">{
         }
 }</span>
 
-// Apply applies the parameters to the req's Headers.
-func (params HeadersParameters) Apply(req *http.Request) <span class="cov0" title="0">{
+// Enrich applies the parameters to the req's Headers.
+func (params HeadersParameters) Enrich(req *http.Request) <span class="cov0" title="0">{
         if err := params.Validate(); err != nil </span>{<span class="cov0" title="0">
 
         }</span>
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package params
+		<pre class="file" id="file8" style="display: none">package params
 
 import (
         "sort"
@@ -664,7 +704,7 @@ func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span clas
 }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package params
+		<pre class="file" id="file9" style="display: none">package params
 
 import (
         "net/http"
@@ -690,17 +730,23 @@ func Query() *QueryParameters <span class="cov0" title="0">{
         }
 }</span>
 
-// Apply applies the parameters to the req's Query.
-func (params QueryParameters) Apply(req *http.Request) <span class="cov0" title="0">{
+// Enrich applies the parameters to the req's Query.
+func (params QueryParameters) Enrich(req *http.Request) <span class="cov0" title="0">{
         if err := params.Validate(); err != nil </span>{<span class="cov0" title="0">
 
         }</span>
 }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">package params
+		<pre class="file" id="file10" style="display: none">package params
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+        "net/http"
+        "net/url"
+        "regexp"
+
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
 
 // URLParameters is the default source for URL path parameters.
 // It treats it's sources hierarchically, i.e. values are taken
@@ -709,6 +755,9 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 //                 CLI input
 //                 spec op
 //                 spec path
+//
+// URLParameters have an implicit requirement for the @HOSTNAME parameter
+// which is an API host name.
 type URLParameters struct {
         *contract.ParameterProviderPrototype
         contract.EntityTrait
@@ -718,24 +767,49 @@ type URLParameters struct {
 
 // URL creates a new URLParameters instance.
 func URL(path string, log contract.Logger) *URLParameters <span class="cov0" title="0">{
-        return &amp;URLParameters{
+        p := &amp;URLParameters{
                 ParameterProviderPrototype: contract.NewParameterProviderPrototype(),
                 EntityTrait:                contract.Entity(log),
                 Path:                       path,
         }
+
+        p.Require("@HOSTNAME")
+
+        return p
 }</span>
 
-// Make creates a URL string value.
-func (params URLParameters) Make() string <span class="cov0" title="0">{
+// Enrich creates a URL string value.
+func (params URLParameters) Enrich(req *http.Request) <span class="cov0" title="0">{
         if err := params.Validate(); err != nil </span><span class="cov0" title="0">{
-                params.Log.Error(err)
+                params.Error(err)
         }</span>
 
-        <span class="cov0" title="0">return ""</span>
+        <span class="cov0" title="0">tpl := "@HOSTNAME/" + params.Path
+
+        for pt := range params.Iterate() </span><span class="cov0" title="0">{
+                RX := regexp.MustCompile("\\{" + pt[0] + "\\}")
+
+                if RX.Match([]byte(tpl)) </span><span class="cov0" title="0">{
+                        if pt[1] != "" </span><span class="cov0" title="0">{
+                                tpl = string(RX.ReplaceAll([]byte(tpl), []byte(pt[1])))
+                                // spec.Log.UsingParameterExample(pt[0], "path", container)
+                        }</span> else <span class="cov0" title="0">{
+                                // spec.Log.ParameterHasNoExample(pt[0], "path", container)
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">u, err := url.Parse(tpl)
+        if err != nil </span><span class="cov0" title="0">{
+                params.Log.Error(err)
+        }</span> else<span class="cov0" title="0"> {
+                req.URL = u
+                req.Host = u.Host
+        }</span>
 }
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">package srx
+		<pre class="file" id="file11" style="display: none">package srx
 
 // Cursor is a pair of argument list and an index of a current argument.
 type Cursor struct {
@@ -784,7 +858,7 @@ func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">package srx
+		<pre class="file" id="file12" style="display: none">package srx
 
 // String is a shorthand function to create a String() expression.
 func String(f string) *SRX <span class="cov8" title="1">{
@@ -851,7 +925,7 @@ func Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package srx
+		<pre class="file" id="file13" style="display: none">package srx
 
 import (
         "strconv"
@@ -1222,7 +1296,7 @@ func (srx *SRX) Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" 
 }
 </pre>
 		
-		<pre class="file" id="file13" style="display: none">package test
+		<pre class="file" id="file14" style="display: none">package test
 
 import (
         "github.com/x1n13y84issmd42/oasis/src/api"
@@ -1262,7 +1336,7 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
 }
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">package test
+		<pre class="file" id="file15" style="display: none">package test
 
 import (
         "encoding/json"
@@ -1367,37 +1441,16 @@ func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger contr
 }
 </pre>
 		
-		<pre class="file" id="file15" style="display: none">package test
+		<pre class="file" id="file16" style="display: none">package test
 
 import (
-        "net/http"
-
-        "github.com/x1n13y84issmd42/oasis/src/api"
         "github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// OperationResult describes the outcome of an operation test.
-// It is bo te used as a possible source of data for subsequent tests.
-type OperationResult struct {
-        Success      bool
-        SpecRequest  *api.Request
-        HTTPRequest  *http.Request
-        SpecResponse *api.Response
-        HTTPResponse *http.Response
-}
-
-// And creates a new OperationResult instance with the Success field assigned
-// the result of r1.Success &amp;&amp; r2.Success.
-func (r1 *OperationResult) And(r2 *OperationResult) *OperationResult <span class="cov0" title="0">{
-        return &amp;OperationResult{
-                Success: r1.Success &amp;&amp; r2.Success,
-        }
-}</span>
-
 // Success creates a new OperationResult instance with
 // the Success field set to true to assure maximum SUCCESS.
-func Success() *OperationResult <span class="cov0" title="0">{
-        return &amp;OperationResult{
+func Success() *contract.OperationResult <span class="cov0" title="0">{
+        return &amp;contract.OperationResult{
                 Success: true,
         }
 }</span>
@@ -1405,50 +1458,81 @@ func Success() *OperationResult <span class="cov0" title="0">{
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers &amp; content against
 // the definitions founds in an OAS spec file.
-func Operation(specHost string, specOp contract.Operation, params *contract.OperationParameters, logger contract.Logger) (result *OperationResult) <span class="cov0" title="0">{
-        result = &amp;OperationResult{}
-
+func Operation(specOp contract.Operation, enrichment *[]contract.RequestEnrichment, logger contract.Logger) (result *contract.OperationResult) <span class="cov0" title="0">{
         logger.TestingOperation(specOp)
+
         // Creating a request.
-        client := http.Client{
-                CheckRedirect: func(req *http.Request, via []*http.Request) error </span><span class="cov0" title="0">{
-                        return http.ErrUseLastResponse
-                }</span>,
-        }
+        req := NewRequest(specOp, logger)
 
-        <span class="cov0" title="0">req := specOp.CreateRequest()
-        result.HTTPRequest = req
-
-        // // Adding auth credentials.
-        // if specOp.Security != nil {
-        //         specOp.Security.Secure(req)
-        // }
-
-        // Requesting.
-        logger.Requesting(req.Method, req.URL.String())
-        response, err := client.Do(req)
-        result.HTTPResponse = response
-
-        if err != nil </span><span class="cov0" title="0">{
-                logger.Error(err)
-                result.Success = false
-                return
+        // Extending the request with stuff.
+        for _, en := range *enrichment </span><span class="cov0" title="0">{
+                req.Enrich(en)
         }</span>
 
-        // Actual testing starts here.
-        // result.Success = Response(response, specResp, logger)
-
-        <span class="cov0" title="0">if result.Success </span><span class="cov0" title="0">{
-                logger.OperationOK(specOp)
-        }</span> else<span class="cov0" title="0"> {
-                logger.OperationFail(specOp)
-        }</span>
-
-        <span class="cov0" title="0">return</span>
+        // Requesting &amp; returning.
+        <span class="cov0" title="0">return req.Execute()</span>
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">package test
+		<pre class="file" id="file17" style="display: none">package test
+
+import (
+        "net/http"
+
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// Request represents an operation HTTP request.
+// It contains native API objects, supplies data, tracks results and does logging.
+type Request struct {
+        contract.EntityTrait
+        HTTPRequest *http.Request
+        HTTPClient  *http.Client
+        Result      *contract.OperationResult
+}
+
+// NewRequest creates a new Request instance.
+func NewRequest(op contract.Operation, log contract.Logger) *Request <span class="cov0" title="0">{
+        req := &amp;Request{
+                EntityTrait: contract.Entity(log),
+
+                HTTPRequest: op.CreateRequest(),
+                HTTPClient: &amp;http.Client{
+                        CheckRedirect: func(req *http.Request, via []*http.Request) error </span><span class="cov0" title="0">{
+                                return http.ErrUseLastResponse
+                        }</span>,
+                },
+
+                Result: &amp;contract.OperationResult{},
+        }
+
+        <span class="cov0" title="0">req.Result.HTTPRequest = req.HTTPRequest
+
+        return req</span>
+}
+
+// Enrich extends the internal request with additional data.
+func (req *Request) Enrich(en contract.RequestEnrichment) <span class="cov0" title="0">{
+        en.Enrich(req.HTTPRequest, req.Log)
+}</span>
+
+// Execute executes the request.
+func (req *Request) Execute() *contract.OperationResult <span class="cov0" title="0">{
+        req.Log.Requesting(req.HTTPRequest.Method, req.HTTPRequest.URL.String())
+        response, err := req.HTTPClient.Do(req.HTTPRequest)
+
+        req.Result.HTTPResponse = response
+
+        if err != nil </span><span class="cov0" title="0">{
+                req.Log.Error(err)
+                req.Result.Success = false
+        }</span>
+
+        <span class="cov0" title="0">return req.Result</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package test
 
 import (
         "net/http"
@@ -1503,7 +1587,7 @@ func Response(resp *http.Response, specResp *api.Response, logger contract.Logge
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">package test
+		<pre class="file" id="file19" style="display: none">package test
 
 import (
         "github.com/x1n13y84issmd42/oasis/src/api"

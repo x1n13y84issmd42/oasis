@@ -29,7 +29,8 @@ func NewOperationPrototype() *OperationPrototype {
 
 // CreateRequest creates an http.Request instance and prepares it to make an API request.
 func (op *OperationPrototype) CreateRequest() *http.Request {
-	res, _ := http.NewRequest(op.Method(), op.Data.URL.Make(), nil)
+	res, _ := http.NewRequest(op.Method(), "http://example.com", nil)
+	op.Data.URL.Enrich(res)
 	op.Data.Query.Enrich(res)
 	op.Data.Headers.Enrich(res)
 	return res
