@@ -112,7 +112,7 @@ func (spec *Spec) MakeOperation(
 	op.Data.Headers.AddSource(contract.ParameterSourceSpecPath, PathParameterSource(&op.SpecPath.Parameters))
 	op.Data.Headers.AddSource(contract.ParameterSourceSpecOp, PathParameterSource(&op.SpecOp.Parameters))
 
-	require := func(p *openapi3.Parameter) {
+	requireParameters := func(p *openapi3.Parameter) {
 		switch p.In {
 		case "path":
 			op.Data.URL.Require(p.Name)
@@ -126,8 +126,8 @@ func (spec *Spec) MakeOperation(
 		}
 	}
 
-	spec.IterateOverRequiredParameters(&op.SpecPath.Parameters, require)
-	spec.IterateOverRequiredParameters(&op.SpecOp.Parameters, require)
+	spec.IterateOverRequiredParameters(&op.SpecPath.Parameters, requireParameters)
+	spec.IterateOverRequiredParameters(&op.SpecOp.Parameters, requireParameters)
 
 	return op
 }

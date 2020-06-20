@@ -24,8 +24,8 @@ func Query() *QueryParameters {
 	}
 }
 
-// Apply applies the parameters to the req's Query.
-func (params QueryParameters) Apply(req *http.Request) {
+// Enrich applies the parameters to the req's Query.
+func (params QueryParameters) Enrich(req *http.Request) {
 	if err := params.Validate(); err != nil {
 
 	}

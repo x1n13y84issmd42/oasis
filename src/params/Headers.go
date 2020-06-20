@@ -24,8 +24,8 @@ func Headers() *HeadersParameters {
 	}
 }
 
-// Apply applies the parameters to the req's Headers.
-func (params HeadersParameters) Apply(req *http.Request) {
+// Enrich applies the parameters to the req's Headers.
+func (params HeadersParameters) Enrich(req *http.Request) {
 	if err := params.Validate(); err != nil {
 
 	}

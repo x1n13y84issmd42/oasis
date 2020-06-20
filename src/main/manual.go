@@ -17,7 +17,7 @@ func Manual(args *env.Args, logger contract.Logger) {
 	spec := utility.Load(args.Spec, logger)
 
 	logger.TestingProject(spec)
-	specHost := ""
+	enrichment := []contract.RequestEnrichment{}
 
 	// Resolving.
 	resolver := utility.NewOperationResolver(spec, logger)
@@ -27,7 +27,7 @@ func Manual(args *env.Args, logger contract.Logger) {
 	if len(specOps) > 0 {
 		for _, specOp := range specOps {
 			// Testing.
-			result = result.And(test.Operation(specHost, specOp, params, logger))
+			result = result.And(test.Operation(specOp, &enrichment, logger))
 		}
 
 	} else {

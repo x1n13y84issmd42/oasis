@@ -12,8 +12,8 @@ import (
 // an http.Request instance.
 type DataProvider struct {
 	URL     ParameterMaker
-	Query   ParameterApplicator
-	Headers ParameterApplicator
+	Query   ParameterEnrichment
+	Headers ParameterEnrichment
 }
 
 // ParameterTuple is a pair of parameter name and it's value.
@@ -58,10 +58,10 @@ type ParameterProvider interface {
 	Iterate() ParameterIterator
 }
 
-// ParameterApplicator is a parameter provider which applies it's data directly to a http.Request instance.
-type ParameterApplicator interface {
+// ParameterEnrichment is a parameter provider which applies it's data directly to a http.Request instance.
+type ParameterEnrichment interface {
 	ParameterProvider
-	Apply(req *http.Request)
+	Enrich(req *http.Request)
 }
 
 // ParameterMaker is a parameter provider which provides it's data as a string value.
@@ -135,13 +135,13 @@ func (provider *ParameterProviderPrototype) Validate() error {
 
 // POCTParameterProvider returns parameters from the sources,
 // and takes them in the specified hierarchical order:
-//		spec Path
-//		spec Operation
-//		CLI input
 //		Test output
+//		CLI input
+//		spec Operation
+//		spec Path
 // hence the POCT. This means that if 'foo' is requested,
-// the provider first tries to get it from the 'Path',
-// then from 'Operation', and so on.
+// the provider first tries to get it from the 'Test output' source,
+// then from 'CLI' one, and so on.
 type POCTParameterProvider struct {
 	*ParameterProviderPrototype
 }
