@@ -24,6 +24,9 @@ func Manual(args *env.Args, logger contract.Logger) {
 		for _, specOp := range specOps {
 			// Stuffing it with data.
 			specOp.Data().URL.Load(args.Use.PathParameters)
+			specOp.Data().Query.Load(args.Use.Query)
+			specOp.Data().Headers.Load(args.Use.Headers)
+
 			// Testing.
 			result = result.And(test.Operation(specOp, &enrichment, logger))
 		}

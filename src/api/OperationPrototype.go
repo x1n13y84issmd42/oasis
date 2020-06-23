@@ -24,8 +24,8 @@ func NewOperationPrototype(log contract.Logger) *OperationPrototype {
 // CreateRequest creates an http.Request instance and prepares it to make an API request.
 func (op *OperationPrototype) CreateRequest() *http.Request {
 	res, _ := http.NewRequest(op.Method(), op.data.URL.String(), nil)
-	// op.Data.Query.Enrich(res)
-	// op.Data.Headers.Enrich(res)
+	op.Data().Query.Enrich(res)
+	op.Data().Headers.Enrich(res)
 	return res
 }
 

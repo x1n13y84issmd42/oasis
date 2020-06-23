@@ -1,6 +1,8 @@
 package params
 
 import (
+	"net/http"
+
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
@@ -75,7 +77,11 @@ func (params *Parameters) Iterate() contract.ParameterIterator {
 	return ch
 }
 
-// Iterate creates an iterable channel.
+// String creates an string representation of the paralmeter set.
 func (params *Parameters) String() string {
 	return ""
+}
+
+// Enrich applies parameters to the request.
+func (params *Parameters) Enrich(req *http.Request) {
 }

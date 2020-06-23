@@ -1,7 +1,6 @@
 package env
 
 import (
-	"net/url"
 	"os"
 	"strings"
 
@@ -11,9 +10,6 @@ import (
 
 // ParameterMap is a generic map of operation test parameters.
 type ParameterMap map[string]string
-
-//TODO: unify the ParameterMap & url.Values. The only difference being url.Values is a multiset,
-// make ParameterMap the same & use only first one in cases where only one value is needed.
 
 // Iterate creates an iterable channel to read parameters.
 func (m ParameterMap) Iterate() contract.ParameterIterator {
@@ -29,12 +25,33 @@ func (m ParameterMap) Iterate() contract.ParameterIterator {
 	return ch
 }
 
+// ParameterMultiMap is a map of operation test parameters where each key can have multiple values.
+// Used for HTTP headers & query parameters.
+type ParameterMultiMap map[string][]string
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMultiMap) Iterate() contract.ParameterIterator {
+	ch := make(contract.ParameterIterator)
+
+	go func() {
+		for n, vs := range m {
+			for _, v := range vs {
+				ch <- contract.ParameterTuple{N: n, V: v}
+			}
+		}
+		close(ch)
+	}()
+
+	return ch
+}
+
 // ArgsUse is what goes after the "use" command line argument.
 type ArgsUse struct {
 	CT             string
 	Security       string
 	PathParameters ParameterMap
-	Query          url.Values
+	Query          ParameterMultiMap
+	Headers        ParameterMultiMap
 }
 
 // ArgsExpect is what goes after the "expect" command line argument.
@@ -71,7 +88,8 @@ func ParseArgs(args *Args) {
 		}
 	}
 
-	args.Use.Query = url.Values{}
+	args.Use.Query = ParameterMultiMap{}
+	args.Use.Headers = ParameterMultiMap{}
 
 	hQueryParams := func(params []string) {
 		for _, pp := range params {

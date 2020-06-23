@@ -1,5 +1,7 @@
 package contract
 
+import "net/http"
+
 // Parameters is an interface to a set of named values used as input parameters for an operation.
 type Parameters interface {
 	Load(src ParameterSource)
@@ -7,6 +9,7 @@ type Parameters interface {
 	Validate() error
 	Iterate() ParameterIterator
 	String() string
+	Enrich(req *http.Request)
 }
 
 // ParameterTuple is a pair of parameter name and it's value.
@@ -23,6 +26,5 @@ type ParameterIterator chan ParameterTuple
 // Parameters may come from various places, such as API specs,
 // CLI arguments & another test output.
 type ParameterSource interface {
-	// Get(paramName string) string
 	Iterate() ParameterIterator
 }
