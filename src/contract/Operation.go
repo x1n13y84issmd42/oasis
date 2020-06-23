@@ -12,26 +12,15 @@ type Operation interface {
 	Method() string
 	Path() string
 	CreateRequest() *http.Request
+
+	Data() *OperationData
 }
 
-// OperationPrototype is a prototype implementation for operations.
-type OperationPrototype struct {
-	Operation
-	Data DataProvider
-}
-
-// NewOperationPrototype create a new OperationPrototype instance.
-func NewOperationPrototype() *OperationPrototype {
-	return &OperationPrototype{
-		Data: DataProvider{},
-	}
-}
-
-// CreateRequest creates an http.Request instance and prepares it to make an API request.
-func (op *OperationPrototype) CreateRequest() *http.Request {
-	res, _ := http.NewRequest(op.Method(), "http://example.com", nil)
-	op.Data.URL.Enrich(res)
-	op.Data.Query.Enrich(res)
-	op.Data.Headers.Enrich(res)
-	return res
+// OperationData is an interface to access data from various sources
+// (spec path, spec op, cli input, test output) needed in order to build
+// an http.Request instance.
+type OperationData struct {
+	URL     Parameters
+	Query   Parameters
+	Headers Parameters
 }

@@ -91,7 +91,7 @@ func (spec *Spec) MakeOperation(
 	oasPathItem *openapi3.PathItem,
 ) contract.Operation {
 	op := &Operation{
-		OperationPrototype: contract.NewOperationPrototype(),
+		OperationPrototype: api.NewOperationPrototype(spec.Log),
 		RequestMethod:      method,
 		RequestPath:        oasPath,
 		SpecOp:             oasOp,
@@ -100,28 +100,28 @@ func (spec *Spec) MakeOperation(
 
 	op.OperationPrototype.Operation = op
 
-	op.Data.URL = params.URL(oasPath, spec.Log)
-	op.Data.URL.AddSource(contract.ParameterSourceSpecPath, PathParameterSource(&op.SpecPath.Parameters))
-	op.Data.URL.AddSource(contract.ParameterSourceSpecOp, PathParameterSource(&op.SpecOp.Parameters))
+	op.Data().URL = params.URL(oasPath, spec.Log)
+	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters))
+	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters))
 
-	op.Data.Query = params.Query()
-	op.Data.Query.AddSource(contract.ParameterSourceSpecPath, PathParameterSource(&op.SpecPath.Parameters))
-	op.Data.Query.AddSource(contract.ParameterSourceSpecOp, PathParameterSource(&op.SpecOp.Parameters))
+	op.Data().Query = params.New()
+	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters))
+	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters))
 
-	op.Data.Headers = params.Headers()
-	op.Data.Headers.AddSource(contract.ParameterSourceSpecPath, PathParameterSource(&op.SpecPath.Parameters))
-	op.Data.Headers.AddSource(contract.ParameterSourceSpecOp, PathParameterSource(&op.SpecOp.Parameters))
+	op.Data().Headers = params.New()
+	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters))
+	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters))
 
 	requireParameters := func(p *openapi3.Parameter) {
 		switch p.In {
 		case "path":
-			op.Data.URL.Require(p.Name)
+			op.Data().URL.Require(p.Name)
 			break
 		case "query":
-			op.Data.Query.Require(p.Name)
+			op.Data().Query.Require(p.Name)
 			break
 		case "headers":
-			op.Data.Headers.Require(p.Name)
+			op.Data().Headers.Require(p.Name)
 			break
 		}
 	}

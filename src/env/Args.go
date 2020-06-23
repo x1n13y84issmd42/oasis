@@ -5,11 +5,29 @@ import (
 	"os"
 	"strings"
 
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/srx"
 )
 
-// ParameterMap is a generic map of test parameters.
+// ParameterMap is a generic map of operation test parameters.
 type ParameterMap map[string]string
+
+//TODO: unify the ParameterMap & url.Values. The only difference being url.Values is a multiset,
+// make ParameterMap the same & use only first one in cases where only one value is needed.
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMap) Iterate() contract.ParameterIterator {
+	ch := make(contract.ParameterIterator)
+
+	go func() {
+		for n, v := range m {
+			ch <- contract.ParameterTuple{N: n, V: v}
+		}
+		close(ch)
+	}()
+
+	return ch
+}
 
 // ArgsUse is what goes after the "use" command line argument.
 type ArgsUse struct {

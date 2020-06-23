@@ -2,12 +2,12 @@ package openapi3
 
 import (
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/api"
 )
 
 // Operation provides access to OAS3-specific API data.
 type Operation struct {
-	*contract.OperationPrototype
+	*api.OperationPrototype
 
 	RequestMethod string
 	RequestPath   string

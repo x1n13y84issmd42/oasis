@@ -50,3 +50,9 @@ func (op NullOperation) Path() string {
 	op.Report()
 	return ""
 }
+
+// Data ...
+func (op NullOperation) Data() *contract.OperationData {
+	op.Report()
+	return nil
+}

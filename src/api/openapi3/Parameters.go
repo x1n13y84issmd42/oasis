@@ -28,7 +28,13 @@ func (ds *SpecParameterSource) Get(n string) string {
 
 // Iterate returns an iterable channel to read parameter values.
 func (ds *SpecParameterSource) Iterate() contract.ParameterIterator {
-	return nil
+	ch := make(contract.ParameterIterator)
+
+	go func() {
+		close(ch)
+	}()
+
+	return ch
 }
 
 // PathParameterSource creates a parameter source concerned with extracting the "path" parameters from a spec.
@@ -47,8 +53,8 @@ func QueryParameterSource(p *openapi3.Parameters) *SpecParameterSource {
 	}
 }
 
-// HeaderParameterSource creates a parameter source concerned with extracting the "header" parameters from a spec.
-func HeaderParameterSource(p *openapi3.Parameters) *SpecParameterSource {
+// HeadersParameterSource creates a parameter source concerned with extracting the "header" parameters from a spec.
+func HeadersParameterSource(p *openapi3.Parameters) *SpecParameterSource {
 	return &SpecParameterSource{
 		Params: p,
 		In:     "header",

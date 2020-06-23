@@ -11,21 +11,19 @@ import (
 
 // Manual is an entry point for manual testing mode.
 func Manual(args *env.Args, logger contract.Logger) {
-	params := &contract.OperationParameters{}
-	params.LoadFromArgs(args)
-
 	spec := utility.Load(args.Spec, logger)
 
 	logger.TestingProject(spec)
 	enrichment := []contract.RequestEnrichment{}
 
 	// Resolving.
-	resolver := utility.NewOperationResolver(spec, logger)
-	specOps := resolver.Resolve(args.Ops)
+	specOps := utility.NewOperationResolver(spec, logger).Resolve(args.Ops)
 	result := test.Success()
 
 	if len(specOps) > 0 {
 		for _, specOp := range specOps {
+			// Stuffing it with data.
+			specOp.Data().URL.Load(args.Use.PathParameters)
 			// Testing.
 			result = result.And(test.Operation(specOp, &enrichment, logger))
 		}

@@ -27,7 +27,7 @@ func Test_MemoryParameterSource(T *testing.T) {
 		actual := []string{}
 
 		for pt := range src.Iterate() {
-			actual = append(actual, pt[1])
+			actual = append(actual, pt.V)
 		}
 
 		assert.Equal(T, expected, actual)

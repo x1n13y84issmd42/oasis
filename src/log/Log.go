@@ -104,7 +104,7 @@ func (log Log) PrintOperations(ops contract.OperationIterator) {
 
 // TestingProject informs about the project being tested.
 func (log Log) TestingProject(pi contract.ProjectInfo) {
-	log.Println(2, "Testing the %s @ %s", log.Style.Op(pi.Title), log.Style.ID(pi.Version))
+	log.Println(2, "Testing the %s @ %s", log.Style.Op(pi.Title()), log.Style.ID(pi.Version()))
 }
 
 // UsingHost informs about the API host being used for testing.

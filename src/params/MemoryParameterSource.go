@@ -6,7 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// MemoryParameterSource is a parameter source which uses a native map as a storage.
+// MemoryParameterSource is a parameter source which uses a native map as a source storage.
 type MemoryParameterSource struct {
 	Data map[string]string
 }
@@ -36,7 +36,7 @@ func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator {
 		sort.Strings(keys)
 
 		for _, pn := range keys {
-			ch <- contract.ParameterTuple{pn, ds.Data[pn]}
+			ch <- contract.ParameterTuple{N: pn, V: ds.Data[pn]}
 		}
 
 		close(ch)
