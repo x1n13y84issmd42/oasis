@@ -80,7 +80,7 @@ func (spec *Spec) GetOperation(name string) contract.Operation {
 		}
 	}
 
-	return api.NullOperation{Error: errors.NotFound("Operation", name, nil)}
+	return api.NoOperation(errors.NotFound("Operation", name, nil), spec.Log)
 }
 
 // MakeOperation creates an Operation instance from available spec data.
@@ -96,6 +96,7 @@ func (spec *Spec) MakeOperation(
 		RequestPath:        oasPath,
 		SpecOp:             oasOp,
 		SpecPath:           oasPathItem,
+		SpecHosts:          &spec.OAS.Servers,
 	}
 
 	op.OperationPrototype.Operation = op
@@ -104,11 +105,11 @@ func (spec *Spec) MakeOperation(
 	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters))
 	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters))
 
-	op.Data().Query = params.New()
+	op.Data().Query = params.Query(spec.Log)
 	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters))
 	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters))
 
-	op.Data().Headers = params.New()
+	op.Data().Headers = params.Headers(spec.Log)
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters))
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters))
 

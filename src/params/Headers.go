@@ -6,9 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// HeadersParameters is the source for URL path parameters.
-// HeadersParameters have an implicit requirement for the @HOSTNAME parameter
-// which is an API host name.
+// HeadersParameters is the source for request header parameters.
 type HeadersParameters struct {
 	contract.EntityTrait
 	*Parameters
@@ -24,8 +22,8 @@ func Headers(log contract.Logger) *HeadersParameters {
 	return p
 }
 
-// Enrich applies the parameters as Headers values to the request..
-func (params HeadersParameters) Enrich(req *http.Request) {
+// Enrich applies the parameters as header values to the request.
+func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 	if err := params.Validate(); err != nil {
 		params.Error(err)
 	}

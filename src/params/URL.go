@@ -24,7 +24,7 @@ func URL(path string, log contract.Logger) *URLParameters {
 		Path:        path,
 	}
 
-	p.Require("@HOSTNAME")
+	p.Require(KeyHost)
 
 	return p
 }
@@ -35,17 +35,14 @@ func (params URLParameters) String() string {
 		params.Error(err)
 	}
 
-	tpl := "@HOSTNAME/" + params.Path
+	tpl := "{" + KeyHost + "}" + params.Path
 
 	for pt := range params.Iterate() {
-		RX := regexp.MustCompile("\\{" + pt.N + "\\}")
+		rx := regexp.MustCompile("\\{" + pt.N + "\\}")
 
-		if RX.Match([]byte(tpl)) {
+		if rx.Match([]byte(tpl)) {
 			if pt.V != "" {
-				tpl = string(RX.ReplaceAll([]byte(tpl), []byte(pt.V)))
-				// spec.Log.UsingParameterExample(pt.N, "path", container)
-			} else {
-				// spec.Log.ParameterHasNoExample(pt.N, "path", container)
+				tpl = string(rx.ReplaceAll([]byte(tpl), []byte(pt.V)))
 			}
 		}
 	}

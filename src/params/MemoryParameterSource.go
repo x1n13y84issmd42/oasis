@@ -18,6 +18,11 @@ func NewMemoryParameterSource() *MemoryParameterSource {
 	}
 }
 
+// Add stores a kv pair in the source.
+func (ds *MemoryParameterSource) Add(n string, v string) {
+	ds.Data[n] = v
+}
+
 // Get returns a parameter by it's name.
 func (ds *MemoryParameterSource) Get(pn string) string {
 	return ds.Data[pn]

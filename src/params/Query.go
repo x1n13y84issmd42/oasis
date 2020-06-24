@@ -6,9 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// QueryParameters is the source for URL path parameters.
-// QueryParameters have an implicit requirement for the @HOSTNAME parameter
-// which is an API host name.
+// QueryParameters is the source for URL query parameters.
 type QueryParameters struct {
 	contract.EntityTrait
 	*Parameters
@@ -24,13 +22,13 @@ func Query(log contract.Logger) *QueryParameters {
 	return p
 }
 
-// Enrich applies the parameters as query values to the request..
-func (params QueryParameters) Enrich(req *http.Request) {
+// Enrich applies the parameters as query values to the request.
+func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 	if err := params.Validate(); err != nil {
 		params.Error(err)
 	}
 
 	for pt := range params.Iterate() {
-		req.URL.Query().Add(pt.N , pt.V)
+		req.URL.Query().Add(pt.N, pt.V)
 	}
 }

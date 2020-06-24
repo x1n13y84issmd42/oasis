@@ -9,6 +9,14 @@ type NullObjectPrototype struct {
 	Error error
 }
 
+// NullObject creates a new NullONullObjectPrototype instance.
+func NullObject(err error, log Logger) NullObjectPrototype {
+	return NullObjectPrototype{
+		Error: err,
+		Log:   log,
+	}
+}
+
 // Report reports the contained error.
 func (spec NullObjectPrototype) Report() {
 	if spec.Error != nil {

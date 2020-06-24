@@ -11,6 +11,8 @@ type Operation interface {
 	Description() string
 	Method() string
 	Path() string
+	Host(hostHint string) ParameterSource
+
 	CreateRequest() *http.Request
 
 	Data() *OperationData
@@ -20,7 +22,7 @@ type Operation interface {
 // (spec path, spec op, cli input, test output) needed in order to build
 // an http.Request instance.
 type OperationData struct {
-	URL     Parameters
-	Query   Parameters
-	Headers Parameters
+	URL     StringParameters
+	Query   RequestEnrichmentParameters
+	Headers RequestEnrichmentParameters
 }

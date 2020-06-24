@@ -14,10 +14,7 @@ func Load(path string, logger contract.Logger) contract.Spec {
 
 	spec, specErr := openapi3.Load(path, logger)
 	if specErr != nil {
-		return api.NullSpec{
-			Error: specErr,
-			Log:   logger,
-		}
+		return api.NoSpec(specErr, logger)
 	}
 
 	return spec

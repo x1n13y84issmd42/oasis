@@ -5,9 +5,13 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 // NullSpec ...
 type NullSpec struct {
 	contract.NullObjectPrototype
+}
 
-	Log   contract.Logger
-	Error error
+// NoSpec creates a new NullSpec instance.
+func NoSpec(err error, log contract.Logger) NullSpec {
+	return NullSpec{
+		NullObjectPrototype: contract.NullObject(err, log),
+	}
 }
 
 // Operations ...

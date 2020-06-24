@@ -10,6 +10,7 @@ import (
 type OperationPrototype struct {
 	contract.EntityTrait
 	contract.Operation
+
 	data contract.OperationData
 }
 
@@ -24,8 +25,11 @@ func NewOperationPrototype(log contract.Logger) *OperationPrototype {
 // CreateRequest creates an http.Request instance and prepares it to make an API request.
 func (op *OperationPrototype) CreateRequest() *http.Request {
 	res, _ := http.NewRequest(op.Method(), op.data.URL.String(), nil)
-	op.Data().Query.Enrich(res)
-	op.Data().Headers.Enrich(res)
+
+	//TODO: these should come from the spec along with the op and be treated
+	// as any other request enrichment thing (like security).
+	// op.Data().Query.Enrich(res)
+	// op.Data().Headers.Enrich(res)
 	return res
 }
 

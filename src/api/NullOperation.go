@@ -10,9 +10,13 @@ import (
 // Reports the contained error on every method call.
 type NullOperation struct {
 	contract.NullObjectPrototype
+}
 
-	Log   contract.Logger
-	Error error
+// NoOperation creates a new NullOperation instance.
+func NoOperation(err error, log contract.Logger) *NullOperation {
+	return &NullOperation{
+		NullObjectPrototype: contract.NullObject(err, log),
+	}
 }
 
 // CreateRequest ...
@@ -53,6 +57,12 @@ func (op NullOperation) Path() string {
 
 // Data ...
 func (op NullOperation) Data() *contract.OperationData {
+	op.Report()
+	return nil
+}
+
+// Host ...
+func (op NullOperation) Host(h string) contract.ParameterSource {
 	op.Report()
 	return nil
 }
