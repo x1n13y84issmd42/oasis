@@ -90,15 +90,15 @@ func (log Log) LoadingSpec(path string) {
 func (log Log) PrintOperations(ops contract.OperationIterator) {
 	for op := range ops {
 		if op.ID() != "" {
-			log.Println(1, "\t%s [%s]", log.Style.Op(op.Name), log.Style.Op(op.ID))
+			log.Println(1, "\t%s [%s]", log.Style.Op(op.Name()), log.Style.Op(op.ID()))
 			if op.Description() != "" {
-				log.Println(1, "\t%s", op.Description)
+				log.Println(1, "\t%s", strings.ReplaceAll(op.Description(), "\n", "\n\t"))
 			}
 		} else {
-			log.Println(1, "\t%s", log.Style.Op(op.Name))
+			log.Println(1, "\t%s", log.Style.Op(op.Name()))
 		}
-		log.Println(1, "\t%s @ %s\n", op.Method, log.Style.URL(op.Path))
-		log.Println(1, "")
+		log.Println(1, "\t%s @ %s\n", op.Method(), log.Style.URL(op.Path()))
+		// log.Println(1, "")
 	}
 }
 

@@ -135,8 +135,9 @@ paths:
       tags:
       - pet
       summary: Finds Pets by tags
-      description: Muliple tags can be provided with comma separated strings. Use         tag1,
-        tag2, tag3 for testing.
+      description: "Muliple tags can be provided with comma separated strings.
+      
+      Use tag1, tag2, tag3 for testing."
       operationId: findPetsByTags
       parameters:
       - name: tags
@@ -352,8 +353,9 @@ paths:
       tags:
       - store
       summary: Find purchase order by ID
-      description: For valid response try integer IDs with value >= 1 and <= 10.         Other
-        values will generated exceptions
+      description: "For valid response try integer IDs with value >= 1 and <= 10.
+
+      Other values will generated exceptions"
       operationId: getOrderById
       parameters:
       - name: orderId
@@ -385,8 +387,9 @@ paths:
       tags:
       - store
       summary: Delete purchase order by ID
-      description: For valid response try integer IDs with positive integer value.         Negative
-        or non-integer values will generate API errors
+      description: "For valid response try integer IDs with positive integer value.
+      
+      Negative or non-integer values will generate API errors"
       operationId: deleteOrder
       parameters:
       - name: orderId
