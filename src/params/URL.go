@@ -11,7 +11,7 @@ import (
 // which is an API host name.
 type URLParameters struct {
 	contract.EntityTrait
-	*Parameters
+	*Set
 
 	Path string
 }
@@ -20,7 +20,7 @@ type URLParameters struct {
 func URL(path string, log contract.Logger) *URLParameters {
 	p := &URLParameters{
 		EntityTrait: contract.Entity(log),
-		Parameters:  New(),
+		Set:         NewSet(),
 		Path:        path,
 	}
 

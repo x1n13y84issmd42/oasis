@@ -1,9 +1,9 @@
 package contract
 
-// Parameters is an interface to a set of named values used as input parameters for an operation.
+// Set is an interface to a set of named values used as input parameters for an operation.
 // Operation parameters come from various sources at various stages of testing, some of them are required,
 // some are optional.
-type Parameters interface {
+type Set interface {
 	Load(src ParameterSource)
 	Require(paramName string)
 	Validate() error
@@ -13,14 +13,14 @@ type Parameters interface {
 // StringParameters represent all the available parameters as a string value.
 // At the moment it is used for building a URL.
 type StringParameters interface {
-	Parameters
+	Set
 	String() string
 }
 
 // RequestEnrichmentParameters is used to enrich http.Request instances
 // with parameters. Ued for headers & query values.
 type RequestEnrichmentParameters interface {
-	Parameters
+	Set
 	RequestEnrichment
 }
 

@@ -9,14 +9,14 @@ import (
 // QueryParameters is the source for URL query parameters.
 type QueryParameters struct {
 	contract.EntityTrait
-	*Parameters
+	*MultiSet
 }
 
 // Query creates a new QueryParameters instance.
 func Query(log contract.Logger) *QueryParameters {
 	p := &QueryParameters{
 		EntityTrait: contract.Entity(log),
-		Parameters:  New(),
+		MultiSet:    NewMultiSet(),
 	}
 
 	return p
@@ -28,7 +28,11 @@ func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 		params.Error(err)
 	}
 
+	q := req.URL.Query()
+
 	for pt := range params.Iterate() {
-		req.URL.Query().Add(pt.N, pt.V)
+		q.Add(pt.N, pt.V)
 	}
+
+	req.URL.RawQuery = q.Encode()
 }

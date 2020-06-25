@@ -9,14 +9,14 @@ import (
 // HeadersParameters is the source for request header parameters.
 type HeadersParameters struct {
 	contract.EntityTrait
-	*Parameters
+	*MultiSet
 }
 
 // Headers creates a new HeadersParameters instance.
 func Headers(log contract.Logger) *HeadersParameters {
 	p := &HeadersParameters{
 		EntityTrait: contract.Entity(log),
-		Parameters:  New(),
+		MultiSet:    NewMultiSet(),
 	}
 
 	return p
@@ -29,6 +29,6 @@ func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 	}
 
 	for pt := range params.Iterate() {
-		req.Header.Set(pt.N, pt.V)
+		req.Header.Add(pt.N, pt.V)
 	}
 }

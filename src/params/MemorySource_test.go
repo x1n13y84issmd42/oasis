@@ -7,10 +7,10 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
-func Test_MemoryParameterSource(T *testing.T) {
-	src := params.NewMemoryParameterSource()
-	src.Data["b"] = "BB"
-	src.Data["a"] = "AAAAA"
+func Test_MemorySource(T *testing.T) {
+	src := params.NewMemorySource()
+	src.Add("b", "BB")
+	src.Add("a", "AAAAA")
 
 	T.Run("Get", func(T *testing.T) {
 		assert.Equal(T, "AAAAA", src.Get("a"))

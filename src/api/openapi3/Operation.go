@@ -63,7 +63,7 @@ func (op *Operation) Host(hostHint string) contract.ParameterSource {
 	}
 
 	if host != nil {
-		src := params.NewMemoryParameterSource()
+		src := params.NewMemorySource()
 		src.Add(params.KeyHost, *host)
 		return src
 	}
