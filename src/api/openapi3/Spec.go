@@ -96,7 +96,6 @@ func (spec *Spec) MakeOperation(
 		RequestPath:        oasPath,
 		SpecOp:             oasOp,
 		SpecPath:           oasPathItem,
-		SpecHosts:          &spec.OAS.Servers,
 	}
 
 	op.OperationPrototype.Operation = op

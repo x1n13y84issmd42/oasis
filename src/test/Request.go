@@ -20,7 +20,7 @@ func NewRequest(op contract.Operation, log contract.Logger) *Request {
 	req := &Request{
 		EntityTrait: contract.Entity(log),
 
-		HTTPRequest: op.CreateRequest(),
+		HTTPRequest: op.GetRequest(),
 		HTTPClient: &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse

@@ -15,11 +15,11 @@ func Success() *contract.OperationResult {
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers & content against
 // the definitions founds in an OAS spec file.
-func Operation(specOp contract.Operation, enrichment *[]contract.RequestEnrichment, logger contract.Logger) (result *contract.OperationResult) {
-	logger.TestingOperation(specOp)
+func Operation(op contract.Operation, enrichment *[]contract.RequestEnrichment, logger contract.Logger) (result *contract.OperationResult) {
+	logger.TestingOperation(op)
 
 	// Creating a request.
-	req := NewRequest(specOp, logger)
+	req := NewRequest(op, logger)
 
 	// Extending the request with stuff.
 	for _, en := range *enrichment {

@@ -22,8 +22,8 @@ func NewOperationPrototype(log contract.Logger) *OperationPrototype {
 	}
 }
 
-// CreateRequest creates an http.Request instance and prepares it to make an API request.
-func (op *OperationPrototype) CreateRequest() *http.Request {
+// GetRequest creates an http.Request instance and prepares it to make an API request.
+func (op *OperationPrototype) GetRequest() *http.Request {
 	res, _ := http.NewRequest(op.Method(), op.data.URL.String(), nil)
 
 	//TODO: these should come from the spec along with the op and be treated

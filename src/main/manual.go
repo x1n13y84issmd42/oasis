@@ -20,27 +20,22 @@ func Manual(args *env.Args, logger contract.Logger) {
 	result := test.Success()
 
 	if len(specOps) > 0 {
-		for _, specOp := range specOps {
+		for _, op := range specOps {
 			// Stuffing it with data.
-			specOp.Data().URL.Load(args.Use.PathParameters)
-			specOp.Data().URL.Load(specOp.Host(args.Host))
-
-			//TODO:
-			// specOp.Data().URL.Load(HostResolver(args.Use.Host))
-			// HostResolver implements the ParameterSource contract.
-			// HostResolver's logic is a spec's domain, so it comes either from spec
-			// or from op.
-
-			specOp.Data().Query.Load(args.Use.Query)
-			specOp.Data().Headers.Load(args.Use.Headers)
+			op.Data().URL.Load(args.Use.PathParameters)
+			op.Data().URL.Load(op.Resolve().Host(args.Host))
+			op.Data().Query.Load(args.Use.Query)
+			op.Data().Headers.Load(args.Use.Headers)
 
 			enrichment := []contract.RequestEnrichment{
-				specOp.Data().Query,
-				specOp.Data().Headers,
+				op.Data().Query,
+				op.Data().Headers,
+
+				op.Resolve().Security(args.Use.Security),
 			}
 
 			// Testing.
-			result = result.And(test.Operation(specOp, &enrichment, logger))
+			result = result.And(test.Operation(op, &enrichment, logger))
 		}
 
 	} else {

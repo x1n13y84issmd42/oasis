@@ -19,8 +19,8 @@ func NoOperation(err error, log contract.Logger) *NullOperation {
 	}
 }
 
-// CreateRequest ...
-func (op NullOperation) CreateRequest() *http.Request {
+// GetRequest ...
+func (op NullOperation) GetRequest() *http.Request {
 	op.Report()
 	return nil
 }
@@ -61,8 +61,8 @@ func (op NullOperation) Data() *contract.OperationData {
 	return nil
 }
 
-// Host ...
-func (op NullOperation) Host(h string) contract.ParameterSource {
+// Resolve ...
+func (op NullOperation) Resolve() contract.DataResolver {
 	op.Report()
 	return nil
 }
