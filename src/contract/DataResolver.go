@@ -10,5 +10,5 @@ type DataResolver interface {
 	// spec standards.
 	Host(hostHint string) ParameterSource
 	Security(secName string) Security
-	Response(status int, CT string) Validator
+	Response(status int64, CT string) Validator
 }

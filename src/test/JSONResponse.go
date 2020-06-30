@@ -10,7 +10,7 @@ import (
 )
 
 // JSONResponse tests JSON response bodies.
-func JSONResponse(resp *http.Response, specResp *api.Response, logger contract.Logger) bool {
+func JSONResponse(resp *http.Response, schema *api.Schema, logger contract.Logger) bool {
 	if resp.Body == nil {
 		return false
 	}
@@ -19,24 +19,24 @@ func JSONResponse(resp *http.Response, specResp *api.Response, logger contract.L
 
 	var err error = nil
 
-	if res, err := TryJSONObjectResponse(&respData, specResp, logger); err == nil {
-		return Schema(res, specResp.Schema, logger)
+	if res, err := TryJSONObjectResponse(&respData, logger); err == nil {
+		return Schema(res, schema, logger)
 	}
 
-	if res, err := TryJSONArrayResponse(&respData, specResp, logger); err == nil {
-		return Schema(res, specResp.Schema, logger)
+	if res, err := TryJSONArrayResponse(&respData, logger); err == nil {
+		return Schema(res, schema, logger)
 	}
 
-	if res, err := TryJSONStringResponse(&respData, specResp, logger); err == nil {
-		return Schema(res, specResp.Schema, logger)
+	if res, err := TryJSONStringResponse(&respData, logger); err == nil {
+		return Schema(res, schema, logger)
 	}
 
-	if res, err := TryJSONNumberResponse(&respData, specResp, logger); err == nil {
-		return Schema(res, specResp.Schema, logger)
+	if res, err := TryJSONNumberResponse(&respData, logger); err == nil {
+		return Schema(res, schema, logger)
 	}
 
-	if res, err := TryJSONBooleanResponse(&respData, specResp, logger); err == nil {
-		return Schema(res, specResp.Schema, logger)
+	if res, err := TryJSONBooleanResponse(&respData, logger); err == nil {
+		return Schema(res, schema, logger)
 	}
 
 	if err != nil {
@@ -55,25 +55,25 @@ type (
 )
 
 // TryJSONStringResponse tries to unmarshal respData as a string.
-func TryJSONStringResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res string, err error) {
+func TryJSONStringResponse(respData *[]byte, logger contract.Logger) (res string, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONNumberResponse tries to unmarshal respData as a number.
-func TryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res int64, err error) {
+func TryJSONNumberResponse(respData *[]byte, logger contract.Logger) (res int64, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONBooleanResponse tries to unmarshal respData as a boolean.
-func TryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res bool, err error) {
+func TryJSONBooleanResponse(respData *[]byte, logger contract.Logger) (res bool, err error) {
 	err = json.Unmarshal(*respData, &res)
 	return
 }
 
 // TryJSONObjectResponse tries to unmarshal respData as an object.
-func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONMap, err error) {
+func TryJSONObjectResponse(respData *[]byte, logger contract.Logger) (res *JSONMap, err error) {
 	v := make(JSONMap)
 	err = json.Unmarshal(*respData, &v)
 
@@ -88,7 +88,7 @@ func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger cont
 }
 
 // TryJSONArrayResponse tries to unmarshal respData as an array.
-func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONArray, err error) {
+func TryJSONArrayResponse(respData *[]byte, logger contract.Logger) (res *JSONArray, err error) {
 	var v JSONArray
 	err = json.Unmarshal(*respData, &v)
 

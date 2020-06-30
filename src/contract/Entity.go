@@ -16,5 +16,5 @@ func Entity(log Logger) EntityTrait {
 // Error is an error handler.
 func (e EntityTrait) Error(err error) {
 	e.Log.Error(err)
-	panic("AAAAAAAAAAAA")
+	panic("Why are you like this?..")
 }

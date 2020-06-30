@@ -21,6 +21,8 @@ func Manual(args *env.Args, logger contract.Logger) {
 
 	if len(specOps) > 0 {
 		for _, op := range specOps {
+			logger.TestingOperation(op)
+
 			// Stuffing it with data.
 			op.Data().URL.Load(args.Use.PathParameters)
 			op.Data().URL.Load(op.Resolve().Host(args.Host))
@@ -31,11 +33,13 @@ func Manual(args *env.Args, logger contract.Logger) {
 				op.Data().Query,
 				op.Data().Headers,
 
-				op.Resolve().Security(args.Use.Security),
+				// op.Resolve().Security(args.Use.Security),
 			}
 
+			v := op.Resolve().Response(args.Expect.Status, args.Expect.CT)
+
 			// Testing.
-			result = result.And(test.Operation(op, &enrichment, logger))
+			result = result.And(test.Operation(op, &enrichment, v, logger))
 		}
 
 	} else {

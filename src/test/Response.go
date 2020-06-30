@@ -41,7 +41,7 @@ func Response(resp *http.Response, specResp *api.Response, logger contract.Logge
 		if specResp.ContentType != "" {
 			switch specResp.ContentType {
 			case "application/json":
-				contentOK = JSONResponse(resp, specResp, logger)
+				contentOK = JSONResponse(resp, specResp.Schema, logger)
 
 			default:
 				logger.NOMESSAGE("The Content-Type of '%s' is not supported.\n", specResp.ContentType)

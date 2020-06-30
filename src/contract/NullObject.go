@@ -1,6 +1,9 @@
 package contract
 
-import "errors"
+import (
+	"errors"
+	"os"
+)
 
 // NullObjectPrototype is a prototype implementation of null entities,
 // such as NullSpec and NullOperation.
@@ -21,6 +24,8 @@ func NullObject(err error, log Logger) NullObjectPrototype {
 func (spec NullObjectPrototype) Report() {
 	if spec.Error != nil {
 		spec.Log.Error(spec.Error)
+		// panic("AAAAaaaa")
+		os.Exit(128)
 	} else {
 		spec.Log.Error(errors.New("no error in a null object"))
 	}

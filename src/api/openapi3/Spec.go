@@ -96,6 +96,7 @@ func (spec *Spec) MakeOperation(
 		RequestPath:        oasPath,
 		SpecOp:             oasOp,
 		SpecPath:           oasPathItem,
+		Resolver:           NewDataResolver(spec.Log, spec.OAS, &oasOp.Responses),
 	}
 
 	op.OperationPrototype.Operation = op

@@ -152,12 +152,12 @@ func (log Log) UsingParameterExample(paramName string, in string, container stri
 }
 
 // HeaderHasNoValue informs that a required response header has no data.
-func (log Log) HeaderHasNoValue(hdr *api.Header) {
-	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr.Name)
+func (log Log) HeaderHasNoValue(hdr string) {
+	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr)
 }
 
 // ResponseHasWrongStatus informs that the received response has wrong/unexpected status.
-func (log Log) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
+func (log Log) ResponseHasWrongStatus(expectedStatus int, actualStatus int) {
 	m := strings.Join([]string{
 		"\t",
 		"Expected the %s ",
@@ -165,11 +165,11 @@ func (log Log) ResponseHasWrongStatus(resp *api.Response, actualStatus int) {
 		" in response, but got %s",
 		".",
 	}, "")
-	log.Println(2, m, log.Style.ValueExpected(resp.StatusCode), log.Style.ValueActual(actualStatus))
+	log.Println(2, m, log.Style.ValueExpected(expectedStatus), log.Style.ValueActual(actualStatus))
 }
 
 // ResponseHasWrongContentType informs that the received response has wrong/unexpected Content-Type header value.
-func (log Log) ResponseHasWrongContentType(resp *api.Response, actualCT string) {
+func (log Log) ResponseHasWrongContentType(expectedCT string, actualCT string) {
 	m := strings.Join([]string{
 		"\t",
 		"Expected the %s ",
@@ -178,7 +178,7 @@ func (log Log) ResponseHasWrongContentType(resp *api.Response, actualCT string) 
 		".",
 	}, "")
 
-	log.Println(2, m, log.Style.ValueExpected(resp.ContentType), log.Style.ValueActual(actualCT))
+	log.Println(2, m, log.Style.ValueExpected(expectedCT), log.Style.ValueActual(actualCT))
 }
 
 // TestingOperation informs about an operation being tested.
@@ -188,14 +188,14 @@ func (log Log) TestingOperation(op contract.Operation) {
 }
 
 // OperationOK informs that the operation has finished successfully.
-func (log Log) OperationOK(res contract.Operation) {
+func (log Log) OperationOK() {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.Style.OK("SUCCESS"))
 	log.Print(2, "\n")
 }
 
 // OperationFail informs that the operation has failed.
-func (log Log) OperationFail(res contract.Operation) {
+func (log Log) OperationFail() {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.Style.Failure("FAILURE"))
 	log.Print(2, "\n")

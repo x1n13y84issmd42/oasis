@@ -30,12 +30,12 @@ type Logger interface {
 	ParameterHasNoExample(paramName string, in string, container string)
 	UsingParameterExample(paramName string, in string, container string)
 
-	// HeaderHasNoValue(header *api.Header)
-	// ResponseHasWrongStatus(schema *api.Response, actualStatus int)
-	// ResponseHasWrongContentType(schema *api.Response, actualCT string)
+	HeaderHasNoValue(hdr string)
+	ResponseHasWrongStatus(expectedStatus int, actualStatus int)
+	ResponseHasWrongContentType(expectedCT string, actualCT string)
 
-	OperationOK(res Operation)
-	OperationFail(res Operation)
+	OperationOK()
+	OperationFail()
 	OperationNotFound(op string)
 
 	// SchemaTesting(schema *api.Schema, data interface{})
