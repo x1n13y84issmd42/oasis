@@ -54,29 +54,45 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/x1n13y84issmd42/oasis/src/params/MemoryParameterSource.go (100.0%)</option>
+				<option value="file0">github.com/x1n13y84issmd42/oasis/src/api/openapi3/DataResolver.go (0.0%)</option>
 				
-				<option value="file1">github.com/x1n13y84issmd42/oasis/src/params/Parameters.go (0.0%)</option>
+				<option value="file1">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Loader.go (0.0%)</option>
 				
-				<option value="file2">github.com/x1n13y84issmd42/oasis/src/params/URL.go (0.0%)</option>
+				<option value="file2">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Operation.go (0.0%)</option>
 				
-				<option value="file3">github.com/x1n13y84issmd42/oasis/src/srx/Cursor.go (90.0%)</option>
+				<option value="file3">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Parameters.go (0.0%)</option>
 				
-				<option value="file4">github.com/x1n13y84issmd42/oasis/src/srx/Facade.go (46.7%)</option>
+				<option value="file4">github.com/x1n13y84issmd42/oasis/src/api/openapi3/Spec.go (0.0%)</option>
 				
-				<option value="file5">github.com/x1n13y84issmd42/oasis/src/srx/SRX.go (98.0%)</option>
+				<option value="file5">github.com/x1n13y84issmd42/oasis/src/params/Headers.go (83.3%)</option>
 				
-				<option value="file6">github.com/x1n13y84issmd42/oasis/src/test/Header.go (66.7%)</option>
+				<option value="file6">github.com/x1n13y84issmd42/oasis/src/params/MemorySource.go (100.0%)</option>
 				
-				<option value="file7">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (0.0%)</option>
+				<option value="file7">github.com/x1n13y84issmd42/oasis/src/params/MultiSet.go (100.0%)</option>
 				
-				<option value="file8">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (0.0%)</option>
+				<option value="file8">github.com/x1n13y84issmd42/oasis/src/params/NullSource.go (0.0%)</option>
 				
-				<option value="file9">github.com/x1n13y84issmd42/oasis/src/test/Request.go (0.0%)</option>
+				<option value="file9">github.com/x1n13y84issmd42/oasis/src/params/Query.go (87.5%)</option>
 				
-				<option value="file10">github.com/x1n13y84issmd42/oasis/src/test/Response.go (0.0%)</option>
+				<option value="file10">github.com/x1n13y84issmd42/oasis/src/params/Set.go (100.0%)</option>
 				
-				<option value="file11">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (0.0%)</option>
+				<option value="file11">github.com/x1n13y84issmd42/oasis/src/params/URL.go (100.0%)</option>
+				
+				<option value="file12">github.com/x1n13y84issmd42/oasis/src/test/Header.go (66.7%)</option>
+				
+				<option value="file13">github.com/x1n13y84issmd42/oasis/src/test/JSONResponse.go (94.6%)</option>
+				
+				<option value="file14">github.com/x1n13y84issmd42/oasis/src/test/NullValidator.go (0.0%)</option>
+				
+				<option value="file15">github.com/x1n13y84issmd42/oasis/src/test/Operation.go (0.0%)</option>
+				
+				<option value="file16">github.com/x1n13y84issmd42/oasis/src/test/Request.go (0.0%)</option>
+				
+				<option value="file17">github.com/x1n13y84issmd42/oasis/src/test/Schema.go (100.0%)</option>
+				
+				<option value="file18">github.com/x1n13y84issmd42/oasis/src/test/Validator.go (0.0%)</option>
+				
+				<option value="file19">github.com/x1n13y84issmd42/oasis/src/test/expect/Expect.go (93.5%)</option>
 				
 				</select>
 			</div>
@@ -90,7 +106,545 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">package params
+		<pre class="file" id="file0" style="display: none">package openapi3
+
+import (
+        "encoding/json"
+        "strconv"
+
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/api"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+        "github.com/x1n13y84issmd42/oasis/src/errors"
+        "github.com/x1n13y84issmd42/oasis/src/params"
+        "github.com/x1n13y84issmd42/oasis/src/test"
+        "github.com/x1n13y84issmd42/oasis/src/test/expect"
+)
+
+// DataResolver provides spec data based on user input.
+// OAS spec file may contain multiple definitions for everything,
+// so this resolver helps to choose the right one among htem
+// based on hints.
+type DataResolver struct {
+        contract.EntityTrait
+        Spec          *openapi3.Swagger
+        SpecResponses *openapi3.Responses
+}
+
+// NewDataResolver creates a new DataResolver instance.
+func NewDataResolver(log contract.Logger, spec *openapi3.Swagger, resps *openapi3.Responses) *DataResolver <span class="cov0" title="0">{
+        return &amp;DataResolver{
+                EntityTrait:   contract.Entity(log),
+                Spec:          spec,
+                SpecResponses: resps,
+        }
+}</span>
+
+// Host returns a ParameterSource which contains a host name
+// under the params.KeyHost key to be used in the URL parameter set.
+func (r *DataResolver) Host(hostHint string) contract.ParameterSource <span class="cov0" title="0">{
+        var host *string
+        if hostHint == "" </span><span class="cov0" title="0">{
+                if len(r.Spec.Servers) &gt; 0 </span><span class="cov0" title="0">{
+                        host = &amp;(r.Spec.Servers)[0].URL
+                }</span>
+        } else<span class="cov0" title="0"> {
+                for _, oasServer := range r.Spec.Servers </span><span class="cov0" title="0">{
+                        if oasServer.Description == hostHint </span><span class="cov0" title="0">{
+                                host = &amp;oasServer.URL
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">if host != nil </span><span class="cov0" title="0">{
+                src := params.NewMemorySource()
+                src.Add(params.KeyHost, *host)
+                return src
+        }</span>
+
+        <span class="cov0" title="0">return params.NoSource(errors.NotFound("Host", hostHint, nil), r.Log)</span>
+}
+
+// Security ...
+func (r *DataResolver) Security(name string) contract.Security <span class="cov0" title="0">{
+        return nil
+}</span>
+
+// Response returns a Validator instance to test response correctness.
+// Since there may be multiple responses in a OAS spec file, it selects
+// on of them based on the arguments.
+// If no status is supplied then 200 is used by default.
+// If no CT is supplied then "application/json" is used by default.
+func (r *DataResolver) Response(status int64, CT string) contract.Validator <span class="cov0" title="0">{
+        v := test.NewValidator(r.Log)
+
+        // Responses a grouped under status codes, so selecting the status code first.
+        // When no particular status is expected, trying to use the 200 as default.
+        specStatus, specResp, err := func() (int64, *openapi3.Response, error) </span><span class="cov0" title="0">{
+                if status == 0 </span><span class="cov0" title="0">{
+                        //TODO: log using default status
+                        status = 200
+                }</span>
+
+                <span class="cov0" title="0">sstatus := strconv.Itoa(int(status))
+
+                r := (*r.SpecResponses)[sstatus]
+
+                if r != nil &amp;&amp; r.Value != nil </span><span class="cov0" title="0">{
+                        return status, r.Value, nil
+                }</span>
+
+                <span class="cov0" title="0">return 0, nil, errors.NotFound("spec response", sstatus, nil)</span>
+        }()
+
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return test.NoValidator(err, r.Log)
+        }</span>
+
+        // Under status code keys there are Content-Typed responses.
+        // Selecting the needed one (or application/json as default).
+        <span class="cov0" title="0">ct, _, err := func() (string, *openapi3.MediaType, error) </span><span class="cov0" title="0">{
+                if CT == "" </span><span class="cov0" title="0">{
+                        CT = "application/json"
+                        //TODO: log using default CT
+                }</span>
+
+                <span class="cov0" title="0">mt := specResp.Content[CT]
+                if mt != nil </span><span class="cov0" title="0">{
+                        return CT, mt, nil
+                }</span>
+
+                <span class="cov0" title="0">return "", nil, errors.NotFound("spec response", CT, nil)</span>
+        }()
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                return test.NoValidator(err, r.Log)
+        }</span>
+
+        <span class="cov0" title="0">v.Expect(expect.Status(int(specStatus)))
+        v.Expect(expect.ContentType(ct))
+
+        err = r.Headers(specResp, v)
+        if err != nil </span><span class="cov0" title="0">{
+                return test.NoValidator(err, r.Log)
+        }</span>
+
+        <span class="cov0" title="0">return v</span>
+}
+
+// Headers populates the provided validator with expectations for HTTP headers.
+func (r *DataResolver) Headers(specResp *openapi3.Response, v contract.Validator) error <span class="cov0" title="0">{
+        for headerName, specHeaderRef := range specResp.Headers </span><span class="cov0" title="0">{
+                if specHeaderRef.Value != nil </span><span class="cov0" title="0">{
+                        specHeader := specHeaderRef.Value
+                        if specHeader.Schema != nil &amp;&amp; specHeader.Schema.Value != nil </span><span class="cov0" title="0">{
+
+                                specSchema, specSchemaErr := r.MakeSchema(headerName, specHeader.Schema.Value)
+                                if specSchemaErr != nil </span><span class="cov0" title="0">{
+                                        return specSchemaErr
+                                }</span>
+
+                                <span class="cov0" title="0">v.Expect(expect.HeaderSchema(headerName, specSchema))</span>
+                        }
+
+                        <span class="cov0" title="0">if specHeader.Required </span><span class="cov0" title="0">{
+                                v.Expect(expect.HeaderRequired(headerName))
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// Content populates the provided validator with expectations for HTTP response body.
+func (r *DataResolver) Content(mt *openapi3.MediaType, CT string, v contract.Validator) error <span class="cov0" title="0">{
+        if mt.Schema != nil &amp;&amp; mt.Schema.Value != nil </span><span class="cov0" title="0">{
+
+                specSchema, specSchemaErr := r.MakeSchema("Response", mt.Schema.Value)
+                if specSchemaErr != nil </span><span class="cov0" title="0">{
+                        return errors.InvalidResponse("Failed to create a '"+CT+"' response body schema.", specSchemaErr)
+                }</span>
+
+                <span class="cov0" title="0">v.Expect(expect.ContentSchema(specSchema))</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// MakeSchema creates an api.Schema instance from available operation spec data.
+// The schema is later used to test response contents (headers &amp; bodies) against it.
+func (r *DataResolver) MakeSchema(
+        oasSchemaName string,
+        oasSchema *openapi3.Schema,
+) (*api.Schema, error) <span class="cov0" title="0">{
+        jsonSchema, jsonSchemaErr := json.Marshal(oasSchema)
+        if jsonSchemaErr == nil </span><span class="cov0" title="0">{
+                sch := make(api.JSONSchema)
+                jsonSchemaErr = json.Unmarshal(jsonSchema, &amp;sch)
+                if jsonSchemaErr == nil </span><span class="cov0" title="0">{
+                        // Adding the components object to the JSON schema object because of $refs
+                        jsonComps, jsonCompsErr := r.Spec.Components.MarshalJSON()
+                        if jsonCompsErr == nil </span><span class="cov0" title="0">{
+                                comps := make(map[string]interface{})
+                                jsonCompsErr = json.Unmarshal(jsonComps, &amp;comps)
+                                if jsonCompsErr == nil </span><span class="cov0" title="0">{
+                                        sch["components"] = comps
+                                }</span> else<span class="cov0" title="0"> {
+                                        return nil, errors.InvalidSchema(oasSchemaName, "Failed to unmarshal Components.", jsonCompsErr)
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                return nil, errors.InvalidSchema(oasSchemaName, "Failed to marshal Components.", jsonCompsErr)
+                        }</span>
+
+                        <span class="cov0" title="0">return &amp;api.Schema{
+                                JSONSchema: sch,
+                                Name:       oasSchemaName,
+                        }, nil</span>
+                }
+
+                <span class="cov0" title="0">return nil, errors.InvalidSchema(oasSchemaName, "Failed to unmarshal the schema.", jsonSchemaErr)</span>
+        }
+
+        <span class="cov0" title="0">return nil, errors.InvalidSchema(oasSchemaName, "Failed to marshal the schema.", jsonSchemaErr)</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package openapi3
+
+import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// Load reads the spec file at path, parses it and returns parsed spec data.
+func Load(path string, logger contract.Logger) (*Spec, error) <span class="cov0" title="0">{
+        oas, oasErr := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(path)
+        if oasErr == nil </span><span class="cov0" title="0">{
+                return &amp;Spec{
+                        OAS: oas,
+                        Log: logger,
+                }, nil
+        }</span>
+
+        <span class="cov0" title="0">return nil, oasErr</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package openapi3
+
+import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/api"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// Operation provides access to OAS3-specific API data.
+type Operation struct {
+        *api.OperationPrototype
+
+        RequestMethod string
+        RequestPath   string
+        SpecPath      *openapi3.PathItem
+        SpecOp        *openapi3.Operation
+
+        Resolver *DataResolver
+}
+
+// ID ...
+func (op *Operation) ID() string <span class="cov0" title="0">{
+        return op.SpecOp.OperationID
+}</span>
+
+// Name ...
+func (op *Operation) Name() string <span class="cov0" title="0">{
+        return op.SpecOp.Summary
+}</span>
+
+// Description ...
+func (op *Operation) Description() string <span class="cov0" title="0">{
+        return op.SpecOp.Description
+}</span>
+
+// Method ...
+func (op *Operation) Method() string <span class="cov0" title="0">{
+        return op.RequestMethod
+}</span>
+
+// Path ...
+func (op *Operation) Path() string <span class="cov0" title="0">{
+        return op.RequestPath
+}</span>
+
+// Resolve returns a DataResolver instance which is used
+// to resolve data based on user input.
+func (op *Operation) Resolve() contract.DataResolver <span class="cov0" title="0">{
+        return op.Resolver
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package openapi3
+
+import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// SpecParameterSource provides access to spec data.
+type SpecParameterSource struct {
+        Params *openapi3.Parameters
+        In     string
+}
+
+// Get retrieves the requested parameters from the spec parameter list.
+func (ds *SpecParameterSource) Get(n string) string <span class="cov0" title="0">{
+        for _, specP := range *ds.Params </span><span class="cov0" title="0">{
+                if specP == nil || specP.Value == nil || specP.Value.In != ds.In </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">if specP.Value.Example != nil </span><span class="cov0" title="0">{
+                        return specP.Value.Example.(string)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return ""</span>
+}
+
+// Iterate returns an iterable channel to read parameter values.
+func (ds *SpecParameterSource) Iterate() contract.ParameterIterator <span class="cov0" title="0">{
+        ch := make(contract.ParameterIterator)
+
+        go func() </span><span class="cov0" title="0">{
+                close(ch)
+        }</span>()
+
+        <span class="cov0" title="0">return ch</span>
+}
+
+// PathParameterSource creates a parameter source concerned with extracting the "path" parameters from a spec.
+func PathParameterSource(p *openapi3.Parameters) *SpecParameterSource <span class="cov0" title="0">{
+        return &amp;SpecParameterSource{
+                Params: p,
+                In:     "path",
+        }
+}</span>
+
+// QueryParameterSource creates a parameter source concerned with extracting the "query" parameters from a spec.
+func QueryParameterSource(p *openapi3.Parameters) *SpecParameterSource <span class="cov0" title="0">{
+        return &amp;SpecParameterSource{
+                Params: p,
+                In:     "query",
+        }
+}</span>
+
+// HeadersParameterSource creates a parameter source concerned with extracting the "header" parameters from a spec.
+func HeadersParameterSource(p *openapi3.Parameters) *SpecParameterSource <span class="cov0" title="0">{
+        return &amp;SpecParameterSource{
+                Params: p,
+                In:     "header",
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package openapi3
+
+import (
+        "github.com/getkin/kin-openapi/openapi3"
+        "github.com/x1n13y84issmd42/oasis/src/api"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+        "github.com/x1n13y84issmd42/oasis/src/errors"
+        "github.com/x1n13y84issmd42/oasis/src/params"
+)
+
+// Spec is an OAS3-backed API test spec.
+type Spec struct {
+        Log contract.Logger
+        OAS *openapi3.Swagger
+}
+
+// Operations returns an iterable channel with operations.
+func (spec *Spec) Operations() contract.OperationIterator <span class="cov0" title="0">{
+
+        ch := make(contract.OperationIterator)
+
+        addOp := func(oasOp *openapi3.Operation, method string, oasPath string, oasPathItem *openapi3.PathItem) </span><span class="cov0" title="0">{
+                if oasOp != nil </span><span class="cov0" title="0">{
+                        ch &lt;- spec.MakeOperation(method, oasOp, oasPath, oasPathItem)
+                }</span>
+        }
+
+        <span class="cov0" title="0">go func() </span><span class="cov0" title="0">{
+                for oasPath, oasPathItem := range spec.OAS.Paths </span><span class="cov0" title="0">{
+                        addOp(oasPathItem.Get, "GET", oasPath, oasPathItem)
+                        addOp(oasPathItem.Post, "POST", oasPath, oasPathItem)
+                        addOp(oasPathItem.Put, "PUT", oasPath, oasPathItem)
+                        addOp(oasPathItem.Delete, "DELETE", oasPath, oasPathItem)
+                        addOp(oasPathItem.Patch, "PATCH", oasPath, oasPathItem)
+                        addOp(oasPathItem.Head, "HEAD", oasPath, oasPathItem)
+                        addOp(oasPathItem.Options, "OPTIONS", oasPath, oasPathItem)
+                        addOp(oasPathItem.Trace, "TRACE", oasPath, oasPathItem)
+                        addOp(oasPathItem.Connect, "CONNECT", oasPath, oasPathItem)
+                }</span>
+
+                <span class="cov0" title="0">close(ch)</span>
+        }()
+
+        <span class="cov0" title="0">return ch</span>
+}
+
+// GetOperation returns a list of all available test operations from the spec.
+func (spec *Spec) GetOperation(name string) contract.Operation <span class="cov0" title="0">{
+        filterOp := func(oasOp *openapi3.Operation) bool </span><span class="cov0" title="0">{
+                return (oasOp != nil &amp;&amp; (oasOp.Summary == name || oasOp.OperationID == name))
+        }</span>
+
+        <span class="cov0" title="0">for oasPath, oasPathItem := range spec.OAS.Paths </span><span class="cov0" title="0">{
+                if filterOp(oasPathItem.Get) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("GET", oasPathItem.Get, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Post) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("POST", oasPathItem.Post, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Put) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Delete) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Patch) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Head) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Options) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Connect) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem)
+                }</span>
+                <span class="cov0" title="0">if filterOp(oasPathItem.Trace) </span><span class="cov0" title="0">{
+                        return spec.MakeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return api.NoOperation(errors.NotFound("Operation", name, nil), spec.Log)</span>
+}
+
+// MakeOperation creates an Operation instance from available spec data.
+func (spec *Spec) MakeOperation(
+        method string,
+        oasOp *openapi3.Operation,
+        oasPath string,
+        oasPathItem *openapi3.PathItem,
+) contract.Operation <span class="cov0" title="0">{
+        op := &amp;Operation{
+                OperationPrototype: api.NewOperationPrototype(spec.Log),
+                RequestMethod:      method,
+                RequestPath:        oasPath,
+                SpecOp:             oasOp,
+                SpecPath:           oasPathItem,
+                Resolver:           NewDataResolver(spec.Log, spec.OAS, &amp;oasOp.Responses),
+        }
+
+        op.OperationPrototype.Operation = op
+
+        op.Data().URL = params.URL(oasPath, spec.Log)
+        op.Data().URL.Load(PathParameterSource(&amp;op.SpecPath.Parameters))
+        op.Data().URL.Load(PathParameterSource(&amp;op.SpecOp.Parameters))
+
+        op.Data().Query = params.Query(spec.Log)
+        op.Data().Query.Load(QueryParameterSource(&amp;op.SpecPath.Parameters))
+        op.Data().Query.Load(QueryParameterSource(&amp;op.SpecOp.Parameters))
+
+        op.Data().Headers = params.Headers(spec.Log)
+        op.Data().Headers.Load(HeadersParameterSource(&amp;op.SpecPath.Parameters))
+        op.Data().Headers.Load(HeadersParameterSource(&amp;op.SpecOp.Parameters))
+
+        requireParameters := func(p *openapi3.Parameter) </span><span class="cov0" title="0">{
+                switch p.In </span>{
+                case "path":<span class="cov0" title="0">
+                        op.Data().URL.Require(p.Name)
+                        break</span>
+                case "query":<span class="cov0" title="0">
+                        op.Data().Query.Require(p.Name)
+                        break</span>
+                case "headers":<span class="cov0" title="0">
+                        op.Data().Headers.Require(p.Name)
+                        break</span>
+                }
+        }
+
+        <span class="cov0" title="0">spec.IterateOverRequiredParameters(&amp;op.SpecPath.Parameters, requireParameters)
+        spec.IterateOverRequiredParameters(&amp;op.SpecOp.Parameters, requireParameters)
+
+        return op</span>
+}
+
+// IterateOverRequiredParameters iterates over items in the provided parameter list
+// and invokes the handler function for every required one.
+func (spec *Spec) IterateOverRequiredParameters(params *openapi3.Parameters, handler func(*openapi3.Parameter)) <span class="cov0" title="0">{
+        for _, specP := range *params </span><span class="cov0" title="0">{
+                if specP == nil || specP.Value == nil || !specP.Value.Required </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">handler(specP.Value)</span>
+        }
+}
+
+// Title return project title.
+func (spec *Spec) Title() string <span class="cov0" title="0">{
+        return spec.OAS.Info.Title
+}</span>
+
+// Description return project description.
+func (spec *Spec) Description() string <span class="cov0" title="0">{
+        return spec.OAS.Info.Description
+}</span>
+
+// Version return project version.
+func (spec *Spec) Version() string <span class="cov0" title="0">{
+        return spec.OAS.Info.Version
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package params
+
+import (
+        "net/http"
+
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// HeadersParameters is the source for request header parameters.
+type HeadersParameters struct {
+        contract.EntityTrait
+        *MultiSet
+}
+
+// Headers creates a new HeadersParameters instance.
+func Headers(log contract.Logger) *HeadersParameters <span class="cov8" title="1">{
+        p := &amp;HeadersParameters{
+                EntityTrait: contract.Entity(log),
+                MultiSet:    NewMultiSet(),
+        }
+
+        return p
+}</span>
+
+// Enrich applies the parameters as header values to the request.
+func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) <span class="cov8" title="1">{
+        if err := params.Validate(); err != nil </span><span class="cov0" title="0">{
+                params.Error(err)
+        }</span>
+
+        <span class="cov8" title="1">for pt := range params.Iterate() </span><span class="cov8" title="1">{
+                req.Header.Add(pt.N, pt.V)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package params
 
 import (
         "sort"
@@ -98,25 +652,30 @@ import (
         "github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// MemoryParameterSource is a parameter source which uses a native map as a storage.
-type MemoryParameterSource struct {
+// MemorySource is a parameter source which uses a native map as a source storage.
+type MemorySource struct {
         Data map[string]string
 }
 
-// NewMemoryParameterSource creates a new MemoryParameterSource instance.
-func NewMemoryParameterSource() *MemoryParameterSource <span class="cov8" title="1">{
-        return &amp;MemoryParameterSource{
+// NewMemorySource creates a new MemoryParameterSource instance.
+func NewMemorySource() *MemorySource <span class="cov8" title="1">{
+        return &amp;MemorySource{
                 Data: map[string]string{},
         }
 }</span>
 
+// Add stores a kv pair in the source.
+func (ds *MemorySource) Add(n string, v string) <span class="cov8" title="1">{
+        ds.Data[n] = v
+}</span>
+
 // Get returns a parameter by it's name.
-func (ds *MemoryParameterSource) Get(pn string) string <span class="cov8" title="1">{
+func (ds *MemorySource) Get(pn string) string <span class="cov8" title="1">{
         return ds.Data[pn]
 }</span>
 
 // Iterate returns an iterable channel to receive parameter tuples.
-func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span class="cov8" title="1">{
+func (ds *MemorySource) Iterate() contract.ParameterIterator <span class="cov8" title="1">{
         ch := make(contract.ParameterIterator)
 
         go func() </span><span class="cov8" title="1">{
@@ -128,7 +687,7 @@ func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span clas
                 <span class="cov8" title="1">sort.Strings(keys)
 
                 for _, pn := range keys </span><span class="cov8" title="1">{
-                        ch &lt;- contract.ParameterTuple{pn, ds.Data[pn]}
+                        ch &lt;- contract.ParameterTuple{N: pn, V: ds.Data[pn]}
                 }</span>
 
                 <span class="cov8" title="1">close(ch)</span>
@@ -138,646 +697,244 @@ func (ds *MemoryParameterSource) Iterate() contract.ParameterIterator <span clas
 }
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package params
+		<pre class="file" id="file7" style="display: none">package params
 
 import (
+        "sort"
+
         "github.com/x1n13y84issmd42/oasis/src/contract"
         "github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
-// OperationData is an interface to access data from various sources
-// (spec path, spec op, cli input, test output) needed in order to build
-// an http.Request instance.
-type OperationData struct {
-        URL     contract.Parameters
-        Query   contract.Parameters
-        Headers contract.Parameters
-}
-
-// ParameterTuple is a pair of parameter name and it's value.
-type ParameterTuple [2]string
-
-// ParameterIterator is an iterable channel to receive tuples
-// of parameter name &amp; parameter value.
-type ParameterIterator chan ParameterTuple
-
-// ParameterFn ...
-type ParameterFn func() string
-
-// ParameterMap ...
-type ParameterMap map[string]string
-
-// Parameters ...
-type Parameters struct {
-        Data     ParameterMap
+// MultiSet is a set of named values used as input parameters for an operation.
+type MultiSet struct {
+        data     map[string][]string
         required []string
 }
 
-// New creates a new Parameters instance.
-func New() *Parameters <span class="cov0" title="0">{
-        return &amp;Parameters{
-                Data:     make(ParameterMap),
+// NewMultiSet creates a new MultiSet instance.
+func NewMultiSet() *MultiSet <span class="cov8" title="1">{
+        return &amp;MultiSet{
+                data:     make(map[string][]string),
                 required: []string{},
         }
 }</span>
 
 // Load reads parameters from a source.
-func (params *Parameters) Load(src contract.ParameterSource) <span class="cov0" title="0">{
-        for p := range src.Iterate() </span><span class="cov0" title="0">{
-                params.Data[p[0]] = p[1]
+func (params *MultiSet) Load(src contract.ParameterSource) <span class="cov8" title="1">{
+        for p := range src.Iterate() </span><span class="cov8" title="1">{
+                params.data[p.N] = append(params.data[p.N], p.V)
         }</span>
 }
 
 // Require adds a parameter name to the requried parameters list.
-func (params *Parameters) Require(paramName string) <span class="cov0" title="0">{
-        for _, pn := range params.required </span><span class="cov0" title="0">{
-                if pn == paramName </span><span class="cov0" title="0">{
+func (params *MultiSet) Require(paramName string) <span class="cov8" title="1">{
+        for _, pn := range params.required </span><span class="cov8" title="1">{
+                if pn == paramName </span><span class="cov8" title="1">{
                         return
                 }</span>
         }
 
-        <span class="cov0" title="0">params.required = append(params.required, paramName)</span>
+        <span class="cov8" title="1">params.required = append(params.required, paramName)</span>
 }
 
 // Validate checks that all required parameters have their values available.
-func (params *Parameters) Validate() error <span class="cov0" title="0">{
+func (params *MultiSet) Validate() error <span class="cov8" title="1">{
         missingParams := []string{}
 
-        for _, rpn := range params.required </span><span class="cov0" title="0">{
-                _, found := params.Data[rpn]
-                if !found </span><span class="cov0" title="0">{
+        for _, rpn := range params.required </span><span class="cov8" title="1">{
+                _, found := params.data[rpn]
+                if !found </span><span class="cov8" title="1">{
                         missingParams = append(missingParams, rpn)
                 }</span>
         }
 
-        <span class="cov0" title="0">if len(missingParams) &gt; 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if len(missingParams) &gt; 0 </span><span class="cov8" title="1">{
                 return errors.NoParameters(missingParams, nil)
         }</span>
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+// Iterate creates an iterable channel.
+func (params *MultiSet) Iterate() contract.ParameterIterator <span class="cov8" title="1">{
+        ch := make(contract.ParameterIterator)
+
+        go func() </span><span class="cov8" title="1">{
+                keys := []string{}
+                for pn := range params.data </span><span class="cov8" title="1">{
+                        keys = append(keys, pn)
+                }</span>
+
+                <span class="cov8" title="1">sort.Strings(keys)
+
+                for _, k := range keys </span><span class="cov8" title="1">{
+                        for _, v := range params.data[k] </span><span class="cov8" title="1">{
+                                ch &lt;- contract.ParameterTuple{N: k, V: v}
+                        }</span>
+                }
+
+                <span class="cov8" title="1">close(ch)</span>
+        }()
+
+        <span class="cov8" title="1">return ch</span>
 }
 </pre>
 		
-		<pre class="file" id="file2" style="display: none">package params
+		<pre class="file" id="file8" style="display: none">package params
+
+import (
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// NullSource is a placeholder source used when we can't have a real one.
+type NullSource struct {
+        contract.NullObjectPrototype
+}
+
+// NoSource creates a new NullSource instance.
+func NoSource(err error, log contract.Logger) *NullSource <span class="cov0" title="0">{
+        return &amp;NullSource{
+                NullObjectPrototype: contract.NullObject(err, log),
+        }
+}</span>
+
+// Get returns a parameter by it's name.
+func (ds *NullSource) Get(pn string) string <span class="cov0" title="0">{
+        ds.Report()
+        return ""
+}</span>
+
+// Iterate returns an iterable channel to receive parameter tuples.
+func (ds *NullSource) Iterate() contract.ParameterIterator <span class="cov0" title="0">{
+        ds.Report()
+        return nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package params
 
 import (
         "net/http"
-        "net/url"
+
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// QueryParameters is the source for URL query parameters.
+type QueryParameters struct {
+        contract.EntityTrait
+        *MultiSet
+}
+
+// Query creates a new QueryParameters instance.
+func Query(log contract.Logger) *QueryParameters <span class="cov8" title="1">{
+        p := &amp;QueryParameters{
+                EntityTrait: contract.Entity(log),
+                MultiSet:    NewMultiSet(),
+        }
+
+        return p
+}</span>
+
+// Enrich applies the parameters as query values to the request.
+func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) <span class="cov8" title="1">{
+        if err := params.Validate(); err != nil </span><span class="cov0" title="0">{
+                params.Error(err)
+        }</span>
+
+        <span class="cov8" title="1">q := req.URL.Query()
+
+        for pt := range params.Iterate() </span><span class="cov8" title="1">{
+                q.Add(pt.N, pt.V)
+        }</span>
+
+        <span class="cov8" title="1">req.URL.RawQuery = q.Encode()</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package params
+
+import (
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+)
+
+// Set is a set of parameters used in operation testing.
+// It is basically a MultiSet, the only difference being
+// is that Load() overwrites each key with a [1]string
+// instaed of appending them.
+type Set struct {
+        *MultiSet
+}
+
+// NewSet creates a new MultiSet instance.
+func NewSet() *Set <span class="cov8" title="1">{
+        return &amp;Set{
+                MultiSet: NewMultiSet(),
+        }
+}</span>
+
+// Load reads parameters from a source.
+func (params *Set) Load(src contract.ParameterSource) <span class="cov8" title="1">{
+        for p := range src.Iterate() </span><span class="cov8" title="1">{
+                params.data[p.N] = []string{p.V}
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package params
+
+import (
         "regexp"
 
         "github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// URLParameters is the default source for URL path parameters.
-// It treats it's sources hierarchically, i.e. values are taken
-// in this order:
-//                 test output
-//                 CLI input
-//                 spec op
-//                 spec path
-//
+// URLParameters is the source for URL path parameters.
 // URLParameters have an implicit requirement for the @HOSTNAME parameter
 // which is an API host name.
 type URLParameters struct {
         contract.EntityTrait
-        *Parameters
+        *Set
 
         Path string
 }
 
 // URL creates a new URLParameters instance.
-func URL(path string, log contract.Logger) *URLParameters <span class="cov0" title="0">{
+func URL(path string, log contract.Logger) *URLParameters <span class="cov8" title="1">{
         p := &amp;URLParameters{
                 EntityTrait: contract.Entity(log),
-                Parameters:  New(),
+                Set:         NewSet(),
                 Path:        path,
         }
 
-        p.Require("@HOSTNAME")
+        p.Require(KeyHost)
 
         return p
 }</span>
 
-// Enrich creates a URL string value from path template
-// and sets it to the internal http.Request instance.
-func (params URLParameters) Enrich(req *http.Request) <span class="cov0" title="0">{
-        if err := params.Validate(); err != nil </span><span class="cov0" title="0">{
+// Make creates a URL string value from path template.
+func (params URLParameters) String() string <span class="cov8" title="1">{
+        if err := params.Validate(); err != nil </span><span class="cov8" title="1">{
                 params.Error(err)
         }</span>
 
-        <span class="cov0" title="0">tpl := "@HOSTNAME/" + params.Path
+        <span class="cov8" title="1">tpl := "{" + KeyHost + "}" + params.Path
 
-        for pn, pv := range params.Data </span><span class="cov0" title="0">{
-                RX := regexp.MustCompile("\\{" + pn + "\\}")
+        for pt := range params.Iterate() </span><span class="cov8" title="1">{
+                rx := regexp.MustCompile("\\{" + pt.N + "\\}")
 
-                if RX.Match([]byte(tpl)) </span><span class="cov0" title="0">{
-                        if pv != "" </span><span class="cov0" title="0">{
-                                tpl = string(RX.ReplaceAll([]byte(tpl), []byte(pv)))
-                                // spec.Log.UsingParameterExample(pn, "path", container)
-                        }</span> else <span class="cov0" title="0">{
-                                // spec.Log.ParameterHasNoExample(pn, "path", container)
+                if rx.Match([]byte(tpl)) </span><span class="cov8" title="1">{
+                        if pt.V != "" </span><span class="cov8" title="1">{
+                                tpl = string(rx.ReplaceAll([]byte(tpl), []byte(pt.V)))
                         }</span>
                 }
         }
 
-        <span class="cov0" title="0">u, err := url.Parse(tpl)
-        if err != nil </span><span class="cov0" title="0">{
-                params.Error(err)
-        }</span> else<span class="cov0" title="0"> {
-                req.URL = u
-                req.Host = u.Host
-        }</span>
+        <span class="cov8" title="1">return tpl</span>
 }
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">package srx
-
-// Cursor is a pair of argument list and an index of a current argument.
-type Cursor struct {
-        Args []string
-        I    int
-}
-
-// Clone creates a new Cursor instance which contains only unparsed items from args.
-func (args *Cursor) Clone() *Cursor <span class="cov8" title="1">{
-        return &amp;Cursor{
-                Args: args.Tail(),
-        }
-}</span>
-
-// Tail return a slice of unparsed items from args.
-func (args *Cursor) Tail() []string <span class="cov8" title="1">{
-        if args.I &gt;= len(args.Args) </span><span class="cov0" title="0">{
-                return []string{}
-        }</span>
-
-        <span class="cov8" title="1">return args.Args[args.I:]</span>
-}
-
-// Get returns the current argument.
-func (args *Cursor) Get() string <span class="cov8" title="1">{
-        if args.I &gt;= len(args.Args) </span><span class="cov8" title="1">{
-                return ""
-        }</span>
-
-        <span class="cov8" title="1">return args.Args[args.I]</span>
-}
-
-// Len returns length of the internal slice.
-func (args *Cursor) Len() int <span class="cov8" title="1">{
-        return len(args.Args)
-}</span>
-
-// Left returns the number of items left unparsed yet.
-func (args *Cursor) Left() int <span class="cov8" title="1">{
-        return len(args.Args) - args.I
-}</span>
-
-// Shift shifts the internal pointer so it points to the next item to parse.
-func (args *Cursor) Shift(v int) <span class="cov8" title="1">{
-        args.I += v
-}</span>
-</pre>
-		
-		<pre class="file" id="file4" style="display: none">package srx
-
-// String is a shorthand function to create a String() expression.
-func String(f string) *SRX <span class="cov8" title="1">{
-        return NewSRX().String(f)
-}</span>
-
-// Strings is a syntactic sugar for sequential String() calls.
-func Strings(ss ...string) *SRX <span class="cov8" title="1">{
-        p := NewSRX().String(ss[0])
-        for i := 1; i &lt; len(ss); i++ </span><span class="cov8" title="1">{
-                p.String(ss[i])
-        }</span>
-        <span class="cov8" title="1">return p</span>
-}
-
-// CaptureString is a shorthand function to create a CaptureString() expression.
-func CaptureString(v *string) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureString(v)
-}</span>
-
-// CaptureStringSlice is a shorthand function to create a CaptureStringSlice() expression.
-func CaptureStringSlice(v *[]string) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureStringSlice(v)
-}</span>
-
-// CaptureInt64 is a shorthand function to create a CaptureInt64() expression.
-func CaptureInt64(v *int64) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureInt64(v)
-}</span>
-
-// CaptureInt64Slice is a shorthand function to create a CaptureInt64Slice() expression.
-func CaptureInt64Slice(v *[]int64) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureInt64Slice(v)
-}</span>
-
-// CaptureFloat64 is a shorthand function to create a CaptureFloat64() expression.
-func CaptureFloat64(v *float64) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureFloat64(v)
-}</span>
-
-// CaptureFloat64Slice is a shorthand function to create a CaptureFloat64Slice() expression.
-func CaptureFloat64Slice(v *[]float64) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureFloat64Slice(v)
-}</span>
-
-// CaptureBool is a shorthand function to create a CaptureBool() expression.
-func CaptureBool(v *bool) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureBool(v)
-}</span>
-
-// CaptureBoolSlice is a shorthand function to create a CaptureBoolSlice() expression.
-func CaptureBoolSlice(v *[]bool) *SRX <span class="cov0" title="0">{
-        return NewSRX().CaptureBoolSlice(v)
-}</span>
-
-// OneOf is a shorthand function to create a OneOf() expression.
-func OneOf(parsers ...*SRX) *SRX <span class="cov8" title="1">{
-        return NewSRX().OneOf(parsers)
-}</span>
-
-// Repeat is a shorthand function to create a Repeat() expression.
-func Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
-        return NewSRX().Repeat(parser, min, max)
-}</span>
-</pre>
-		
-		<pre class="file" id="file5" style="display: none">package srx
-
-import (
-        "strconv"
-        "strings"
-)
-
-// ExpressionFn is a single parser function.
-// SRX instances contain multiple of these.
-type ExpressionFn func(*Cursor) bool
-
-// SRX is regular expression on string slices.
-// It allows to parse slices containing structured or patterned data
-// and extract that data into variables for further use.
-//
-// For example, if you have a slice of strings:
-//                inputSlice := []string{"er", "er", "er", "er", "yolo", "1,2,3,4"}
-// you can make an expression for it and parse your slice:
-//                rx := srx.Repeat(srx.Flag("er"), 2, 200).CaptureString(&amp;theYoloString).CaptureStringSlice(&amp;the1234StringSlice)
-//                rx.Parse(inputSlice)
-// thus making sure it fits the pattern, and extracting the "yolo" string
-// and a list of "1", "2", "3" &amp; "4" strings into variables.
-type SRX struct {
-        Expressions []ExpressionFn
-        Progress    int
-        Complete    bool
-}
-
-// NewSRX creates a new SRX instance.
-func NewSRX() *SRX <span class="cov8" title="1">{
-        return &amp;SRX{
-                Expressions: []ExpressionFn{},
-        }
-}</span>
-
-// Parse starts the parsing process.
-func (srx *SRX) Parse(args []string) *SRX <span class="cov8" title="1">{
-        return srx.actualParse(&amp;Cursor{Args: args})
-}</span>
-
-// actualParse actually parses.
-func (srx *SRX) actualParse(cursor *Cursor) *SRX <span class="cov8" title="1">{
-
-        srx.Complete = false
-        srx.Progress = 0
-
-        if cursor.Left() &lt;= 0 </span><span class="cov8" title="1">{
-                return srx
-        }</span>
-
-        <span class="cov8" title="1">cpI := 0
-        curParser := srx.Expressions[cpI]
-
-        for curParser(cursor) </span><span class="cov8" title="1">{
-                cpI++
-                srx.Progress = cursor.I
-                if cpI &gt;= len(srx.Expressions) </span><span class="cov8" title="1">{
-                        srx.Complete = true
-                        break</span>
-                }
-
-                <span class="cov8" title="1">if cursor.I &gt;= cursor.Len() </span>{<span class="cov8" title="1">
-                        // Consumed entire input.
-                }</span>
-
-                <span class="cov8" title="1">curParser = srx.Expressions[cpI]</span>
-        }
-
-        <span class="cov8" title="1">return srx</span>
-}
-
-// String parses a single string value.
-func (srx *SRX) String(f string) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                res := f == cursor.Get()
-                if res </span><span class="cov8" title="1">{
-                        cursor.Shift(1)
-                }</span>
-                <span class="cov8" title="1">return res</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-//StringHandler is a function to handle string values.
-type StringHandler = func(string)
-
-//StringSliceHandler is a function to handle []string values.
-type StringSliceHandler = func([]string)
-
-//Int64Handler is a function to handle int64 values.
-type Int64Handler = func(int64)
-
-//Int64SliceHandler is a function to handle []int64 values.
-type Int64SliceHandler = func([]int64)
-
-//Float64Handler is a function to handle float64 values.
-type Float64Handler = func(float64)
-
-//Float64SliceHandler is a function to handle []float64 values.
-type Float64SliceHandler = func([]float64)
-
-//BoolHandler is a function to handle bool values.
-type BoolHandler = func(bool)
-
-//BoolSliceHandler is a function to handle bool values.
-type BoolSliceHandler = func([]bool)
-
-// HandleString invokes the provided handler function with the current item as an argument.
-func (srx *SRX) HandleString(h StringHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                h(cursor.Get())
-                cursor.Shift(1)
-                return true
-        }</span>)
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleStringSlice tries to parse the current item as a comma-separated list
-// of string values and call the provided string slice handler with that list as an argument.
-func (srx *SRX) HandleStringSlice(h StringSliceHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                item := cursor.Get()
-                if item != "" </span><span class="cov8" title="1">{
-                        values := strings.Split(item, ",")
-                        if len(values) &gt; 0 </span><span class="cov8" title="1">{
-                                h(values)
-                                cursor.Shift(1)
-                                return true
-                        }</span>
-                }
-                <span class="cov8" title="1">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleInt64 tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleInt64(h Int64Handler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                i, ierr := strconv.ParseInt(cursor.Get(), 10, 64)
-                if ierr == nil </span><span class="cov8" title="1">{
-                        h(i)
-                        cursor.Shift(1)
-                        return true
-                }</span>
-                <span class="cov8" title="1">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleInt64Slice tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleInt64Slice(h Int64SliceHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                item := cursor.Get()
-                if item != "" </span><span class="cov8" title="1">{
-                        ss := strings.Split(item, ",")
-                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
-                                is := []int64{}
-                                for _, sv := range ss </span><span class="cov8" title="1">{
-                                        iv, iverr := strconv.ParseInt(sv, 10, 64)
-                                        if iverr == nil </span><span class="cov8" title="1">{
-                                                is = append(is, iv)
-                                        }</span> else<span class="cov8" title="1"> {
-                                                return false
-                                        }</span>
-                                }
-                                <span class="cov8" title="1">if len(is) &gt; 0 </span><span class="cov8" title="1">{
-                                        h(is)
-                                        cursor.Shift(1)
-                                        return true
-                                }</span>
-                        }
-                }
-                <span class="cov0" title="0">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleFloat64 tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleFloat64(h Float64Handler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                f, ferr := strconv.ParseFloat(cursor.Get(), 64)
-                if ferr == nil </span><span class="cov8" title="1">{
-                        h(f)
-                        cursor.Shift(1)
-                        return true
-                }</span>
-                <span class="cov8" title="1">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleFloat64Slice tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleFloat64Slice(h Float64SliceHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                item := cursor.Get()
-                if item != "" </span><span class="cov8" title="1">{
-                        ss := strings.Split(item, ",")
-                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
-                                fs := []float64{}
-                                for _, sv := range ss </span><span class="cov8" title="1">{
-                                        fv, fverr := strconv.ParseFloat(sv, 64)
-                                        if fverr == nil </span><span class="cov8" title="1">{
-                                                fs = append(fs, fv)
-                                        }</span> else<span class="cov8" title="1"> {
-                                                return false
-                                        }</span>
-                                }
-                                <span class="cov8" title="1">if len(fs) &gt; 0 </span><span class="cov8" title="1">{
-                                        h(fs)
-                                        cursor.Shift(1)
-                                        return true
-                                }</span>
-                        }
-                }
-                <span class="cov0" title="0">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleBool tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleBool(h BoolHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                f, ferr := strconv.ParseBool(cursor.Get())
-                if ferr == nil </span><span class="cov8" title="1">{
-                        h(f)
-                        cursor.Shift(1)
-                        return true
-                }</span>
-                <span class="cov8" title="1">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// HandleBoolSlice tries to parse the current item as integer value
-// and store the result in the provided string pointer.
-func (srx *SRX) HandleBoolSlice(h BoolSliceHandler) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                item := cursor.Get()
-                if item != "" </span><span class="cov8" title="1">{
-                        ss := strings.Split(item, ",")
-                        if len(ss) &gt; 0 </span><span class="cov8" title="1">{
-                                bs := []bool{}
-                                for _, sv := range ss </span><span class="cov8" title="1">{
-                                        bv, bverr := strconv.ParseBool(sv)
-                                        if bverr == nil </span><span class="cov8" title="1">{
-                                                bs = append(bs, bv)
-                                        }</span> else<span class="cov8" title="1"> {
-                                                return false
-                                        }</span>
-                                }
-                                <span class="cov8" title="1">if len(bs) &gt; 0 </span><span class="cov8" title="1">{
-                                        h(bs)
-                                        cursor.Shift(1)
-                                        return true
-                                }</span>
-                        }
-                }
-                <span class="cov0" title="0">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// CaptureString stores the current item in the provided string pointer.
-func (srx *SRX) CaptureString(v *string) *SRX <span class="cov8" title="1">{
-        return srx.HandleString(func(vv string) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureStringSlice tries to parse the current item as a comma-separated list
-// of string values and store the result in the provided string slice pointer.
-func (srx *SRX) CaptureStringSlice(v *[]string) *SRX <span class="cov8" title="1">{
-        return srx.HandleStringSlice(func(vv []string) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureInt64 stores the current item in the provided int64 pointer.
-func (srx *SRX) CaptureInt64(v *int64) *SRX <span class="cov8" title="1">{
-        return srx.HandleInt64(func(vv int64) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureInt64Slice tries to parse the current item as a comma-separated list
-// of int64 values and store the result in the provided int64 slice pointer.
-func (srx *SRX) CaptureInt64Slice(v *[]int64) *SRX <span class="cov8" title="1">{
-        return srx.HandleInt64Slice(func(vv []int64) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureFloat64 stores the current item in the provided float64 pointer.
-func (srx *SRX) CaptureFloat64(v *float64) *SRX <span class="cov8" title="1">{
-        return srx.HandleFloat64(func(vv float64) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureFloat64Slice tries to parse the current item as a comma-separated list
-// of float64 values and store the result in the provided float64 slice pointer.
-func (srx *SRX) CaptureFloat64Slice(v *[]float64) *SRX <span class="cov8" title="1">{
-        return srx.HandleFloat64Slice(func(vv []float64) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureBool stores the current item in the provided bool pointer.
-func (srx *SRX) CaptureBool(v *bool) *SRX <span class="cov8" title="1">{
-        return srx.HandleBool(func(vv bool) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// CaptureBoolSlice tries to parse the current item as a comma-separated list
-// of bool values and store the result in the provided bool slice pointer.
-func (srx *SRX) CaptureBoolSlice(v *[]bool) *SRX <span class="cov8" title="1">{
-        return srx.HandleBoolSlice(func(vv []bool) </span><span class="cov8" title="1">{
-                *v = vv
-        }</span>)
-}
-
-// OneOf attempts to execute one parser from the supplied list of parsers.
-func (srx *SRX) OneOf(parsers []*SRX) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-
-                for _, parser := range parsers </span><span class="cov8" title="1">{
-                        cursor2 := cursor.Clone()
-                        parser.actualParse(cursor2)
-                        if parser.Complete </span><span class="cov8" title="1">{
-                                cursor.Shift(cursor2.I)
-                                return true
-                        }</span>
-                }
-
-                <span class="cov8" title="1">return false</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-
-// Repeat tries to execute the supplied parser at least min &amp; at most max times.
-func (srx *SRX) Repeat(parser *SRX, min uint, max uint) *SRX <span class="cov8" title="1">{
-        srx.Expressions = append(srx.Expressions, func(cursor *Cursor) bool </span><span class="cov8" title="1">{
-                complete := uint(0)
-                progress := 0
-                cursor2 := cursor.Clone()
-                for i := uint(0); i &lt; max; i++ </span><span class="cov8" title="1">{
-                        parser.actualParse(cursor2)
-                        if parser.Complete </span><span class="cov8" title="1">{
-                                complete++
-                                progress += parser.Progress
-                        }</span>
-                }
-
-                <span class="cov8" title="1">res := complete &gt;= min &amp;&amp; complete &lt;= max
-
-                if res </span><span class="cov8" title="1">{
-                        cursor.Shift(cursor2.I)
-                }</span>
-
-                <span class="cov8" title="1">return res</span>
-        })
-        <span class="cov8" title="1">return srx</span>
-}
-</pre>
-		
-		<pre class="file" id="file6" style="display: none">package test
+		<pre class="file" id="file12" style="display: none">package test
 
 import (
         "github.com/x1n13y84issmd42/oasis/src/api"
@@ -817,7 +974,7 @@ func Header(specHeaderName string, specHeader *api.Header, respHeaderValues []st
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package test
+		<pre class="file" id="file13" style="display: none">package test
 
 import (
         "encoding/json"
@@ -829,40 +986,40 @@ import (
 )
 
 // JSONResponse tests JSON response bodies.
-func JSONResponse(resp *http.Response, specResp *api.Response, logger contract.Logger) bool <span class="cov0" title="0">{
+func JSONResponse(resp *http.Response, schema *api.Schema, logger contract.Logger) bool <span class="cov8" title="1">{
         if resp.Body == nil </span><span class="cov0" title="0">{
                 return false
         }</span>
 
-        <span class="cov0" title="0">respData, _ := ioutil.ReadAll(resp.Body)
+        <span class="cov8" title="1">respData, _ := ioutil.ReadAll(resp.Body)
 
         var err error = nil
 
-        if res, err := TryJSONObjectResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
-                return Schema(res, specResp.Schema, logger)
+        if res, err := TryJSONObjectResponse(&amp;respData, logger); err == nil </span><span class="cov8" title="1">{
+                return Schema(res, schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := TryJSONArrayResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
-                return Schema(res, specResp.Schema, logger)
+        <span class="cov8" title="1">if res, err := TryJSONArrayResponse(&amp;respData, logger); err == nil </span><span class="cov8" title="1">{
+                return Schema(res, schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := TryJSONStringResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
-                return Schema(res, specResp.Schema, logger)
+        <span class="cov8" title="1">if res, err := TryJSONStringResponse(&amp;respData, logger); err == nil </span><span class="cov8" title="1">{
+                return Schema(res, schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := TryJSONNumberResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
-                return Schema(res, specResp.Schema, logger)
+        <span class="cov8" title="1">if res, err := TryJSONNumberResponse(&amp;respData, logger); err == nil </span><span class="cov8" title="1">{
+                return Schema(res, schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if res, err := TryJSONBooleanResponse(&amp;respData, specResp, logger); err == nil </span><span class="cov0" title="0">{
-                return Schema(res, specResp.Schema, logger)
+        <span class="cov8" title="1">if res, err := TryJSONBooleanResponse(&amp;respData, logger); err == nil </span><span class="cov8" title="1">{
+                return Schema(res, schema, logger)
         }</span>
 
-        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
                 logger.Error(err)
         }</span>
 
-        <span class="cov0" title="0">return false</span>
+        <span class="cov8" title="1">return false</span>
 }
 
 type (
@@ -874,55 +1031,85 @@ type (
 )
 
 // TryJSONStringResponse tries to unmarshal respData as a string.
-func TryJSONStringResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res string, err error) <span class="cov0" title="0">{
+func TryJSONStringResponse(respData *[]byte, logger contract.Logger) (res string, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // TryJSONNumberResponse tries to unmarshal respData as a number.
-func TryJSONNumberResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res int64, err error) <span class="cov0" title="0">{
+func TryJSONNumberResponse(respData *[]byte, logger contract.Logger) (res int64, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // TryJSONBooleanResponse tries to unmarshal respData as a boolean.
-func TryJSONBooleanResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res bool, err error) <span class="cov0" title="0">{
+func TryJSONBooleanResponse(respData *[]byte, logger contract.Logger) (res bool, err error) <span class="cov8" title="1">{
         err = json.Unmarshal(*respData, &amp;res)
         return
 }</span>
 
 // TryJSONObjectResponse tries to unmarshal respData as an object.
-func TryJSONObjectResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONMap, err error) <span class="cov0" title="0">{
+func TryJSONObjectResponse(respData *[]byte, logger contract.Logger) (res *JSONMap, err error) <span class="cov8" title="1">{
         v := make(JSONMap)
         err = json.Unmarshal(*respData, &amp;v)
 
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 res = &amp;v
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">res = &amp;v
+        <span class="cov8" title="1">res = &amp;v
 
         return</span>
 }
 
 // TryJSONArrayResponse tries to unmarshal respData as an array.
-func TryJSONArrayResponse(respData *[]byte, specResp *api.Response, logger contract.Logger) (res *JSONArray, err error) <span class="cov0" title="0">{
+func TryJSONArrayResponse(respData *[]byte, logger contract.Logger) (res *JSONArray, err error) <span class="cov8" title="1">{
         var v JSONArray
         err = json.Unmarshal(*respData, &amp;v)
 
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 res = &amp;v
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">res = &amp;v
+        <span class="cov8" title="1">res = &amp;v
 
         return</span>
 }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package test
+		<pre class="file" id="file14" style="display: none">package test
+
+import "github.com/x1n13y84issmd42/oasis/src/contract"
+
+// NullValidator is used whenever we can't have a real one from DataResolver.Response().
+// Reports the contained error on every method call.
+type NullValidator struct {
+        contract.NullObjectPrototype
+}
+
+// NoValidator creates a new NullValidator instance.
+func NoValidator(err error, log contract.Logger) *NullValidator <span class="cov0" title="0">{
+        return &amp;NullValidator{
+                NullObjectPrototype: contract.NullObject(err, log),
+        }
+}</span>
+
+// Validate runs through the list of expectations and tests the HTTP request
+// instance from the OperationResult against them.
+func (v *NullValidator) Validate(r *contract.OperationResult) *contract.OperationResult <span class="cov0" title="0">{
+        v.Report()
+        return nil
+}</span>
+
+// Expect adds an Expectation function to the list.
+func (v *NullValidator) Expect(ex contract.Expectation) <span class="cov0" title="0">{
+        v.Report()
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package test
 
 import (
         "github.com/x1n13y84issmd42/oasis/src/contract"
@@ -939,23 +1126,32 @@ func Success() *contract.OperationResult <span class="cov0" title="0">{
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers &amp; content against
 // the definitions founds in an OAS spec file.
-func Operation(specOp contract.Operation, enrichment *[]contract.RequestEnrichment, logger contract.Logger) (result *contract.OperationResult) <span class="cov0" title="0">{
-        logger.TestingOperation(specOp)
-
+func Operation(op contract.Operation, enrichment *[]contract.RequestEnrichment, v contract.Validator, log contract.Logger) *contract.OperationResult <span class="cov0" title="0">{
         // Creating a request.
-        req := NewRequest(specOp, logger)
+        req := NewRequest(op, log)
 
         // Extending the request with stuff.
         for _, en := range *enrichment </span><span class="cov0" title="0">{
                 req.Enrich(en)
         }</span>
 
-        // Requesting &amp; returning.
-        <span class="cov0" title="0">return req.Execute()</span>
+        // Requesting.
+        <span class="cov0" title="0">result := req.Execute()
+
+        // Testing &amp; returning.
+        result = v.Validate(result)
+
+        if result.Success </span><span class="cov0" title="0">{
+                log.OperationOK()
+        }</span> else<span class="cov0" title="0"> {
+                log.OperationFail()
+        }</span>
+
+        <span class="cov0" title="0">return result</span>
 }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">package test
+		<pre class="file" id="file16" style="display: none">package test
 
 import (
         "net/http"
@@ -977,14 +1173,16 @@ func NewRequest(op contract.Operation, log contract.Logger) *Request <span class
         req := &amp;Request{
                 EntityTrait: contract.Entity(log),
 
-                HTTPRequest: op.CreateRequest(),
+                HTTPRequest: op.GetRequest(),
                 HTTPClient: &amp;http.Client{
                         CheckRedirect: func(req *http.Request, via []*http.Request) error </span><span class="cov0" title="0">{
                                 return http.ErrUseLastResponse
                         }</span>,
                 },
 
-                Result: &amp;contract.OperationResult{},
+                Result: &amp;contract.OperationResult{
+                        Success: true,
+                },
         }
 
         <span class="cov0" title="0">req.Result.HTTPRequest = req.HTTPRequest
@@ -1013,62 +1211,7 @@ func (req *Request) Execute() *contract.OperationResult <span class="cov0" title
 }
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">package test
-
-import (
-        "net/http"
-        "strings"
-
-        "github.com/x1n13y84issmd42/oasis/src/api"
-        "github.com/x1n13y84issmd42/oasis/src/contract"
-)
-
-// HTTPResponse test checks basic response properties - status code and headers.
-func HTTPResponse(resp *http.Response, specResp *api.Response, logger contract.Logger) bool <span class="cov0" title="0">{
-        statusOK := specResp.StatusCode == uint64(resp.StatusCode)
-
-        // This is to get rid of the possible "; charset=utf-8" part.
-        respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
-        CTOK := (specResp.ContentType == "") || (specResp.ContentType == respCT)
-
-        headersOK := true
-        for specHeaderName, specHeaderValues := range specResp.Headers </span><span class="cov0" title="0">{
-                headersOK = Header(specHeaderName, specHeaderValues, resp.Header.Values(specHeaderName), logger) &amp;&amp; headersOK
-        }</span>
-
-        <span class="cov0" title="0">if !statusOK </span>{<span class="cov0" title="0">
-                // logger.ResponseHasWrongStatus(specResp, resp.StatusCode)
-        }</span>
-
-        <span class="cov0" title="0">if !CTOK </span>{<span class="cov0" title="0">
-                // logger.ResponseHasWrongContentType(specResp, resp.Header.Get("Content-Type"))
-        }</span>
-
-        <span class="cov0" title="0">return statusOK &amp;&amp; CTOK &amp;&amp; headersOK</span>
-}
-
-// Response test response bodies.
-func Response(resp *http.Response, specResp *api.Response, logger contract.Logger) bool <span class="cov0" title="0">{
-        httpOK := HTTPResponse(resp, specResp, logger)
-        contentOK := true
-
-        if httpOK </span><span class="cov0" title="0">{
-                if specResp.ContentType != "" </span><span class="cov0" title="0">{
-                        switch specResp.ContentType </span>{
-                        case "application/json":<span class="cov0" title="0">
-                                contentOK = JSONResponse(resp, specResp, logger)</span>
-
-                        default:<span class="cov0" title="0">
-                                logger.NOMESSAGE("The Content-Type of '%s' is not supported.\n", specResp.ContentType)</span>
-                        }
-                }
-        }
-
-        <span class="cov0" title="0">return httpOK &amp;&amp; contentOK</span>
-}
-</pre>
-		
-		<pre class="file" id="file11" style="display: none">package test
+		<pre class="file" id="file17" style="display: none">package test
 
 import (
         "github.com/x1n13y84issmd42/oasis/src/api"
@@ -1077,26 +1220,144 @@ import (
 )
 
 // Schema validates data against the provided schema.
-func Schema(data interface{}, schema *api.Schema, logger contract.Logger) bool <span class="cov0" title="0">{
+func Schema(data interface{}, schema *api.Schema, logger contract.Logger) bool <span class="cov8" title="1">{
         // logger.SchemaTesting(schema, data)
 
         schemaLoader := gojsonschema.NewGoLoader(schema.JSONSchema)
         dataLoader := gojsonschema.NewGoLoader(data)
 
         result, err := gojsonschema.Validate(schemaLoader, dataLoader)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 logger.Error(err)
                 return false
         }</span>
 
-        <span class="cov0" title="0">if result.Valid() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if result.Valid() </span><span class="cov8" title="1">{
                 // logger.SchemaOK(schema)
                 return true
         }</span>
 
         // logger.SchemaFail(schema, result.Errors())
 
-        <span class="cov0" title="0">return false</span>
+        <span class="cov8" title="1">return false</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package test
+
+import "github.com/x1n13y84issmd42/oasis/src/contract"
+
+// Validator tests an operation response for compliance with the expectations.
+type Validator struct {
+        expectations []contract.Expectation
+        log          contract.Logger
+}
+
+// NewValidator creates a new Validator instance.
+func NewValidator(log contract.Logger) *Validator <span class="cov0" title="0">{
+        return &amp;Validator{
+                expectations: []contract.Expectation{},
+                log:          log,
+        }
+}</span>
+
+// Validate runs through the list of expectations and tests the HTTP request
+// instance from the OperationResult against them.
+func (v *Validator) Validate(r *contract.OperationResult) *contract.OperationResult <span class="cov0" title="0">{
+        for _, ex := range v.expectations </span><span class="cov0" title="0">{
+                r.Success = ex(r.HTTPResponse, v.log) &amp;&amp; r.Success
+        }</span>
+        <span class="cov0" title="0">return r</span>
+}
+
+// Expect adds an Expectation function to the list.
+func (v *Validator) Expect(ex contract.Expectation) <span class="cov0" title="0">{
+        v.expectations = append(v.expectations, ex)
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package expect
+
+import (
+        "fmt"
+        "net/http"
+        "strings"
+
+        "github.com/x1n13y84issmd42/oasis/src/api"
+        "github.com/x1n13y84issmd42/oasis/src/contract"
+        "github.com/x1n13y84issmd42/oasis/src/test"
+)
+
+// Status creates an expectation as for response's status code.
+func Status(status int) contract.Expectation <span class="cov8" title="1">{
+        fmt.Printf("\tExpecting status %d\n", status)
+        return func(resp *http.Response, log contract.Logger) bool </span><span class="cov8" title="1">{
+                if resp.StatusCode == status </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+
+                <span class="cov8" title="1">log.ResponseHasWrongStatus(status, resp.StatusCode)
+                return false</span>
+        }
+}
+
+// HeaderRequired creates an expectation as for response's header value.
+func HeaderRequired(n string) contract.Expectation <span class="cov8" title="1">{
+        fmt.Println("\tExpecting required header " + n)
+        return func(resp *http.Response, log contract.Logger) bool </span><span class="cov8" title="1">{
+                if resp.Header.Get(n) != "" </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+
+                <span class="cov8" title="1">log.HeaderHasNoValue(n)
+                return false</span>
+        }
+}
+
+// HeaderSchema creates an expectation as for response's header contents
+// which must comply to the provided JSON schema.
+func HeaderSchema(n string, schema *api.Schema) contract.Expectation <span class="cov8" title="1">{
+        fmt.Println("\tExpecting header " + n + " to conform schema " + schema.Name)
+        return func(resp *http.Response, log contract.Logger) bool </span><span class="cov8" title="1">{
+                return test.Schema(schema.Cast(resp.Header.Get(n)), schema, log)
+        }</span>
+}
+
+// ContentType creates an expectation as for response's content type.
+func ContentType(v string) contract.Expectation <span class="cov8" title="1">{
+        fmt.Println("\tExpecting Content-Type " + v)
+        return func(resp *http.Response, log contract.Logger) bool </span><span class="cov8" title="1">{
+                // This is to get rid of the possible "; charset=utf-8" part.
+                respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+                if respCT == v </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+
+                <span class="cov8" title="1">log.ResponseHasWrongContentType(v, resp.Header.Get("Content-Type"))
+                return false</span>
+        }
+}
+
+// ContentSchema creates an expectation as for response's content body
+// which must comply to the provided JSON schema.
+func ContentSchema(schema *api.Schema) contract.Expectation <span class="cov8" title="1">{
+        fmt.Println("\tExpecting content schema " + schema.Name)
+        return func(resp *http.Response, log contract.Logger) bool </span><span class="cov8" title="1">{
+                respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+
+                switch respCT </span>{
+                case "application/json":<span class="cov8" title="1">
+                        if test.JSONResponse(resp, schema, log) </span><span class="cov0" title="0">{
+                                return true
+                        }</span>
+
+                default:<span class="cov0" title="0">
+                        log.NOMESSAGE("The Content-Type of '%s' is not supported.\n", respCT)</span>
+                }
+
+                <span class="cov8" title="1">log.NOMESSAGE("Response data is wrong.")
+                return false</span>
+        }
 }
 </pre>
 		

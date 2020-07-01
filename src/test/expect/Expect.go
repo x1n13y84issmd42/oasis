@@ -60,7 +60,8 @@ func ContentType(v string) contract.Expectation {
 	}
 }
 
-// ContentSchema creates an expectation as for response's content body.
+// ContentSchema creates an expectation as for response's content body
+// which must comply to the provided JSON schema.
 func ContentSchema(schema *api.Schema) contract.Expectation {
 	fmt.Println("\tExpecting content schema " + schema.Name)
 	return func(resp *http.Response, log contract.Logger) bool {

@@ -24,7 +24,7 @@ func TestJSONResponse_String(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.True(T, actual)
 }
 
@@ -41,7 +41,7 @@ func TestJSONResponse_String_False(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -58,7 +58,7 @@ func TestJSONResponse_Number(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.True(T, actual)
 }
 
@@ -75,7 +75,7 @@ func TestJSONResponse_Number_False(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -92,7 +92,7 @@ func TestJSONResponse_Boolean(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.True(T, actual)
 }
 
@@ -109,7 +109,7 @@ func TestJSONResponse_Boolean_False(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -134,7 +134,7 @@ func TestJSONResponse_Object(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.True(T, actual)
 }
 
@@ -159,7 +159,7 @@ func TestJSONResponse_Object_False_Schema(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -184,7 +184,7 @@ func TestJSONResponse_Object_False_Unmarshal(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -204,7 +204,7 @@ func TestJSONResponse_Array(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.True(T, actual)
 }
 
@@ -224,7 +224,7 @@ func TestJSONResponse_Array_False_Schema(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
 
@@ -244,6 +244,6 @@ func TestJSONResponse_Array_False_Unmarshal(T *testing.T) {
 		},
 	}
 
-	actual := JSONResponse(httpResp, specResp, log.NewFestive(0))
+	actual := JSONResponse(httpResp, specResp.Schema, log.NewFestive(0))
 	assert.False(T, actual)
 }
