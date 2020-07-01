@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
-	"github.com/x1n13y84issmd42/oasis/src/srx"
+	"github.com/x1n13y84issmd42/ssp"
 )
 
 // ParameterMap is a generic map of operation test parameters.
@@ -74,10 +74,10 @@ type Args struct {
 
 // ParseArgs parses command line arguments into the args struct.
 func ParseArgs(args *Args) {
-	expExecute := srx.String("execute").CaptureString(&args.Script)
-	expFrom := srx.String("from").CaptureString(&args.Spec)
-	expTest := srx.String("test").CaptureStringSlice(&args.Ops)
-	expHost := srx.String("@").CaptureString(&args.Host)
+	expExecute := ssp.String("execute").CaptureString(&args.Script)
+	expFrom := ssp.String("from").CaptureString(&args.Spec)
+	expTest := ssp.String("test").CaptureStringSlice(&args.Ops)
+	expHost := ssp.String("@").CaptureString(&args.Host)
 
 	args.Use.PathParameters = ParameterMap{}
 
@@ -101,25 +101,25 @@ func ParseArgs(args *Args) {
 		}
 	}
 
-	expUse := srx.String("use").Repeat(srx.OneOf(
-		srx.String("security").CaptureString(&args.Use.Security),
-		srx.Strings("path", "parameters").HandleStringSlice(hPathParams),
-		srx.String("query").HandleStringSlice(hQueryParams),
+	expUse := ssp.String("use").Repeat(ssp.OneOf(
+		ssp.String("security").CaptureString(&args.Use.Security),
+		ssp.Strings("path", "parameters").HandleStringSlice(hPathParams),
+		ssp.String("query").HandleStringSlice(hQueryParams),
 	), 0, 3)
 
-	expExpect := srx.String("expect").Repeat(srx.OneOf(
-		srx.String("CT").CaptureString(&args.Expect.CT),
-		srx.String("status").CaptureInt64(&args.Expect.Status),
+	expExpect := ssp.String("expect").Repeat(ssp.OneOf(
+		ssp.String("CT").CaptureString(&args.Expect.CT),
+		ssp.String("status").CaptureInt64(&args.Expect.Status),
 	), 0, 2)
 
-	expLogLevel := srx.Strings("at", "level").CaptureInt64(&args.LogLevel)
-	expLogStyle := srx.String("in").CaptureString(&args.LogStyle).String("style")
-	expLog := srx.String("log").Repeat(srx.OneOf(
+	expLogLevel := ssp.Strings("at", "level").CaptureInt64(&args.LogLevel)
+	expLogStyle := ssp.String("in").CaptureString(&args.LogStyle).String("style")
+	expLog := ssp.String("log").Repeat(ssp.OneOf(
 		expLogLevel,
 		expLogStyle,
 	), 1, 2)
 
-	srx.Repeat(srx.OneOf(
+	ssp.Repeat(ssp.OneOf(
 		expExecute,
 		expFrom,
 		expTest,

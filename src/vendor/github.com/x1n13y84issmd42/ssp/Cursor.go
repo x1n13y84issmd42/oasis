@@ -1,4 +1,4 @@
-package srx
+package ssp
 
 // Cursor is a pair of argument list and an index of a current argument.
 type Cursor struct {
