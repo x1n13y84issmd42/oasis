@@ -2,7 +2,6 @@ package contract
 
 import (
 	"errors"
-	"os"
 )
 
 // NullObjectPrototype is a prototype implementation of null entities,
@@ -24,9 +23,9 @@ func NullObject(err error, log Logger) NullObjectPrototype {
 func (spec NullObjectPrototype) Report() {
 	if spec.Error != nil {
 		spec.Log.Error(spec.Error)
-		// panic("AAAAaaaa")
-		os.Exit(128)
 	} else {
 		spec.Log.Error(errors.New("no error in a null object"))
 	}
+
+	panic("A NullObject has triggered a panic.\nCheck where the object comes from\nfor the source of the error.")
 }

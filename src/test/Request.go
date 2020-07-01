@@ -16,11 +16,16 @@ type Request struct {
 }
 
 // NewRequest creates a new Request instance.
-func NewRequest(op contract.Operation, log contract.Logger) *Request {
+func NewRequest(op contract.Operation, log contract.Logger) contract.Request {
+	httpreq, httpreqerr := op.GetRequest()
+	if httpreqerr != nil {
+		return NoRequest(httpreqerr, log)
+	}
+
 	req := &Request{
 		EntityTrait: contract.Entity(log),
 
-		HTTPRequest: op.GetRequest(),
+		HTTPRequest: httpreq,
 		HTTPClient: &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse

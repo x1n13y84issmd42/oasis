@@ -16,13 +16,13 @@ func NoSource(err error, log contract.Logger) *NullSource {
 	}
 }
 
-// Get returns a parameter by it's name.
+// Get reports an error.
 func (ds *NullSource) Get(pn string) string {
 	ds.Report()
 	return ""
 }
 
-// Iterate returns an iterable channel to receive parameter tuples.
+// Iterate reports an error.
 func (ds *NullSource) Iterate() contract.ParameterIterator {
 	ds.Report()
 	return nil

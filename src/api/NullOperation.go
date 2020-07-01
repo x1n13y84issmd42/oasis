@@ -19,49 +19,49 @@ func NoOperation(err error, log contract.Logger) *NullOperation {
 	}
 }
 
-// GetRequest ...
-func (op NullOperation) GetRequest() *http.Request {
+// GetRequest reports an error.
+func (op NullOperation) GetRequest() (*http.Request, error) {
 	op.Report()
-	return nil
+	return nil, nil
 }
 
-// ID ...
+// ID reports an error.
 func (op NullOperation) ID() string {
 	op.Report()
 	return ""
 }
 
-// Name ...
+// Name reports an error.
 func (op NullOperation) Name() string {
 	op.Report()
 	return ""
 }
 
-// Description ...
+// Description reports an error.
 func (op NullOperation) Description() string {
 	op.Report()
 	return ""
 }
 
-// Method ...
+// Method reports an error.
 func (op NullOperation) Method() string {
 	op.Report()
 	return ""
 }
 
-// Path ...
+// Path reports an error.
 func (op NullOperation) Path() string {
 	op.Report()
 	return ""
 }
 
-// Data ...
+// Data reports an error.
 func (op NullOperation) Data() *contract.OperationData {
 	op.Report()
 	return nil
 }
 
-// Resolve ...
+// Resolve reports an error.
 func (op NullOperation) Resolve() contract.DataResolver {
 	op.Report()
 	return nil

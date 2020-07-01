@@ -15,7 +15,7 @@ type Operation interface {
 	Data() *OperationData
 	Resolve() DataResolver
 
-	GetRequest() *http.Request
+	GetRequest() (*http.Request, error)
 }
 
 // OperationData is an interface to access data from various sources
