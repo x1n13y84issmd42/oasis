@@ -8,7 +8,7 @@ type NullValidator struct {
 	contract.NullObjectPrototype
 }
 
-// NolValidator creates a new NullValidator instance.
+// NoValidator creates a new NullValidator instance.
 func NoValidator(err error, log contract.Logger) *NullValidator {
 	return &NullValidator{
 		NullObjectPrototype: contract.NullObject(err, log),
