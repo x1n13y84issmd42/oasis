@@ -27,5 +27,5 @@ func (spec NullObjectPrototype) Report() {
 		spec.Log.Error(errors.New("no error in a null object"))
 	}
 
-	panic("A NullObject has triggered a panic.\nCheck where the object comes from\nfor the source of the error.")
+	panic("A NullObject has triggered a panic.\nSee the error message reported above.\nCheck where the object comes from\nfor the source of the error.")
 }
