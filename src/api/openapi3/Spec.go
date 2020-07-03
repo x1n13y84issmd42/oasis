@@ -1,10 +1,11 @@
 package openapi3
 
 import (
+	"sort"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
-	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
@@ -26,7 +27,19 @@ func (spec *Spec) Operations() contract.OperationIterator {
 	}
 
 	go func() {
-		for oasPath, oasPathItem := range spec.OAS.Paths {
+		// First, sorting the paths lexicographically.
+		paths := []string{}
+
+		for oasPath := range spec.OAS.Paths {
+			paths = append(paths, oasPath)
+		}
+
+		sort.Strings(paths)
+
+		// Next, iterating over the sorted paths and feeding the ops to the channel.
+		for _, oasPath := range paths {
+			oasPathItem := spec.OAS.Paths[oasPath]
+
 			addOp(oasPathItem.Get, "GET", oasPath, oasPathItem)
 			addOp(oasPathItem.Post, "POST", oasPath, oasPathItem)
 			addOp(oasPathItem.Put, "PUT", oasPath, oasPathItem)
@@ -42,45 +55,6 @@ func (spec *Spec) Operations() contract.OperationIterator {
 	}()
 
 	return ch
-}
-
-// GetOperation returns a list of all available test operations from the spec.
-func (spec *Spec) GetOperation(name string) contract.Operation {
-	filterOp := func(oasOp *openapi3.Operation) bool {
-		return (oasOp != nil && (oasOp.Summary == name || oasOp.OperationID == name))
-	}
-
-	for oasPath, oasPathItem := range spec.OAS.Paths {
-		if filterOp(oasPathItem.Get) {
-			return spec.MakeOperation("GET", oasPathItem.Get, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Post) {
-			return spec.MakeOperation("POST", oasPathItem.Post, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Put) {
-			return spec.MakeOperation("PUT", oasPathItem.Put, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Delete) {
-			return spec.MakeOperation("DELETE", oasPathItem.Delete, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Patch) {
-			return spec.MakeOperation("PATCH", oasPathItem.Patch, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Head) {
-			return spec.MakeOperation("HEAD", oasPathItem.Head, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Options) {
-			return spec.MakeOperation("OPTIONS", oasPathItem.Options, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Connect) {
-			return spec.MakeOperation("CONNECT", oasPathItem.Connect, oasPath, oasPathItem)
-		}
-		if filterOp(oasPathItem.Trace) {
-			return spec.MakeOperation("TRACE", oasPathItem.Trace, oasPath, oasPathItem)
-		}
-	}
-
-	return api.NoOperation(errors.NotFound("Operation", name, nil), spec.Log)
 }
 
 // MakeOperation creates an Operation instance from available spec data.
