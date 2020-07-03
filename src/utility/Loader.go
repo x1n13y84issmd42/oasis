@@ -12,6 +12,7 @@ import (
 func Load(path string, logger contract.Logger) contract.Spec {
 	logger.LoadingSpec(path)
 
+	//TODO: later we'll need a way to select loaders based on format.
 	spec, specErr := openapi3.Load(path, logger)
 	if specErr != nil {
 		return api.NoSpec(specErr, logger)
