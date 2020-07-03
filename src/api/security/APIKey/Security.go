@@ -3,7 +3,9 @@ package apikey
 import (
 	"fmt"
 
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // Security implements the security type that requires a unique API key
@@ -36,7 +38,7 @@ func New(name string, location string, paramName string, value string, logger co
 	}
 
 	//TODO: return error
-	panic(fmt.Sprintf("Unknown location \"%s\" for the API Key security parameter \"%s\".", location, paramName))
+	return api.NoSecurity(errors.Oops(fmt.Sprintf("Unknown location \"%s\" for the API Key security parameter \"%s\".", location, paramName), nil), logger)
 }
 
 // GetName returns name.

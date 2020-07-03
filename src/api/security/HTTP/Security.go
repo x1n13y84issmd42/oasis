@@ -1,10 +1,11 @@
 package http
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"strings"
 
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
@@ -57,8 +58,7 @@ func New(name string, scheme string, value string, logger contract.Logger) contr
 		}
 	}
 
-	fmt.Printf("Unknown security scheme '%s'\n", scheme)
-	return nil
+	return api.NoSecurity(errors.New("Unknown security scheme '"+scheme+"'"), logger)
 }
 
 // Probe makes a request to a URL which is (supposedly) protected
@@ -95,8 +95,10 @@ func (sec Security) Probe(req *http.Request) (auth WWWAuthenticate) {
 
 // ParseWWWAuthenticate parses the Www-Authenticate header value.
 // A typical header looks something like this:
-// Digest realm="Oasis",nonce="61b6948856629ad7fd3da9d6179393ec",qop="auth,auth-int",opaque="f9a0f11abf3f6710d22c5a2aa65e19036"
+// Digest realm="Oasis",nonce="61b6948856629ad7fd3da9d6179393ec",qop="auth",opaque="f9a0f11abf3f6710d22c5a2aa65e19036"
 // The function returns these 'realm', 'nonce' and other directives as a map.
+//TODO: it fails when quoted values have commas, like "qop"
+// Digest realm="Oasis",nonce="61b6948856629ad7fd3da9d6179393ec",qop="auth,auth-int",opaque="f9a0f11abf3f6710d22c5a2aa65e19036"
 func (sec Security) ParseWWWAuthenticate(header string) map[string]string {
 	directives := strings.Split(header, ",")
 
