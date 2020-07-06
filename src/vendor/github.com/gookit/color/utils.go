@@ -3,8 +3,10 @@ package color
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
+	"syscall"
 )
 
 // Support color:
@@ -22,17 +24,20 @@ var specialColorTerms = map[string]bool{
 	"rxvt-unicode-256color": true,
 }
 
-// IsConsole 判断 w 是否为 stderr、stdout、stdin 三者之一
-func IsConsole(out io.Writer) bool {
-	o, ok := out.(*os.File)
+// IsConsole Determine whether w is one of stderr, stdout, stdin
+func IsConsole(w io.Writer) bool {
+	o, ok := w.(*os.File)
 	if !ok {
 		return false
 	}
 
-	return o == os.Stdout || o == os.Stderr || o == os.Stdin
+	fd := o.Fd()
+
+	// fix: cannot use 'o == os.Stdout' to compare
+	return fd == uintptr(syscall.Stdout) || fd == uintptr(syscall.Stdin) || fd == uintptr(syscall.Stderr)
 }
 
-// IsMSys msys(MINGW64) 环境，不一定支持颜色
+// IsMSys msys(MINGW64) environment, does not necessarily support color
 func IsMSys() bool {
 	// like "MSYSTEM=MINGW64"
 	if len(os.Getenv("MSYSTEM")) > 0 {
@@ -86,6 +91,111 @@ func IsSupportTrueColor() bool {
 	// "COLORTERM=truecolor"
 	return strings.Contains(os.Getenv("COLORTERM"), "truecolor")
 }
+
+/*************************************************************
+ * print methods(will auto parse color tags)
+ *************************************************************/
+
+// Print render color tag and print messages
+func Print(a ...interface{}) {
+	Fprint(output, a...)
+}
+
+// Printf format and print messages
+func Printf(format string, a ...interface{}) {
+	Fprintf(output, format, a...)
+}
+
+// Println messages with new line
+func Println(a ...interface{}) {
+	Fprintln(output, a...)
+}
+
+// Fprint print rendered messages to writer
+// Notice: will ignore print error
+func Fprint(w io.Writer, a ...interface{}) {
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			_, _ = fmt.Fprint(w, Render(a...))
+		})
+	} else {
+		_, _ = fmt.Fprint(w, Render(a...))
+	}
+}
+
+// Fprintf print format and rendered messages to writer.
+// Notice: will ignore print error
+func Fprintf(w io.Writer, format string, a ...interface{}) {
+	str := fmt.Sprintf(format, a...)
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			_, _ = fmt.Fprint(w, ReplaceTag(str))
+		})
+	} else {
+		_, _ = fmt.Fprint(w, ReplaceTag(str))
+	}
+}
+
+// Fprintln print rendered messages line to writer
+// Notice: will ignore print error
+func Fprintln(w io.Writer, a ...interface{}) {
+	str := formatArgsForPrintln(a)
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			_, _ = fmt.Fprintln(w, ReplaceTag(str))
+		})
+	} else {
+		_, _ = fmt.Fprintln(w, ReplaceTag(str))
+	}
+}
+
+// Lprint passes colored messages to a log.Logger for printing.
+// Notice: should be goroutine safe
+func Lprint(l *log.Logger, a ...interface{}) {
+	if isLikeInCmd {
+		renderColorCodeOnCmd(func() {
+			l.Print(Render(a...))
+		})
+	} else {
+		l.Print(Render(a...))
+	}
+}
+
+// Render parse color tags, return rendered string.
+// Usage:
+//	text := Render("<info>hello</> <cyan>world</>!")
+//	fmt.Println(text)
+func Render(a ...interface{}) string {
+	if len(a) == 0 {
+		return ""
+	}
+
+	return ReplaceTag(fmt.Sprint(a...))
+}
+
+// Sprint parse color tags, return rendered string
+func Sprint(args ...interface{}) string {
+	return Render(args...)
+}
+
+// Sprintf format and return rendered string
+func Sprintf(format string, a ...interface{}) string {
+	return ReplaceTag(fmt.Sprintf(format, a...))
+}
+
+// String alias of the ReplaceTag
+func String(s string) string {
+	return ReplaceTag(s)
+}
+
+// Text alias of the ReplaceTag
+func Text(s string) string {
+	return ReplaceTag(s)
+}
+
+/*************************************************************
+ * helper methods for print
+ *************************************************************/
 
 // its Win system. linux windows darwin
 // func isWindows() bool {

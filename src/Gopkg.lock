@@ -29,12 +29,20 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:f7607c7556611109a0579cba1cc171122d60cc591fd9fe388c432c9a2740e82f"
+  digest = "1:d7f1bd887dc650737a421b872ca883059580e9f8314d601f88025df4f4802dce"
+  name = "github.com/go-yaml/yaml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0b1645d91e851e735d3e23330303ce81f70adbe3"
+  version = "v2.3.0"
+
+[[projects]]
+  digest = "1:d2ec8a51ab48b2d601cc8003fccd3092713a886401f614e4cb0811c90bb9d1ee"
   name = "github.com/gookit/color"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4424096b9787fc36df5fd5e15c62886edbf13544"
-  version = "v1.2.4"
+  revision = "4f42aeb27af5256d0c982acd3fe6b8cbfe71cb47"
+  version = "v1.2.5"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -45,18 +53,24 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:5e8f46b412421d2d6cceea845d28ac46f3f5a5f60a6e86f0ee75e24fd43a02a9"
+  digest = "1:2c8bb9a0858e2ab458c1641345b6eaa3754b7ae453f8d30b15701f8b12b7ead7"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   pruneopts = "UT"
-  revision = "3ebf1ddaeb260c4b1ae502a01c7844fa8c1fa0e9"
-  version = "v1.5.1"
+  revision = "f654a9112bbeac49ca2cd45bfbe11533c4666cf8"
+  version = "v1.6.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:673b5266981a646363401e095af3d5a80d100b7eb0fbe94629b2705ea6de627b"
+  digest = "1:97291a89f913ef7acd91e154b9fbe9170dcfefc9061375ac9600b6fee6e083b2"
   name = "github.com/x1n13y84issmd42/gog"
-  packages = ["graph/contract"]
+  packages = [
+    "graph",
+    "graph/collection",
+    "graph/contract",
+    "graph/iterator",
+    "graph/storage",
+  ]
   pruneopts = "UT"
   revision = "6bfaca312801449a58b9c7480df84c626dac0d03"
 
@@ -93,20 +107,30 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:55b110c99c5fdc4f14930747326acce56b52cfce60b24b1c03ef686ac0e46bb1"
+  digest = "1:d7f1bd887dc650737a421b872ca883059580e9f8314d601f88025df4f4802dce"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "UT"
-  revision = "53403b58ad1b561927d19068c655246f2db79d48"
-  version = "v2.2.8"
+  revision = "0b1645d91e851e735d3e23330303ce81f70adbe3"
+  version = "v2.3.0"
+
+[[projects]]
+  branch = "v3"
+  digest = "1:229cb0f6192914f518cc1241ede6d6f1f458b31debfa18bf3a5c9e4f7b01e24b"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/getkin/kin-openapi/openapi3",
+    "github.com/go-yaml/yaml",
     "github.com/gookit/color",
     "github.com/stretchr/testify/assert",
+    "github.com/x1n13y84issmd42/gog/graph",
     "github.com/x1n13y84issmd42/gog/graph/contract",
     "github.com/x1n13y84issmd42/ssp",
     "github.com/xeipuuv/gojsonschema",
