@@ -7,7 +7,7 @@ import (
 // Set is a set of parameters used in operation testing.
 // It is basically a MultiSet, the only difference being
 // is that Load() overwrites each key with a [1]string
-// instaed of appending them.
+// instead of appending them.
 type Set struct {
 	*MultiSet
 }

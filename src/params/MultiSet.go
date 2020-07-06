@@ -8,6 +8,7 @@ import (
 )
 
 // MultiSet is a set of named values used as input parameters for an operation.
+// Each key can have multiple values.
 type MultiSet struct {
 	data     map[string][]string
 	required []string

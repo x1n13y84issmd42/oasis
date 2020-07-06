@@ -120,14 +120,16 @@ func ParseArgs(args *Args) {
 	), 1, 2)
 
 	ssp.Repeat(ssp.OneOf(
-		expExecute,
-		expFrom,
+		ssp.OneOf(
+			expExecute,
+			expFrom,
+		),
 		expTest,
 		expUse,
 		expExpect,
 		expHost,
 		expLog,
-	), 1, 8).Parse(os.Args[1:])
+	), 1, 6).Parse(os.Args[1:])
 	//    ^^^ UPDATE ME EVERY TIME YOU ADD ARGUMENTS
 
 	// fmt.Printf("Args: %#v\n", args)

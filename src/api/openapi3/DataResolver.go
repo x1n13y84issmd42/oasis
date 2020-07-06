@@ -95,7 +95,7 @@ func (r *DataResolver) Response(status int64, CT string) contract.Validator {
 
 	// Under status code keys there are Content-Typed responses.
 	// Selecting the needed one (or application/json as default).
-	ct, _, err := func() (string, *openapi3.MediaType, error) {
+	ct, mt, err := func() (string, *openapi3.MediaType, error) {
 		if CT == "" {
 			CT = "application/json"
 			//TODO: log using default CT
@@ -116,6 +116,11 @@ func (r *DataResolver) Response(status int64, CT string) contract.Validator {
 	v.Expect(expect.ContentType(ct))
 
 	err = r.Headers(specResp, v)
+	if err != nil {
+		return test.NoValidator(err, r.Log)
+	}
+
+	err = r.Content(mt, CT, v)
 	if err != nil {
 		return test.NoValidator(err, r.Log)
 	}
