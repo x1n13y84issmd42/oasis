@@ -26,6 +26,7 @@ func Operation(op contract.Operation, enrichment *[]contract.RequestEnrichment, 
 
 	// Requesting.
 	result := req.Execute()
+	//TODO: check for errors, use NullOperationResult or smth.
 
 	// Testing & returning.
 	result = v.Validate(result)

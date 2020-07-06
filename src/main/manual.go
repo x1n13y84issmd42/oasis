@@ -15,7 +15,7 @@ func Manual(args *env.Args, logger contract.Logger) {
 
 	logger.TestingProject(spec)
 
-	// Resolving.
+	// Resolving the operations.
 	specOps := utility.NewOperationResolver(spec, logger).Resolve(args.Ops)
 	result := test.Success()
 
@@ -33,6 +33,7 @@ func Manual(args *env.Args, logger contract.Logger) {
 				op.Data().Query,
 				op.Data().Headers,
 
+				//TODO
 				// op.Resolve().Security(args.Use.Security),
 			}
 
