@@ -10,17 +10,17 @@ import (
 
 func Test_MultiSet(T *testing.T) {
 	T.Run("Load&Iterate", func(T *testing.T) {
-		src1 := params.NewMemorySource()
+		src1 := params.NewMemorySource("test")
 		src1.Add("A", "The aye")
 		src1.Add("B", "The bee")
 		src1.Add("C", "The sea")
 		src1.Add("D", "The D")
 
-		src2 := params.NewMemorySource()
+		src2 := params.NewMemorySource("test")
 		src2.Add("A", "The aye aye")
 		src2.Add("D", "The D #2")
 
-		set := params.NewMultiSet()
+		set := params.NewMultiSet("test")
 		set.Load(src1)
 		set.Load(src2)
 
@@ -36,18 +36,18 @@ func Test_MultiSet(T *testing.T) {
 		actual := []string{}
 
 		for p := range set.Iterate() {
-			actual = append(actual, p.V)
+			actual = append(actual, p.V())
 		}
 
 		assert.Equal(T, expected, actual)
 	})
 
 	T.Run("Require&Validate Fail", func(T *testing.T) {
-		src := params.NewMemorySource()
+		src := params.NewMemorySource("test")
 		src.Add("A", "The aye")
 		src.Add("B", "The bee")
 
-		set := params.NewMultiSet()
+		set := params.NewMultiSet("7357")
 		set.Load(src)
 
 		set.Require("A")
@@ -56,17 +56,17 @@ func Test_MultiSet(T *testing.T) {
 		set.Require("D")
 		set.Require("D")
 
-		expected := errors.NoParameters([]string{"C", "D"}, nil)
+		expected := errors.NoParameters([]string{"C", "D"}, "7357", nil)
 
 		assert.Equal(T, expected, set.Validate())
 	})
 
 	T.Run("Require&Validate Success", func(T *testing.T) {
-		src := params.NewMemorySource()
+		src := params.NewMemorySource("test")
 		src.Add("A", "The aye")
 		src.Add("B", "The bee")
 
-		set := params.NewMultiSet()
+		set := params.NewMultiSet("test")
 		set.Load(src)
 
 		set.Require("A")

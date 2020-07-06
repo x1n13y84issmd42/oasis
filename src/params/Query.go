@@ -16,7 +16,7 @@ type QueryParameters struct {
 func Query(log contract.Logger) *QueryParameters {
 	p := &QueryParameters{
 		EntityTrait: contract.Entity(log),
-		MultiSet:    NewMultiSet(),
+		MultiSet:    NewMultiSet("query"),
 	}
 
 	return p
@@ -31,7 +31,7 @@ func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 	q := req.URL.Query()
 
 	for pt := range params.Iterate() {
-		q.Add(pt.N, pt.V)
+		q.Add(pt.N, pt.V())
 	}
 
 	req.URL.RawQuery = q.Encode()

@@ -49,7 +49,7 @@ func (r *DataResolver) Host(hostHint string) contract.ParameterSource {
 	}
 
 	if host != nil {
-		src := params.NewMemorySource()
+		src := params.NewMemorySource("resolver")
 		src.Add(params.KeyHost, *host)
 		return src
 	}

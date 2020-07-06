@@ -67,7 +67,7 @@ func Test_Parameters(T *testing.T) {
 	iterate := func(src contract.ParameterSource) string {
 		res := ""
 		for p := range src.Iterate() {
-			res = res + p.N + ":" + p.V + " "
+			res = res + p.N + ":" + p.V() + " "
 		}
 		return res
 	}

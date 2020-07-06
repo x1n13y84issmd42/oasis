@@ -24,10 +24,17 @@ type RequestEnrichmentParameters interface {
 	RequestEnrichment
 }
 
+// ParameterAccess is a function to provide a value for an operation.
+// Values can be either literal or references. Reference values are used
+// in scripts and look like "#opID.response[JSON_SELECTOR]".
+// They are used to get certain values from one operation response
+// as an input to another operation.
+type ParameterAccess func() string
+
 // ParameterTuple is a pair of parameter name and it's value.
 type ParameterTuple struct {
 	N string
-	V string
+	V ParameterAccess
 }
 
 // ParameterIterator is an iterable channel to receive tuples

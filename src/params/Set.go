@@ -13,15 +13,15 @@ type Set struct {
 }
 
 // NewSet creates a new MultiSet instance.
-func NewSet() *Set {
+func NewSet(name string) *Set {
 	return &Set{
-		MultiSet: NewMultiSet(),
+		MultiSet: NewMultiSet(name),
 	}
 }
 
 // Load reads parameters from a source.
 func (params *Set) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
-		params.data[p.N] = []string{p.V}
+		params.data[p.N] = []string{p.V()}
 	}
 }

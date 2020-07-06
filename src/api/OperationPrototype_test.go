@@ -48,7 +48,7 @@ func Test_OperationPrototype(T *testing.T) {
 
 	op.OperationPrototype.Operation = op
 
-	src := params.NewMemorySource()
+	src := params.NewMemorySource("test")
 	src.Add(params.KeyHost, "example.com")
 	src.Add("bar", "B4R_VALUE")
 

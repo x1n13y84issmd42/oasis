@@ -8,6 +8,7 @@ type Spec interface {
 	ProjectInfo
 
 	Operations() OperationIterator
+	GetOperation(id string) Operation
 }
 
 //TODO: make spec a set of operations.

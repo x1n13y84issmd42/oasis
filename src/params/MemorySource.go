@@ -8,12 +8,14 @@ import (
 
 // MemorySource is a parameter source which uses a native map as a source storage.
 type MemorySource struct {
+	Name string
 	Data map[string]string
 }
 
 // NewMemorySource creates a new MemoryParameterSource instance.
-func NewMemorySource() *MemorySource {
+func NewMemorySource(name string) *MemorySource {
 	return &MemorySource{
+		Name: name,
 		Data: map[string]string{},
 	}
 }
@@ -41,7 +43,7 @@ func (ds *MemorySource) Iterate() contract.ParameterIterator {
 		sort.Strings(keys)
 
 		for _, pn := range keys {
-			ch <- contract.ParameterTuple{N: pn, V: ds.Data[pn]}
+			ch <- contract.ParameterTuple{N: pn, V: Value(ds.Data[pn])}
 		}
 
 		close(ch)

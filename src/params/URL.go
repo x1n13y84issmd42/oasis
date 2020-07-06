@@ -20,7 +20,7 @@ type URLParameters struct {
 func URL(path string, log contract.Logger) *URLParameters {
 	p := &URLParameters{
 		EntityTrait: contract.Entity(log),
-		Set:         NewSet(),
+		Set:         NewSet("URL"),
 		Path:        path,
 	}
 
@@ -41,8 +41,9 @@ func (params URLParameters) String() string {
 		rx := regexp.MustCompile("\\{" + pt.N + "\\}")
 
 		if rx.Match([]byte(tpl)) {
-			if pt.V != "" {
-				tpl = string(rx.ReplaceAll([]byte(tpl), []byte(pt.V)))
+			v := pt.V()
+			if v != "" {
+				tpl = string(rx.ReplaceAll([]byte(tpl), []byte(v)))
 			}
 		}
 	}

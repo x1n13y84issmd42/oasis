@@ -11,11 +11,11 @@ import (
 )
 
 func Test_Query(T *testing.T) {
-	src1 := params.NewMemorySource()
+	src1 := params.NewMemorySource("test")
 	src1.Add("bar", "B4R")
 	src1.Add("yolo", "Y010")
 
-	src2 := params.NewMemorySource()
+	src2 := params.NewMemorySource("test")
 	src2.Add("bar", "B4444R")
 	src2.Add("yolo", "you only live once")
 

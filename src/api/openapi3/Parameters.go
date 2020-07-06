@@ -5,6 +5,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 // SpecParameterSource provides access to spec data.
@@ -52,7 +53,7 @@ func (ds *SpecParameterSource) Iterate() contract.ParameterIterator {
 		for _, pn := range keys {
 			ch <- contract.ParameterTuple{
 				N: pn,
-				V: m[pn],
+				V: params.Value(m[pn]),
 			}
 		}
 

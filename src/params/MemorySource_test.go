@@ -8,7 +8,7 @@ import (
 )
 
 func Test_MemorySource(T *testing.T) {
-	src := params.NewMemorySource()
+	src := params.NewMemorySource("test")
 	src.Add("b", "BB")
 	src.Add("a", "AAAAA")
 
@@ -27,7 +27,7 @@ func Test_MemorySource(T *testing.T) {
 		actual := []string{}
 
 		for pt := range src.Iterate() {
-			actual = append(actual, pt.V)
+			actual = append(actual, pt.V())
 		}
 
 		assert.Equal(T, expected, actual)

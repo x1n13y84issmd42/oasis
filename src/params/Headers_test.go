@@ -10,11 +10,11 @@ import (
 )
 
 func Test_Headers(T *testing.T) {
-	src1 := params.NewMemorySource()
+	src1 := params.NewMemorySource("test 1")
 	src1.Add("X-Oasis-Stuff", "value 1")
 	src1.Add("Connection", "close")
 
-	src2 := params.NewMemorySource()
+	src2 := params.NewMemorySource("test 2")
 	src2.Add("X-Oasis-Stuff", "value 2")
 	src2.Add("Accept", "image/png")
 

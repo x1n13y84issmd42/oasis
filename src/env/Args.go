@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 	"github.com/x1n13y84issmd42/ssp"
 )
 
@@ -17,7 +18,7 @@ func (m ParameterMap) Iterate() contract.ParameterIterator {
 
 	go func() {
 		for n, v := range m {
-			ch <- contract.ParameterTuple{N: n, V: v}
+			ch <- contract.ParameterTuple{N: n, V: params.Value(v)}
 		}
 		close(ch)
 	}()
@@ -36,7 +37,7 @@ func (m ParameterMultiMap) Iterate() contract.ParameterIterator {
 	go func() {
 		for n, vs := range m {
 			for _, v := range vs {
-				ch <- contract.ParameterTuple{N: n, V: v}
+				ch <- contract.ParameterTuple{N: n, V: params.Value(v)}
 			}
 		}
 		close(ch)

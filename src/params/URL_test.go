@@ -10,7 +10,7 @@ import (
 
 func Test_URL(T *testing.T) {
 	T.Run("KeyHost Validation Failure", func(T *testing.T) {
-		src := params.NewMemorySource()
+		src := params.NewMemorySource("test")
 		src.Add("bar", "B4R")
 		src.Add("yolo", "y010")
 
@@ -27,7 +27,7 @@ func Test_URL(T *testing.T) {
 	})
 
 	T.Run("Success", func(T *testing.T) {
-		src := params.NewMemorySource()
+		src := params.NewMemorySource("test")
 		src.Add("bar", "B4R")
 		src.Add("yolo", "Y010")
 		src.Add(params.KeyHost, "example.com")

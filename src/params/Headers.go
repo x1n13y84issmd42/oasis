@@ -16,7 +16,7 @@ type HeadersParameters struct {
 func Headers(log contract.Logger) *HeadersParameters {
 	p := &HeadersParameters{
 		EntityTrait: contract.Entity(log),
-		MultiSet:    NewMultiSet(),
+		MultiSet:    NewMultiSet("headers"),
 	}
 
 	return p
@@ -29,6 +29,6 @@ func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 	}
 
 	for pt := range params.Iterate() {
-		req.Header.Add(pt.N, pt.V)
+		req.Header.Add(pt.N, pt.V())
 	}
 }

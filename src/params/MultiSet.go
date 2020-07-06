@@ -10,13 +10,15 @@ import (
 // MultiSet is a set of named values used as input parameters for an operation.
 // Each key can have multiple values.
 type MultiSet struct {
+	Name     string
 	data     map[string][]string
 	required []string
 }
 
 // NewMultiSet creates a new MultiSet instance.
-func NewMultiSet() *MultiSet {
+func NewMultiSet(name string) *MultiSet {
 	return &MultiSet{
+		Name:     name,
 		data:     make(map[string][]string),
 		required: []string{},
 	}
@@ -25,7 +27,7 @@ func NewMultiSet() *MultiSet {
 // Load reads parameters from a source.
 func (params *MultiSet) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
-		params.data[p.N] = append(params.data[p.N], p.V)
+		params.data[p.N] = append(params.data[p.N], p.V())
 	}
 }
 
@@ -52,7 +54,7 @@ func (params *MultiSet) Validate() error {
 	}
 
 	if len(missingParams) > 0 {
-		return errors.NoParameters(missingParams, nil)
+		return errors.NoParameters(missingParams, params.Name, nil)
 	}
 
 	return nil
@@ -72,7 +74,7 @@ func (params *MultiSet) Iterate() contract.ParameterIterator {
 
 		for _, k := range keys {
 			for _, v := range params.data[k] {
-				ch <- contract.ParameterTuple{N: k, V: v}
+				ch <- contract.ParameterTuple{N: k, V: Value(v)}
 			}
 		}
 
