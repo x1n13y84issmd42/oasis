@@ -1,0 +1,14 @@
+spec: spec/petstore.yaml
+operations:
+  listPets:
+    operationId: findPetsByStatus
+    use:
+      query:
+        status: pending
+    expect:
+      status: 200
+  getPetDetails:
+    operationId: getPetById
+    use:
+      path:
+        petId: "#listPets.response.[0].id"
