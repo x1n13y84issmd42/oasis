@@ -40,7 +40,7 @@ type ParameterMapPath ParameterMap
 
 // Iterate creates an iterable channel to read parameters.
 func (m ParameterMapPath) Iterate() contract.ParameterIterator {
-	return ParameterMap(m).DoIterate("query")
+	return ParameterMap(m).DoIterate("arguments, path")
 }
 
 // ParameterMultiMap is a map of operation test parameters
@@ -77,7 +77,7 @@ type ParameterMultiMapQuery ParameterMultiMap
 
 // Iterate creates an iterable channel to read parameters.
 func (m ParameterMultiMapQuery) Iterate() contract.ParameterIterator {
-	return ParameterMultiMap(m).DoIterate("query")
+	return ParameterMultiMap(m).DoIterate("arguments, query")
 }
 
 // ParameterMultiMapHeaders is a map of parameters used in headers.
@@ -85,7 +85,7 @@ type ParameterMultiMapHeaders ParameterMultiMap
 
 // Iterate creates an iterable channel to read parameters.
 func (m ParameterMultiMapHeaders) Iterate() contract.ParameterIterator {
-	return ParameterMultiMap(m).DoIterate("headers")
+	return ParameterMultiMap(m).DoIterate("arguments, headers")
 }
 
 // ArgsUse is what goes after the "use" command line argument.

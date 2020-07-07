@@ -30,8 +30,10 @@ func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 
 	q := req.URL.Query()
 
-	for pt := range params.Iterate() {
-		q.Add(pt.N, pt.V())
+	for p := range params.Iterate() {
+		v := p.V()
+		params.Log.UsingParameterExample(p.N, "query", p.Source, v)
+		q.Add(p.N, v)
 	}
 
 	req.URL.RawQuery = q.Encode()

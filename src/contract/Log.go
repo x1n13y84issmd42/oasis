@@ -18,17 +18,13 @@ type Logger interface {
 	TestingProject(p ProjectInfo)
 	TestingOperation(res Operation)
 
-	// UsingHost(p *api.Host)
-	UsingDefaultHost()
-	HostNotFound(h string)
-
 	UsingSecurity(sec Security)
 	SecurityHasNoData(sec Security)
 
 	Requesting(method string, url string)
 
-	ParameterHasNoExample(paramName string, in string, container string)
-	UsingParameterExample(paramName string, in string, container string)
+	// ParameterHasNoExample(paramName string, in string, container string)
+	UsingParameterExample(paramName string, in string, container string, value string)
 
 	HeaderHasNoValue(hdr string)
 	ResponseHasWrongStatus(expectedStatus int, actualStatus int)

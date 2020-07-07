@@ -107,25 +107,6 @@ func (log Log) TestingProject(pi contract.ProjectInfo) {
 	log.Println(2, "Testing the %s @ %s", log.Style.Op(pi.Title()), log.Style.ID(pi.Version()))
 }
 
-// UsingHost informs about the API host being used for testing.
-// func (log Log) UsingHost(host *api.Host) {
-// 	log.Println(2, "Using the %s host @ %s", log.Style.Op(host.Name), log.Style.URL(host.URL))
-// }
-
-// UsingDefaultHost informs that a default host has been chosen fr testing.
-func (log Log) UsingDefaultHost() {
-	log.Println(2, "No host name has been specified, using the first one in the list.")
-}
-
-// HostNotFound informs that no specified host has been found in the spec.
-func (log Log) HostNotFound(h string) {
-	if h == "" {
-		log.Println(2, "No default host is found in the spec.")
-	} else {
-		log.Println(2, "The host \"%s\" is not found in the spec.", h)
-	}
-}
-
 // UsingSecurity informs about security mechanisms being used during testing.
 func (log Log) UsingSecurity(sec contract.Security) {
 	log.Println(3, "\tUsing the %s security settings.", log.Style.ID(sec.GetName()))
@@ -147,8 +128,8 @@ func (log Log) ParameterHasNoExample(paramName string, in string, container stri
 }
 
 // UsingParameterExample informs that a parameter example being used.
-func (log Log) UsingParameterExample(paramName string, in string, container string) {
-	log.Println(5, "\tUsing the %s parameter %s (from %s) example.", in, log.Style.ID(paramName), container)
+func (log Log) UsingParameterExample(paramName string, in string, container string, value string) {
+	log.Println(5, "\tUsing the %s parameter %s value %s (from %s).", in, log.Style.ID(paramName), log.Style.ValueActual(value), container)
 }
 
 // HeaderHasNoValue informs that a required response header has no data.

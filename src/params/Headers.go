@@ -28,7 +28,9 @@ func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 		params.Error(err)
 	}
 
-	for pt := range params.Iterate() {
-		req.Header.Add(pt.N, pt.V())
+	for p := range params.Iterate() {
+		v := p.V()
+		params.Log.UsingParameterExample(p.N, "header", p.Source, v)
+		req.Header.Add(p.N, v)
 	}
 }

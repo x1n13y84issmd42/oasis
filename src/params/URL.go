@@ -37,12 +37,13 @@ func (params URLParameters) String() string {
 
 	tpl := "{" + KeyHost + "}" + params.Path
 
-	for pt := range params.Iterate() {
-		rx := regexp.MustCompile("\\{" + pt.N + "\\}")
+	for p := range params.Iterate() {
+		rx := regexp.MustCompile("\\{" + p.N + "\\}")
 
 		if rx.Match([]byte(tpl)) {
-			v := pt.V()
+			v := p.V()
 			if v != "" {
+				params.Log.UsingParameterExample(p.N, "path", p.Source, v)
 				tpl = string(rx.ReplaceAll([]byte(tpl), []byte(v)))
 			}
 		}
