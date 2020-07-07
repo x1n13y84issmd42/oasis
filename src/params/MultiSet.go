@@ -7,11 +7,14 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
+// Map is a map of parameters.
+type Map map[string][]contract.Parameter
+
 // MultiSet is a set of named values used as input parameters for an operation.
 // Each key can have multiple values.
 type MultiSet struct {
 	Name     string
-	data     map[string][]string
+	data     Map
 	required []string
 }
 
@@ -19,7 +22,7 @@ type MultiSet struct {
 func NewMultiSet(name string) *MultiSet {
 	return &MultiSet{
 		Name:     name,
-		data:     make(map[string][]string),
+		data:     make(Map),
 		required: []string{},
 	}
 }
@@ -27,7 +30,7 @@ func NewMultiSet(name string) *MultiSet {
 // Load reads parameters from a source.
 func (params *MultiSet) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
-		params.data[p.N] = append(params.data[p.N], p.V())
+		params.data[p.N] = append(params.data[p.N], p.Parameter)
 	}
 }
 
@@ -74,7 +77,7 @@ func (params *MultiSet) Iterate() contract.ParameterIterator {
 
 		for _, k := range keys {
 			for _, v := range params.data[k] {
-				ch <- contract.ParameterTuple{N: k, V: Value(v)}
+				ch <- contract.ParameterTuple{N: k, Parameter: v}
 			}
 		}
 

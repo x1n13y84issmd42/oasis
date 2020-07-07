@@ -10,34 +10,23 @@ import (
 )
 
 // ParameterMap is a generic map of operation test parameters.
+// & query parameters. It is must be subclassed/aliased/whatever-this-is-called-in-go
+// in order to override the Iterate() and provide a source name.
 type ParameterMap map[string]string
 
-// Iterate creates an iterable channel to read parameters.
-func (m ParameterMap) Iterate() contract.ParameterIterator {
+// DoIterate creates an iterable channel to read parameters.
+// The name argument is used for the Parameter.Source value.
+func (m ParameterMap) DoIterate(name string) contract.ParameterIterator {
 	ch := make(contract.ParameterIterator)
 
 	go func() {
 		for n, v := range m {
-			ch <- contract.ParameterTuple{N: n, V: params.Value(v)}
-		}
-		close(ch)
-	}()
-
-	return ch
-}
-
-// ParameterMultiMap is a map of operation test parameters where each key can have multiple values.
-// Used for HTTP headers & query parameters.
-type ParameterMultiMap map[string][]string
-
-// Iterate creates an iterable channel to read parameters.
-func (m ParameterMultiMap) Iterate() contract.ParameterIterator {
-	ch := make(contract.ParameterIterator)
-
-	go func() {
-		for n, vs := range m {
-			for _, v := range vs {
-				ch <- contract.ParameterTuple{N: n, V: params.Value(v)}
+			ch <- contract.ParameterTuple{
+				N: n,
+				Parameter: contract.Parameter{
+					V:      params.Value(v),
+					Source: name,
+				},
 			}
 		}
 		close(ch)
@@ -46,13 +35,66 @@ func (m ParameterMultiMap) Iterate() contract.ParameterIterator {
 	return ch
 }
 
+// ParameterMapPath is a map of parameters used in paths.
+type ParameterMapPath ParameterMap
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMapPath) Iterate() contract.ParameterIterator {
+	return ParameterMap(m).DoIterate("query")
+}
+
+// ParameterMultiMap is a map of operation test parameters
+// where each key can have multiple values. Used for HTTP headers
+// & query parameters. It is must be subclassed/aliased/whatever-this-is-called-in-go
+// in order to override the Iterate() and provide a source name.
+type ParameterMultiMap map[string][]string
+
+// DoIterate creates an iterable channel to read parameters.
+// The name argument is used for the Parameter.Source value.
+func (m ParameterMultiMap) DoIterate(name string) contract.ParameterIterator {
+	ch := make(contract.ParameterIterator)
+
+	go func() {
+		for n, vs := range m {
+			for _, v := range vs {
+				ch <- contract.ParameterTuple{
+					N: n,
+					Parameter: contract.Parameter{
+						V:      params.Value(v),
+						Source: name,
+					},
+				}
+			}
+		}
+		close(ch)
+	}()
+
+	return ch
+}
+
+// ParameterMultiMapQuery is a map of parameters used in query.
+type ParameterMultiMapQuery ParameterMultiMap
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMultiMapQuery) Iterate() contract.ParameterIterator {
+	return ParameterMultiMap(m).DoIterate("query")
+}
+
+// ParameterMultiMapHeaders is a map of parameters used in headers.
+type ParameterMultiMapHeaders ParameterMultiMap
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMultiMapHeaders) Iterate() contract.ParameterIterator {
+	return ParameterMultiMap(m).DoIterate("headers")
+}
+
 // ArgsUse is what goes after the "use" command line argument.
 type ArgsUse struct {
 	CT             string
 	Security       string
-	PathParameters ParameterMap
-	Query          ParameterMultiMap
-	Headers        ParameterMultiMap
+	PathParameters ParameterMapPath
+	Query          ParameterMultiMapQuery
+	Headers        ParameterMultiMapHeaders
 }
 
 // ArgsExpect is what goes after the "expect" command line argument.
@@ -80,7 +122,7 @@ func ParseArgs(args *Args) {
 	expTest := ssp.String("test").CaptureStringSlice(&args.Ops)
 	expHost := ssp.String("@").CaptureString(&args.Host)
 
-	args.Use.PathParameters = ParameterMap{}
+	args.Use.PathParameters = ParameterMapPath{}
 
 	hPathParams := func(params []string) {
 		for _, pp := range params {
@@ -89,8 +131,8 @@ func ParseArgs(args *Args) {
 		}
 	}
 
-	args.Use.Query = ParameterMultiMap{}
-	args.Use.Headers = ParameterMultiMap{}
+	args.Use.Query = ParameterMultiMapQuery{}
+	args.Use.Headers = ParameterMultiMapHeaders{}
 
 	hQueryParams := func(params []string) {
 		for _, pp := range params {

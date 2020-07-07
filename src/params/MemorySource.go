@@ -43,7 +43,10 @@ func (ds *MemorySource) Iterate() contract.ParameterIterator {
 		sort.Strings(keys)
 
 		for _, pn := range keys {
-			ch <- contract.ParameterTuple{N: pn, V: Value(ds.Data[pn])}
+			ch <- contract.ParameterTuple{N: pn, Parameter: contract.Parameter{
+				V:      Value(ds.Data[pn]),
+				Source: ds.Name,
+			}}
 		}
 
 		close(ch)

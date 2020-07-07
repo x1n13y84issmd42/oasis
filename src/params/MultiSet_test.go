@@ -10,13 +10,13 @@ import (
 
 func Test_MultiSet(T *testing.T) {
 	T.Run("Load&Iterate", func(T *testing.T) {
-		src1 := params.NewMemorySource("test")
+		src1 := params.NewMemorySource("test_1")
 		src1.Add("A", "The aye")
 		src1.Add("B", "The bee")
 		src1.Add("C", "The sea")
 		src1.Add("D", "The D")
 
-		src2 := params.NewMemorySource("test")
+		src2 := params.NewMemorySource("TEST 2")
 		src2.Add("A", "The aye aye")
 		src2.Add("D", "The D #2")
 
@@ -25,18 +25,18 @@ func Test_MultiSet(T *testing.T) {
 		set.Load(src2)
 
 		expected := []string{
-			"The aye",
-			"The aye aye",
-			"The bee",
-			"The sea",
-			"The D",
-			"The D #2",
+			"A test_1 The aye",
+			"A TEST 2 The aye aye",
+			"B test_1 The bee",
+			"C test_1 The sea",
+			"D test_1 The D",
+			"D TEST 2 The D #2",
 		}
 
 		actual := []string{}
 
 		for p := range set.Iterate() {
-			actual = append(actual, p.V())
+			actual = append(actual, p.N+" "+p.Source+" "+p.V())
 		}
 
 		assert.Equal(T, expected, actual)

@@ -31,10 +31,16 @@ type RequestEnrichmentParameters interface {
 // as an input to another operation.
 type ParameterAccess func() string
 
+// Parameter is a pair of parameter value and name of it's source.
+type Parameter struct {
+	V      ParameterAccess
+	Source string
+}
+
 // ParameterTuple is a pair of parameter name and it's value.
 type ParameterTuple struct {
+	Parameter
 	N string
-	V ParameterAccess
 }
 
 // ParameterIterator is an iterable channel to receive tuples

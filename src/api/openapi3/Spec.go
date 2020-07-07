@@ -116,16 +116,16 @@ func (spec *Spec) MakeOperation(
 	op.OperationPrototype.Operation = op
 
 	op.Data().URL = params.URL(oasPath, spec.Log)
-	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters))
-	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters))
+	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters, "path"))
+	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters, "op"))
 
 	op.Data().Query = params.Query(spec.Log)
-	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters))
-	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters))
+	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters, "path"))
+	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters, "op"))
 
 	op.Data().Headers = params.Headers(spec.Log)
-	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters))
-	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters))
+	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters, "path"))
+	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters, "op"))
 
 	requireParameters := func(p *openapi3.Parameter) {
 		switch p.In {

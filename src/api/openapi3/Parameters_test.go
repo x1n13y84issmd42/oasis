@@ -73,7 +73,7 @@ func Test_Parameters(T *testing.T) {
 	}
 
 	T.Run("PathParameterSource", func(T *testing.T) {
-		src := openapi3.PathParameterSource(&params)
+		src := openapi3.PathParameterSource(&params, "7357")
 		expected := "param1:P1_VALUE param3:P3_VALUE "
 		assert.Equal(T, expected, iterate(src))
 		assert.Equal(T, "P1_VALUE", src.Get("param1"))
@@ -81,14 +81,14 @@ func Test_Parameters(T *testing.T) {
 	})
 
 	T.Run("QueryParameterSource", func(T *testing.T) {
-		src := openapi3.QueryParameterSource(&params)
+		src := openapi3.QueryParameterSource(&params, "7357")
 		expected := "param2:P2_VALUE qp:QP_VALUE "
 		assert.Equal(T, expected, iterate(src))
 		assert.Equal(T, "QP_VALUE", src.Get("qp"))
 	})
 
 	T.Run("HeaderParameterSource", func(T *testing.T) {
-		src := openapi3.HeadersParameterSource(&params)
+		src := openapi3.HeadersParameterSource(&params, "7357")
 		expected := "abra:CADABRA param3:P3_VALUE "
 		assert.Equal(T, expected, iterate(src))
 		assert.Equal(T, "CADABRA", src.Get("abra"))

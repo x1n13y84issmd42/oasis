@@ -22,6 +22,6 @@ func NewSet(name string) *Set {
 // Load reads parameters from a source.
 func (params *Set) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
-		params.data[p.N] = []string{p.V()}
+		params.data[p.N] = []contract.Parameter{p.Parameter}
 	}
 }

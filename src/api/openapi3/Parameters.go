@@ -12,6 +12,7 @@ import (
 type SpecParameterSource struct {
 	Params *openapi3.Parameters
 	In     string
+	Name   string
 }
 
 // Get retrieves the requested parameters from the spec parameter list.
@@ -53,7 +54,10 @@ func (ds *SpecParameterSource) Iterate() contract.ParameterIterator {
 		for _, pn := range keys {
 			ch <- contract.ParameterTuple{
 				N: pn,
-				V: params.Value(m[pn]),
+				Parameter: contract.Parameter{
+					V:      params.Value(m[pn]),
+					Source: "spec " + ds.Name,
+				},
 			}
 		}
 
@@ -64,25 +68,28 @@ func (ds *SpecParameterSource) Iterate() contract.ParameterIterator {
 }
 
 // PathParameterSource creates a parameter source concerned with extracting the "path" parameters from a spec.
-func PathParameterSource(p *openapi3.Parameters) *SpecParameterSource {
+func PathParameterSource(p *openapi3.Parameters, name string) *SpecParameterSource {
 	return &SpecParameterSource{
 		Params: p,
 		In:     "path",
+		Name:   name,
 	}
 }
 
 // QueryParameterSource creates a parameter source concerned with extracting the "query" parameters from a spec.
-func QueryParameterSource(p *openapi3.Parameters) *SpecParameterSource {
+func QueryParameterSource(p *openapi3.Parameters, name string) *SpecParameterSource {
 	return &SpecParameterSource{
 		Params: p,
 		In:     "query",
+		Name:   name,
 	}
 }
 
 // HeadersParameterSource creates a parameter source concerned with extracting the "header" parameters from a spec.
-func HeadersParameterSource(p *openapi3.Parameters) *SpecParameterSource {
+func HeadersParameterSource(p *openapi3.Parameters, name string) *SpecParameterSource {
 	return &SpecParameterSource{
 		Params: p,
 		In:     "header",
+		Name:   name,
 	}
 }
