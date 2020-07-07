@@ -6,26 +6,26 @@ import (
 	contract "github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
-// OperationNode represents a single operation in the script execution graph.
-type OperationNode struct {
+// ExecutionNode represents a single operation in the script execution graph.
+type ExecutionNode struct {
 	Operation contract.Operation
 	// Parameters api.OperationParameters
 }
 
 // ID returns a uniqe operation node ID.
-func (node *OperationNode) ID() gcontract.NodeID {
+func (node *ExecutionNode) ID() gcontract.NodeID {
 	return gcontract.NodeID(node.Operation.Name())
 }
 
-// OperationGraph is a graph representing interdependencies between operations.
-type OperationGraph struct {
+// ExecutionGraph is a graph representing interdependencies between operations.
+type ExecutionGraph struct {
 	contract.EntityTrait
 	*gog.DGraph
 }
 
-// NewOperationGraph creates a new OperationGraph instance.
-func NewOperationGraph(log contract.Logger) *OperationGraph {
-	return &OperationGraph{
+// NewExecutionGraph creates a new OperationGraph instance.
+func NewExecutionGraph(log contract.Logger) *ExecutionGraph {
+	return &ExecutionGraph{
 		EntityTrait: contract.Entity(log),
 		DGraph:      gog.NewDGraph(),
 	}

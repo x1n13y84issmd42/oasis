@@ -52,7 +52,7 @@ type Script struct {
 // GetExecutionGraph builds and returns an operation execution graph.
 func (script *Script) GetExecutionGraph() gcontract.Graph {
 	spec := utility.Load(script.Spec, script.Log)
-	graph := NewOperationGraph(script.Log)
+	graph := NewExecutionGraph(script.Log)
 
 	for _, opRef := range script.Operations {
 		specOp := spec.GetOperation(opRef.OperationID)
@@ -83,7 +83,7 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 // collects a list of references operations along with ParameterAccess functions.
 func (script *Script) SetupDependencies(
 	spec contract.Spec,
-	graph *OperationGraph,
+	graph *ExecutionGraph,
 	srcParams *OperationDataMap,
 	dstParams contract.Set,
 	specOp contract.Operation,
@@ -109,9 +109,9 @@ func (script *Script) SetupDependencies(
 			refParams.AddReference(pn, specOp2, selector)
 
 			// Adding an edge to the execution graph.
-			graph.AddEdge(&OperationNode{
+			graph.AddEdge(&ExecutionNode{
 				Operation: specOp,
-			}, &OperationNode{
+			}, &ExecutionNode{
 				Operation: specOp2,
 			})
 		} else {
