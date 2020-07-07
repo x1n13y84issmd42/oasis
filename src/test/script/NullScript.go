@@ -18,8 +18,8 @@ func NoScript(err error, log contract.Logger) contract.Script {
 	}
 }
 
-// GetGraph reports an error.
-func (s *NullScript) GetGraph() gcontract.Graph {
+// GetExecutionGraph reports an error.
+func (s *NullScript) GetExecutionGraph() gcontract.Graph {
 	s.Report()
 	return nil
 }

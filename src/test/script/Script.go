@@ -49,8 +49,8 @@ type Script struct {
 	Operations map[string]*OperationRef `yaml:"operations"`
 }
 
-// GetGraph builds and returns an operation execution graph.
-func (script *Script) GetGraph() gcontract.Graph {
+// GetExecutionGraph builds and returns an operation execution graph.
+func (script *Script) GetExecutionGraph() gcontract.Graph {
 	spec := utility.Load(script.Spec, script.Log)
 	graph := NewOperationGraph(script.Log)
 

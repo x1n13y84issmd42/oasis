@@ -62,17 +62,18 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:97291a89f913ef7acd91e154b9fbe9170dcfefc9061375ac9600b6fee6e083b2"
+  digest = "1:af4989efa31a0e7492b8d2e643499d663d605599f9a17b65be5aed53cc3e0678"
   name = "github.com/x1n13y84issmd42/gog"
   packages = [
     "graph",
     "graph/collection",
+    "graph/comp",
     "graph/contract",
     "graph/iterator",
     "graph/storage",
   ]
   pruneopts = "UT"
-  revision = "6bfaca312801449a58b9c7480df84c626dac0d03"
+  revision = "68f673e281fa136f12f3eee3149259e711c9fae2"
 
 [[projects]]
   branch = "master"
@@ -131,6 +132,7 @@
     "github.com/gookit/color",
     "github.com/stretchr/testify/assert",
     "github.com/x1n13y84issmd42/gog/graph",
+    "github.com/x1n13y84issmd42/gog/graph/comp",
     "github.com/x1n13y84issmd42/gog/graph/contract",
     "github.com/x1n13y84issmd42/ssp",
     "github.com/xeipuuv/gojsonschema",
