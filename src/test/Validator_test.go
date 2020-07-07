@@ -14,7 +14,7 @@ func Test_Validator(T *testing.T) {
 	log := log.NewPlain(0)
 	v := test.NewValidator(log)
 
-	v.Expect(func(req *http.Response, log contract.Logger) bool {
+	v.Expect(func(req *http.Response) bool {
 		return false
 	})
 

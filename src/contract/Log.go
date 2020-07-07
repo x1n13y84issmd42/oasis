@@ -23,8 +23,9 @@ type Logger interface {
 
 	Requesting(method string, url string)
 
-	// ParameterHasNoExample(paramName string, in string, container string)
 	UsingParameterExample(paramName string, in string, container string, value string)
+
+	Expecting(what string, v string)
 
 	HeaderHasNoValue(hdr string)
 	ResponseHasWrongStatus(expectedStatus int, actualStatus int)
@@ -32,7 +33,6 @@ type Logger interface {
 
 	OperationOK()
 	OperationFail()
-	OperationNotFound(op string)
 
 	// SchemaTesting(schema *api.Schema, data interface{})
 	// SchemaOK(schema *api.Schema)

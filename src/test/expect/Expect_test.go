@@ -19,11 +19,11 @@ func Test_Status(T *testing.T) {
 	}
 
 	T.Run("True", func(T *testing.T) {
-		assert.True(T, expect.Status(400)(resp, log))
+		assert.True(T, expect.Status(400, log)(resp))
 	})
 
 	T.Run("False", func(T *testing.T) {
-		assert.False(T, expect.Status(200)(resp, log))
+		assert.False(T, expect.Status(200, log)(resp))
 	})
 }
 
@@ -38,11 +38,11 @@ func Test_HeaderRequired(T *testing.T) {
 	}
 
 	T.Run("True", func(T *testing.T) {
-		assert.True(T, expect.HeaderRequired("CoNtEnt-TyPe")(resp, log))
+		assert.True(T, expect.HeaderRequired("CoNtEnt-TyPe", log)(resp))
 	})
 
 	T.Run("False", func(T *testing.T) {
-		assert.False(T, expect.HeaderRequired("x-thing")(resp, log))
+		assert.False(T, expect.HeaderRequired("x-thing", log)(resp))
 	})
 }
 
@@ -57,11 +57,11 @@ func Test_ContentType(T *testing.T) {
 	}
 
 	T.Run("True", func(T *testing.T) {
-		assert.True(T, expect.ContentType("application/json")(resp, log))
+		assert.True(T, expect.ContentType("application/json", log)(resp))
 	})
 
 	T.Run("False", func(T *testing.T) {
-		assert.False(T, expect.ContentType("text/html")(resp, log))
+		assert.False(T, expect.ContentType("text/html", log)(resp))
 	})
 }
 
@@ -82,7 +82,7 @@ func Test_HeaderSchema(T *testing.T) {
 			},
 		}
 
-		assert.True(T, expect.HeaderSchema("X-Thing", schema)(resp, log))
+		assert.True(T, expect.HeaderSchema("X-Thing", schema, log)(resp))
 	})
 
 	T.Run("False", func(T *testing.T) {
@@ -92,7 +92,7 @@ func Test_HeaderSchema(T *testing.T) {
 			},
 		}
 
-		assert.False(T, expect.HeaderSchema("X-Thing", schema)(resp, log))
+		assert.False(T, expect.HeaderSchema("X-Thing", schema, log)(resp))
 	})
 }
 
@@ -118,7 +118,7 @@ func Test_ContentSchema(T *testing.T) {
 			},
 		}
 
-		assert.True(T, expect.ContentSchema(schema)(resp, log))
+		assert.True(T, expect.ContentSchema(schema, log)(resp))
 	})
 
 	T.Run("False", func(T *testing.T) {
@@ -128,6 +128,6 @@ func Test_ContentSchema(T *testing.T) {
 			},
 		}
 
-		assert.False(T, expect.ContentSchema(schema)(resp, log))
+		assert.False(T, expect.ContentSchema(schema, log)(resp))
 	})
 }

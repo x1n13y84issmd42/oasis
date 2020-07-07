@@ -112,8 +112,8 @@ func (r *DataResolver) Response(status int64, CT string) contract.Validator {
 		return test.NoValidator(err, r.Log)
 	}
 
-	v.Expect(expect.Status(int(specStatus)))
-	v.Expect(expect.ContentType(ct))
+	v.Expect(expect.Status(int(specStatus), r.Log))
+	v.Expect(expect.ContentType(ct, r.Log))
 
 	err = r.Headers(specResp, v)
 	if err != nil {
@@ -140,11 +140,11 @@ func (r *DataResolver) Headers(specResp *openapi3.Response, v contract.Validator
 					return specSchemaErr
 				}
 
-				v.Expect(expect.HeaderSchema(headerName, specSchema))
+				v.Expect(expect.HeaderSchema(headerName, specSchema, r.Log))
 			}
 
 			if specHeader.Required {
-				v.Expect(expect.HeaderRequired(headerName))
+				v.Expect(expect.HeaderRequired(headerName, r.Log))
 			}
 		}
 	}
@@ -161,7 +161,7 @@ func (r *DataResolver) Content(mt *openapi3.MediaType, CT string, v contract.Val
 			return errors.InvalidResponse("Failed to create a '"+CT+"' response body schema.", specSchemaErr)
 		}
 
-		v.Expect(expect.ContentSchema(specSchema))
+		v.Expect(expect.ContentSchema(specSchema, r.Log))
 	}
 
 	return nil

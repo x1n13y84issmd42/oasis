@@ -122,14 +122,14 @@ func (log Log) Requesting(method string, URL string) {
 	log.Println(2, "\tRequesting %s @ %s", log.Style.Method(method), log.Style.URL(URL))
 }
 
-// ParameterHasNoExample informs that a parameter has no example value to use.
-func (log Log) ParameterHasNoExample(paramName string, in string, container string) {
-	log.Println(5, "\tThe %s parameter %s (from %s) has no example value to use.", in, log.Style.ID(paramName), container)
-}
-
 // UsingParameterExample informs that a parameter example being used.
 func (log Log) UsingParameterExample(paramName string, in string, container string, value string) {
 	log.Println(5, "\tUsing the %s parameter %s value %s (from %s).", in, log.Style.ID(paramName), log.Style.ValueActual(value), container)
+}
+
+// Expecting informs that a parameter example being used.
+func (log Log) Expecting(what string, v string) {
+	log.Println(5, "\tExpecting %s %s.", log.Style.ID(what), log.Style.ValueActual(v))
 }
 
 // HeaderHasNoValue informs that a required response header has no data.
@@ -180,11 +180,6 @@ func (log Log) OperationFail() {
 	log.Print(2, "\t")
 	log.Println(1, "%s", log.Style.Failure("FAILURE"))
 	log.Print(2, "\n")
-}
-
-// OperationNotFound informs that the requested operation is not found in the spec.
-func (log Log) OperationNotFound(op string) {
-	log.Println(1, "The operation \"%s\" isn't there.", op)
 }
 
 // SchemaTesting informs about a value being tested againt some JSON schema.
