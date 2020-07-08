@@ -11,7 +11,7 @@ import (
 
 // Script is an entry point for the scripted testing mode.
 func Script(args *env.Args, log contract.Logger) {
-	log.NOMESSAGE("Testing the %s script!", args.Script)
+	log.LoadingScript(args.Script)
 
 	script := script.Load(args.Script, log)
 	graph := script.GetExecutionGraph()

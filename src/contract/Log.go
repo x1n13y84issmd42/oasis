@@ -13,6 +13,7 @@ type Logger interface {
 	Usage()
 	Error(err error)
 	LoadingSpec(path string)
+	LoadingScript(path string)
 
 	PrintOperations(ops OperationIterator)
 	TestingProject(p ProjectInfo)

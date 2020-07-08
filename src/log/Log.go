@@ -87,7 +87,12 @@ func (log Log) Usage() {
 
 // LoadingSpec informs about the API specification being used.
 func (log Log) LoadingSpec(path string) {
-	log.Println(2, "Loading %s", log.Style.URL(path))
+	log.Println(2, "Loading the %s spec.", log.Style.URL(path))
+}
+
+// LoadingScript informs about the API specification being used.
+func (log Log) LoadingScript(path string) {
+	log.Println(2, "Loading the %s script.", log.Style.URL(path))
 }
 
 // PrintOperations prints the list of available operations.
