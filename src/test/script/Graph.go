@@ -9,12 +9,12 @@ import (
 // ExecutionNode represents a single operation in the script execution graph.
 type ExecutionNode struct {
 	Operation contract.Operation
-	// Parameters api.OperationParameters
+	OpID      string
 }
 
 // ID returns a uniqe operation node ID.
 func (node *ExecutionNode) ID() gcontract.NodeID {
-	return gcontract.NodeID(node.Operation.Name())
+	return gcontract.NodeID(node.OpID)
 }
 
 // ExecutionGraph is a graph representing interdependencies between operations.

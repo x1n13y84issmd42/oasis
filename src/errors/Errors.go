@@ -209,17 +209,24 @@ func (err ErrGraphHasCycles) Error() string {
 // GraphHasCycles creates a new ErrGraphHasCycles error instance.
 func GraphHasCycles(cycle *collection.NodeStack, cause error) ErrGraphHasCycles {
 	cycleString := ""
-	cycle.Pop()
+
+	// The comp.Cycle() function adds the starting node to the stack,
+	// so if there's only two of them it means we're dealing with
+	// a self-referenced node. Leaving it for clarity and nice formatting,
+	// otherwise popping the clutter away.
+	if len(*cycle) > 2 {
+		cycle.Pop()
+	}
 
 	// Formatting the cycle nicely.
 	for i, n := range *cycle {
 		cycleString += "  "
 		if i == 0 {
-			cycleString += "┌"
+			cycleString += "┌>"
 		} else if i == len(*cycle)-1 {
-			cycleString += "└"
+			cycleString += "└─"
 		} else {
-			cycleString += "│"
+			cycleString += "│ "
 		}
 		cycleString += string(n.ID())
 		if i < len(*cycle)-1 {

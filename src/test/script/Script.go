@@ -60,24 +60,24 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	spec := utility.Load(script.Spec, script.Log)
 	graph := NewExecutionGraph(script.Log)
 
-	for _, opRef := range script.Operations {
+	for opID, opRef := range script.Operations {
 		//TODO: opRef.OperationID may be absent, use the key as op ID then.
 		specOp := spec.GetOperation(opRef.OperationID)
 		specOp.Data().URL.Load(opRef.Use.Path)
 
 		var err error
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Path, specOp.Data().URL, specOp)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Path, specOp.Data().URL, specOp, opID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Query, specOp.Data().Query, specOp)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Query, specOp.Data().Query, specOp, opID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Headers, specOp.Data().Headers, specOp)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Headers, specOp.Data().Headers, specOp, opID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
@@ -100,6 +100,7 @@ func (script *Script) SetupDependencies(
 	srcParams *OperationDataMap,
 	dstParams contract.Set,
 	specOp contract.Operation,
+	opID string,
 ) error {
 	refParams := params.NewReferenceSource("op reference")
 	memParams := params.NewMemorySource("op reference")
@@ -124,8 +125,10 @@ func (script *Script) SetupDependencies(
 			// Adding an edge to the execution graph.
 			graph.AddEdge(&ExecutionNode{
 				Operation: specOp,
+				OpID:      opID,
 			}, &ExecutionNode{
 				Operation: specOp2,
+				OpID:      op2Ref,
 			})
 		} else {
 			// fmt.Printf("%s is a value\n", pn)

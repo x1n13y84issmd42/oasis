@@ -13,4 +13,9 @@ operations:
     operationId: getPetById
     use:
       path:
+        petId: "#getPetDetails2.response.[0].id"
+  getPetDetails2:
+    operationId: getPetById
+    use:
+      path:
         petId: "#listPets.response.[0].id"

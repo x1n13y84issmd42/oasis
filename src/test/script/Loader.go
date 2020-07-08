@@ -20,5 +20,8 @@ func Load(path string, log contract.Logger) contract.Script {
 
 	yaml.Unmarshal([]byte(fileData), script)
 
+	//TODO: some validation is required
+	// Like unique op IDs.
+
 	return script
 }
