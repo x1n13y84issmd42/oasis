@@ -1,8 +1,6 @@
 package script
 
 import (
-	"fmt"
-
 	"github.com/x1n13y84issmd42/gog/graph/comp"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -27,7 +25,14 @@ func (m OperationDataMap) Iterate() contract.ParameterIterator {
 
 	go func() {
 		for pN, pV := range m {
-			fmt.Printf("Params %s = %s\n", pN, pV)
+			// fmt.Printf("Params %s = %s\n", pN, pV)
+			ch <- contract.ParameterTuple{
+				N: pN,
+				Parameter: contract.Parameter{
+					V:      params.Value(pV),
+					Source: "Operation",
+				},
+			}
 		}
 
 		close(ch)
@@ -102,7 +107,7 @@ func (script *Script) SetupDependencies(
 	for pn, pv := range *srcParams {
 		isref, op2Ref, selector := Dereference(pv)
 		if isref {
-			fmt.Printf("%s is a ref to %s\n", pn, op2Ref)
+			// fmt.Printf("%s is a ref to %s\n", pn, op2Ref)
 			// Retrieving the referenced operation.
 			op2 := script.Operations[op2Ref]
 			if op2 == nil {
@@ -123,7 +128,7 @@ func (script *Script) SetupDependencies(
 				Operation: specOp2,
 			})
 		} else {
-			fmt.Printf("%s is a value\n", pn)
+			// fmt.Printf("%s is a value\n", pn)
 			memParams.Add(pn, pv)
 		}
 	}

@@ -1,7 +1,6 @@
 package script
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -19,7 +18,7 @@ func Dereference(v string) (bool, string, string) {
 			}
 		}
 
-		fmt.Printf("Parameter references the '%s' data in the '%s' operation \n", matches["selector"], matches["opRef"])
+		// fmt.Printf("Parameter references the '%s' data in the '%s' operation \n", matches["selector"], matches["opRef"])
 
 		//TODO: pass-through dereferencing, anyone?
 		return true, matches["opRef"], matches["selector"]

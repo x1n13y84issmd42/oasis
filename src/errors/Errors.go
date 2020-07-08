@@ -1,6 +1,9 @@
 package errors
 
 import (
+	"runtime"
+	"strconv"
+
 	"github.com/x1n13y84issmd42/gog/graph/collection"
 	"github.com/x1n13y84issmd42/oasis/src/strings"
 )
@@ -9,23 +12,44 @@ import (
 type IError interface {
 	Error() string
 	Cause() error
+	Caller() string
 }
 
 // Base is a generic error used within Oasis.
 // Having it's root cause is what makes it good.
 type Base struct {
-	TheCause error
-	Details  string
+	TheCause  error
+	Details   string
+	TheCaller string
 }
 
-// Error return a string representation of an error.
+// NewBase creates a new Base instance.
+func NewBase(cause error, details string) Base {
+	caller := ""
+	if _, f, l, ok := runtime.Caller(2); ok {
+		caller = f + ":" + strconv.Itoa(l)
+	}
+
+	return Base{
+		TheCause:  cause,
+		Details:   details,
+		TheCaller: caller,
+	}
+}
+
+// Error returns a string representation of an error.
 func (err Base) Error() string {
 	return "---"
 }
 
-// Cause return an cause error instance.
+// Cause returns an cause error instance.
 func (err Base) Cause() error {
 	return err.TheCause
+}
+
+// Caller returns path t a file where the error has been created.
+func (err Base) Caller() string {
+	return err.TheCaller
 }
 
 // ErrOops is a generic error with a message.
@@ -40,10 +64,7 @@ func (err ErrOops) Error() string {
 // Oops creates a new ErrOops error instance.
 func Oops(msg string, cause error) ErrOops {
 	return ErrOops{
-		Base: Base{
-			TheCause: cause,
-			Details:  msg,
-		},
+		Base: NewBase(cause, msg),
 	}
 }
 
@@ -62,10 +83,7 @@ func (err ErrOperationMalformed) Error() string {
 // OperationMalformed creates a new ErrOperationMalformed error instance.
 func OperationMalformed(id string, details string, cause error) ErrOperationMalformed {
 	return ErrOperationMalformed{
-		Base: Base{
-			TheCause: cause,
-			Details:  details,
-		},
+		Base: NewBase(cause, details),
 		OpID: id,
 	}
 }
@@ -100,9 +118,7 @@ func (err ErrNoParameters) Error() string {
 // NoParameters creates a new ErrNoData error instance.
 func NoParameters(missingParams []string, kind string, cause error) ErrNoParameters {
 	return ErrNoParameters{
-		Base: Base{
-			TheCause: cause,
-		},
+		Base:          NewBase(cause, ""),
 		Kind:          kind,
 		MissingParams: missingParams,
 	}
@@ -122,7 +138,7 @@ func (err ErrNotFound) Error() string {
 // NotFound creates a new ErrHostNotFound error instance.
 func NotFound(what string, hn string, cause error) ErrNotFound {
 	return ErrNotFound{
-		Base: Base{TheCause: cause},
+		Base: NewBase(cause, ""),
 		What: what,
 		Name: hn,
 	}
@@ -141,10 +157,7 @@ func (err ErrInvalidSchema) Error() string {
 // InvalidSchema creates a new ErrInvalidSchema error instance.
 func InvalidSchema(sn string, details string, cause error) ErrInvalidSchema {
 	return ErrInvalidSchema{
-		Base: Base{
-			TheCause: cause,
-			Details:  details,
-		},
+		Base:       NewBase(cause, details),
 		SchemaName: sn,
 	}
 }
@@ -161,10 +174,7 @@ func (err ErrInvalidResponse) Error() string {
 // InvalidResponse creates a new ErrInvalidResponse error instance.
 func InvalidResponse(details string, cause error) ErrInvalidResponse {
 	return ErrInvalidResponse{
-		Base: Base{
-			TheCause: cause,
-			Details:  details,
-		},
+		Base: NewBase(cause, details),
 	}
 }
 
@@ -181,10 +191,7 @@ func (err ErrSecurityNotFound) Error() string {
 // SecurityNotFound creates a new ErrSecurityNotFound error instance.
 func SecurityNotFound(sn string, details string, cause error) ErrSecurityNotFound {
 	return ErrSecurityNotFound{
-		Base: Base{
-			TheCause: cause,
-			Details:  details,
-		},
+		Base: NewBase(cause, details),
 		Name: sn,
 	}
 }
@@ -200,12 +207,28 @@ func (err ErrGraphHasCycles) Error() string {
 }
 
 // GraphHasCycles creates a new ErrGraphHasCycles error instance.
-func GraphHasCycles(cycles *collection.NodeStack, cause error) ErrGraphHasCycles {
+func GraphHasCycles(cycle *collection.NodeStack, cause error) ErrGraphHasCycles {
+	cycleString := ""
+	cycle.Pop()
+
+	// Formatting the cycle nicely.
+	for i, n := range *cycle {
+		cycleString += "  "
+		if i == 0 {
+			cycleString += "┌"
+		} else if i == len(*cycle)-1 {
+			cycleString += "└"
+		} else {
+			cycleString += "│"
+		}
+		cycleString += string(n.ID())
+		if i < len(*cycle)-1 {
+			cycleString += "\n"
+		}
+	}
+
 	return ErrGraphHasCycles{
-		Base: Base{
-			TheCause: cause,
-			Details:  "The execution graph has cycles.",
-		},
-		Cycles: cycles,
+		Base:   NewBase(cause, "The execution graph contains a cycle.\n"+cycleString+"\nThe script operation sequence must be a DAG."),
+		Cycles: cycle,
 	}
 }

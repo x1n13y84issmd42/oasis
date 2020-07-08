@@ -5,6 +5,8 @@ operations:
     use:
       query:
         status: pending
+      path:
+        fff: "#getPetDetails.response.[0].id"
     expect:
       status: 200
   getPetDetails:

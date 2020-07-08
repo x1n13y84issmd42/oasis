@@ -66,6 +66,7 @@ func (log Log) XError(err error, style contract.LogStyle, tab contract.TabFn) {
 	log.Println(1, "%s", style.Error(err.Error()))
 
 	if xerr, ok := err.(errors.IError); ok {
+		log.Println(1, "%s", style.Error("Source: "+xerr.Caller()))
 		if c := xerr.Cause(); c != nil {
 			tab(log)
 			log.Print(1, "Caused by:\n")
