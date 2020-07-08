@@ -227,8 +227,11 @@ func GraphHasCycles(cycle *collection.NodeStack, cause error) ErrGraphHasCycles 
 		}
 	}
 
+	msg1 := "The execution graph contains a cycle.\n"
+	msg2 := "\nThe sequence of operations in the script must be a DAG."
+
 	return ErrGraphHasCycles{
-		Base:   NewBase(cause, "The execution graph contains a cycle.\n"+cycleString+"\nThe script operation sequence must be a DAG."),
+		Base:   NewBase(cause, msg1+cycleString+msg2),
 		Cycles: cycle,
 	}
 }
