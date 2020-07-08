@@ -9,8 +9,7 @@ type Graph interface {
 	RBFS(n NodeID) NChannel
 
 	AddEdge(v1 Node, v2 Node)
-	// OutEdges(nID NodeID) []Edge
-	// InEdges(nID NodeID) []Edge
+	//TODO: RemoveEdge(v1 Node, v2 Node)
 }
 
 // WGraph is an interface for weighted graphs.

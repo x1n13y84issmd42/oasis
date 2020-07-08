@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"github.com/x1n13y84issmd42/gog/graph/collection"
 	"github.com/x1n13y84issmd42/oasis/src/strings"
 )
 
@@ -185,5 +186,26 @@ func SecurityNotFound(sn string, details string, cause error) ErrSecurityNotFoun
 			Details:  details,
 		},
 		Name: sn,
+	}
+}
+
+// ErrGraphHasCycles means an execution graph is not a DAG.
+type ErrGraphHasCycles struct {
+	Base
+	Cycles *collection.NodeStack
+}
+
+func (err ErrGraphHasCycles) Error() string {
+	return err.Details
+}
+
+// GraphHasCycles creates a new ErrGraphHasCycles error instance.
+func GraphHasCycles(cycles *collection.NodeStack, cause error) ErrGraphHasCycles {
+	return ErrGraphHasCycles{
+		Base: Base{
+			TheCause: cause,
+			Details:  "The execution graph has cycles.",
+		},
+		Cycles: cycles,
 	}
 }

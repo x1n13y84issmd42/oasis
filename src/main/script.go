@@ -16,7 +16,6 @@ func Script(args *env.Args, log contract.Logger) {
 	script := script.Load(args.Script, log)
 	graph := script.GetExecutionGraph()
 
-	//TODO: check for loops.
 	n0 := comp.MotherNode(graph)
 	fmt.Printf("Execution starts from the node '%s'\n", n0.ID())
 

@@ -62,7 +62,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:af4989efa31a0e7492b8d2e643499d663d605599f9a17b65be5aed53cc3e0678"
+  digest = "1:583befebe77fa6bc86cb2b1a6be0ecd8a9fcf2d55fd0606404cc621cfe9fa4b5"
   name = "github.com/x1n13y84issmd42/gog"
   packages = [
     "graph",
@@ -73,7 +73,7 @@
     "graph/storage",
   ]
   pruneopts = "UT"
-  revision = "68f673e281fa136f12f3eee3149259e711c9fae2"
+  revision = "ab94d35a49fd716ecd48ba0b2d675536aca021a0"
 
 [[projects]]
   branch = "master"

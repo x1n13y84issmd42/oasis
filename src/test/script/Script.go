@@ -3,6 +3,7 @@ package script
 import (
 	"fmt"
 
+	"github.com/x1n13y84issmd42/gog/graph/comp"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
@@ -55,6 +56,7 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	graph := NewExecutionGraph(script.Log)
 
 	for _, opRef := range script.Operations {
+		//TODO: opRef.OperationID may be absent, use the key as op ID then.
 		specOp := spec.GetOperation(opRef.OperationID)
 		specOp.Data().URL.Load(opRef.Use.Path)
 
@@ -74,6 +76,12 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
+	}
+
+	// Checking for cycles.
+	cycle := comp.Cycle(graph)
+	if len(*cycle) > 0 {
+		return NoGraph(errors.GraphHasCycles(cycle, nil), script.Log)
 	}
 
 	return graph
