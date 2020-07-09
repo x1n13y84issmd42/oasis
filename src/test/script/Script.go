@@ -61,7 +61,7 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	graph := NewExecutionGraph(script.Log)
 
 	for opID, opRef := range script.Operations {
-		//TODO: opRef.OperationID may be absent, use the key as op ID then.
+		//TODO: opRef.OperationID may be absent, use opID then.
 		specOp := spec.GetOperation(opRef.OperationID)
 		specOp.Data().URL.Load(opRef.Use.Path)
 

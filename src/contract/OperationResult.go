@@ -19,3 +19,6 @@ func (r1 *OperationResult) And(r2 *OperationResult) *OperationResult {
 		Success: r1.Success && r2.Success,
 	}
 }
+
+// OperationResults is a list of operation results.
+type OperationResults []*OperationResult

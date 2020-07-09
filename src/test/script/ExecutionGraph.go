@@ -3,7 +3,7 @@ package script
 import (
 	gog "github.com/x1n13y84issmd42/gog/graph"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
-	contract "github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // ExecutionNode represents a single operation in the script execution graph.
