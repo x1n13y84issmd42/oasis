@@ -5,16 +5,9 @@ operations:
     use:
       query:
         status: pending
-      path:
-        fff: "#getPetDetails.response.[0].id"
     expect:
       status: 200
   getPetDetails:
-    operationId: getPetById
-    use:
-      path:
-        petId: "#getPetDetails2.response.[0].id"
-  getPetDetails2:
     operationId: getPetById
     use:
       path:
