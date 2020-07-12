@@ -66,3 +66,9 @@ func (op NullOperation) Resolve() contract.DataResolver {
 	op.Report()
 	return nil
 }
+
+// Result reports an error.
+func (op NullOperation) Result() *contract.OperationResult {
+	op.Report()
+	return nil
+}

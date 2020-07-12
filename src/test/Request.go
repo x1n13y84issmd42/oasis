@@ -32,9 +32,7 @@ func NewRequest(op contract.Operation, log contract.Logger) contract.Request {
 			},
 		},
 
-		Result: &contract.OperationResult{
-			Success: true,
-		},
+		Result: op.Result(),
 	}
 
 	req.Result.HTTPRequest = req.HTTPRequest

@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/x1n13y84issmd42/gog/graph/comp"
+	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 )
@@ -22,18 +23,20 @@ func NewExecutor(log contract.Logger) *Executor {
 }
 
 // Execute executes.
-func (ex Executor) Execute(graph *ExecutionGraph) {
+func (ex Executor) Execute(graph gcontract.Graph) {
 	n0 := comp.MotherNode(graph)
 	fmt.Printf("Execution starts from the node '%s'\n", n0.ID())
-	wg := sync.WaitGroup{}
+
 	results := contract.OperationResults{}
+
+	wg := sync.WaitGroup{}
 	ex.Walk(graph, n0.(*ExecutionNode), &wg, &results)
 	wg.Wait()
 }
 
 // Walk ...
 func (ex Executor) Walk(
-	graph *ExecutionGraph,
+	graph gcontract.Graph,
 	n *ExecutionNode,
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
@@ -44,13 +47,28 @@ func (ex Executor) Walk(
 
 	for _an := range graph.AdjacentNodes(n.ID()).Range() {
 		an := _an.(*ExecutionNode)
-		go ex.Walk(graph, an, &anwg, &anresults)
+		ex.Walk(graph, an, &anwg, &anresults)
 	}
 
 	anwg.Wait()
 
-	//TODO: use results as parameter source for n.Operation
+	// ex.Log.NOMESSAGE("n.Data.URL")
+	// n.Data.URL.Print()
 
-	*nresults = append(*nresults, test.Operation(n.Operation, nil, nil, ex.Log))
+	n.Operation.Data().Load(&n.Data)
+
+	enrichment := []contract.RequestEnrichment{
+		n.Operation.Data().Query,
+		n.Operation.Data().Headers,
+
+		//TODO: Security.
+	}
+
+	// ex.Log.NOMESSAGE("n.Operation.Data().URL")
+	// n.Operation.Data().URL.Print()
+
+	v := n.Operation.Resolve().Response(0, "")
+
+	*nresults = append(*nresults, test.Operation(n.Operation, &enrichment, v, ex.Log))
 	nwg.Done()
 }

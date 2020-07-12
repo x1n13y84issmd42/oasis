@@ -25,12 +25,11 @@ func (m OperationDataMap) Iterate() contract.ParameterIterator {
 
 	go func() {
 		for pN, pV := range m {
-			// fmt.Printf("Params %s = %s\n", pN, pV)
 			ch <- contract.ParameterTuple{
 				N: pN,
 				Parameter: contract.Parameter{
 					V:      params.Value(pV),
-					Source: "Operation",
+					Source: "script OperationRef",
 				},
 			}
 		}
@@ -60,27 +59,33 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	spec := utility.Load(script.Spec, script.Log)
 	graph := NewExecutionGraph(script.Log)
 
-	for opID, opRef := range script.Operations {
+	for opRefID, opRef := range script.Operations {
+		// script.Log.NOMESSAGE("Loop %s", opRefID)
 		//TODO: opRef.OperationID may be absent, use opID then.
-		specOp := spec.GetOperation(opRef.OperationID)
-		specOp.Data().URL.Load(opRef.Use.Path)
+		op := spec.GetOperation(opRef.OperationID)
+		opNode := script.GetNode(graph, opRefID, op)
 
 		var err error
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Path, specOp.Data().URL, specOp, opID)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Path, opNode.Data.URL, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Query, specOp.Data().Query, specOp, opID)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Query, opNode.Data.Query, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Headers, specOp.Data().Headers, specOp, opID)
+		err = script.SetupDependencies(spec, graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
+
+		// script.Log.NOMESSAGE("Execution node %s is ready.", opRefID)
+		// opNode.Data.URL.Print()
+		// script.Log.NOMESSAGE("")
+		// script.Log.NOMESSAGE("")
 	}
 
 	// Checking for cycles.
@@ -99,45 +104,58 @@ func (script *Script) SetupDependencies(
 	graph *ExecutionGraph,
 	srcParams *OperationDataMap,
 	dstParams contract.Set,
-	specOp contract.Operation,
-	opID string,
+	opNode *ExecutionNode,
+	opRefID string,
 ) error {
-	refParams := params.NewReferenceSource("op reference")
-	memParams := params.NewMemorySource("op reference")
+	refParams := params.NewReferenceSource()
+	memParams := params.NewMemorySource("script data")
+
+	// script.Log.NOMESSAGE("Setting dependencies for the %s operation.", opRefID)
 
 	for pn, pv := range *srcParams {
-		isref, op2Ref, selector := Dereference(pv)
+		isref, op2RefID, selector := Dereference(pv)
 		if isref {
-			// fmt.Printf("%s is a ref to %s\n", pn, op2Ref)
 			// Retrieving the referenced operation.
-			op2 := script.Operations[op2Ref]
-			if op2 == nil {
-				return errors.NotFound("operation reference", op2Ref, nil)
+			opRef2 := script.Operations[op2RefID]
+			if opRef2 == nil {
+				return errors.NotFound("Operation reference", op2RefID, nil)
 			}
 
-			specOp2 := spec.GetOperation(op2.OperationID)
-			if op2 == nil {
-				return errors.NotFound("spec operation", op2.OperationID, nil)
+			op2 := spec.GetOperation(opRef2.OperationID)
+			if opRef2 == nil {
+				return errors.NotFound("Spec operation", opRef2.OperationID, nil)
 			}
 
-			refParams.AddReference(pn, specOp2, selector)
+			// Adding the value so it's available for op later.
+			refParams.AddReference(pn, op2.ID(), op2.Result(), selector)
 
 			// Adding an edge to the execution graph.
-			graph.AddEdge(&ExecutionNode{
-				Operation: specOp,
-				OpID:      opID,
-			}, &ExecutionNode{
-				Operation: specOp2,
-				OpID:      op2Ref,
-			})
+			graph.AddEdge(opNode.ID(), script.GetNode(graph, op2RefID, op2).ID())
 		} else {
-			// fmt.Printf("%s is a value\n", pn)
 			memParams.Add(pn, pv)
 		}
 	}
+
+	// refParams.Print()
 
 	dstParams.Load(refParams)
 	dstParams.Load(memParams)
 
 	return nil
+}
+
+// GetNode returns an ExecutionNode instance corresponding to the opRefID.
+// If such a node exists in the graph, it is be returned, otherwise a new
+// one is created.
+func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract.Operation) *ExecutionNode {
+	var opNode *ExecutionNode
+	_opNode := graph.Node(gcontract.NodeID(opRefID))
+	if _opNode != nil {
+		opNode = _opNode.(*ExecutionNode)
+	} else {
+		opNode = NewExecutionNode(op, opRefID, script.Log)
+		graph.AddNode(opNode)
+	}
+
+	return opNode
 }

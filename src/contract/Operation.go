@@ -13,6 +13,7 @@ type Operation interface {
 	Path() string
 
 	Data() *OperationData
+	Result() *OperationResult
 	Resolve() DataResolver
 
 	GetRequest() (*http.Request, error)
@@ -25,4 +26,11 @@ type OperationData struct {
 	URL     StringParameters
 	Query   RequestEnrichmentParameters
 	Headers RequestEnrichmentParameters
+}
+
+// Load loads parameters from data2.
+func (data *OperationData) Load(data2 *OperationData) {
+	data.URL.Load(data2.URL)
+	data.Query.Load(data2.Query)
+	data.Headers.Load(data2.Headers)
 }

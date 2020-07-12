@@ -29,7 +29,8 @@ func URL(path string, log contract.Logger) *URLParameters {
 	return p
 }
 
-// Make creates a URL string value from path template.
+// Make creates a URL string value from path template
+// and parameters it has.
 func (params URLParameters) String() string {
 	if err := params.Validate(); err != nil {
 		params.Error(err)

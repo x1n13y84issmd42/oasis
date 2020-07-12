@@ -72,6 +72,23 @@
 		},
 
 		{
+			"name": "Debug script",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/src/main",
+			"env": {},
+			"args": [
+				"execute",
+				"../../script/test.yaml",
+				"log",
+				"at",
+				"level",
+				"6",
+			]
+		},
+
+		{
 			"name": "UT",
 			"type": "go",
 			"request": "launch",

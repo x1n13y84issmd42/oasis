@@ -3,6 +3,8 @@ operations:
   listPets:
     operationId: findPetsByStatus
     use:
+      path:
+        HOSTNAME: http://petstore.swagger.io/v2
       query:
         status: pending
     expect:
@@ -11,4 +13,5 @@ operations:
     operationId: getPetById
     use:
       path:
+        HOSTNAME: http://petstore.swagger.io/v2
         petId: "#listPets.response.[0].id"

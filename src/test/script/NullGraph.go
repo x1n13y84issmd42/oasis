@@ -66,7 +66,12 @@ func (g NullGraph) RBFS(n gcontract.NodeID) gcontract.NChannel {
 	return nil
 }
 
+// AddNode reports an error.
+func (g NullGraph) AddNode(n gcontract.Node) {
+	g.Report()
+}
+
 // AddEdge reports an error.
-func (g NullGraph) AddEdge(v1 gcontract.Node, v2 gcontract.Node) {
+func (g NullGraph) AddEdge(v1 gcontract.NodeID, v2 gcontract.NodeID) {
 	g.Report()
 }

@@ -15,7 +15,12 @@ func Success() *contract.OperationResult {
 // Operation performs a test of an operation by requesting a path
 // and validating the received response headers & content against
 // the definitions founds in an OAS spec file.
-func Operation(op contract.Operation, enrichment *[]contract.RequestEnrichment, v contract.Validator, log contract.Logger) *contract.OperationResult {
+func Operation(
+	op contract.Operation,
+	enrichment *[]contract.RequestEnrichment,
+	v contract.Validator,
+	log contract.Logger,
+) *contract.OperationResult {
 	// Creating a request.
 	req := NewRequest(op, log)
 

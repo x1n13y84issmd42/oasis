@@ -11,7 +11,8 @@ type OperationPrototype struct {
 	contract.EntityTrait
 	contract.Operation
 
-	data contract.OperationData
+	data   contract.OperationData
+	result contract.OperationResult
 }
 
 // NewOperationPrototype create a new OperationPrototype instance.
@@ -19,6 +20,9 @@ func NewOperationPrototype(log contract.Logger) *OperationPrototype {
 	return &OperationPrototype{
 		EntityTrait: contract.Entity(log),
 		data:        contract.OperationData{},
+		result: contract.OperationResult{
+			Success: true,
+		},
 	}
 }
 
@@ -27,7 +31,12 @@ func (op *OperationPrototype) GetRequest() (*http.Request, error) {
 	return http.NewRequest(op.Method(), op.data.URL.String(), nil)
 }
 
-// Data creates an http.Request instance and prepares it to make an API request.
+// Data returns a pointer to the internal data object.
 func (op *OperationPrototype) Data() *contract.OperationData {
 	return &op.data
+}
+
+// Result returns a pointer to the internal result object.
+func (op *OperationPrototype) Result() *contract.OperationResult {
+	return &op.result
 }
