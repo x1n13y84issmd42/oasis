@@ -133,7 +133,7 @@ func (log Log) Requesting(method string, URL string) {
 
 // UsingParameterExample informs that a parameter example being used.
 func (log Log) UsingParameterExample(paramName string, in string, container string, value string) {
-	log.Println(5, "\tUsing the %s parameter %s value %s (from %s).", in, log.Style.ID(paramName), log.Style.ValueActual(value), container)
+	log.Println(5, "\tUsing the %s parameter %s %s (from %s).", in, log.Style.ID(paramName), log.Style.ValueActual(value), container)
 }
 
 // Expecting informs that a parameter example being used.
