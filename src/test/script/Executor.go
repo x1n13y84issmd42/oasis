@@ -52,9 +52,6 @@ func (ex Executor) Walk(
 
 	anwg.Wait()
 
-	// ex.Log.NOMESSAGE("n.Data.URL")
-	// n.Data.URL.Print()
-
 	n.Operation.Data().Load(&n.Data)
 
 	enrichment := []contract.RequestEnrichment{
@@ -63,9 +60,6 @@ func (ex Executor) Walk(
 
 		//TODO: Security.
 	}
-
-	// ex.Log.NOMESSAGE("n.Operation.Data().URL")
-	// n.Operation.Data().URL.Print()
 
 	v := n.Operation.Resolve().Response(0, "")
 

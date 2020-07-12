@@ -1,8 +1,6 @@
 package params
 
 import (
-	"fmt"
-
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
@@ -74,11 +72,4 @@ func (src *ReferenceSource) Iterate() contract.ParameterIterator {
 	}()
 
 	return ch
-}
-
-func (src *ReferenceSource) Print() {
-	fmt.Printf("Contents of a ref source\n")
-	for p := range src.Iterate() {
-		fmt.Printf("%s = %s (from %s)\n", p.N, p.V(), p.Source)
-	}
 }

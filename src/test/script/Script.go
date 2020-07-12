@@ -60,7 +60,6 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	graph := NewExecutionGraph(script.Log)
 
 	for opRefID, opRef := range script.Operations {
-		// script.Log.NOMESSAGE("Loop %s", opRefID)
 		//TODO: opRef.OperationID may be absent, use opID then.
 		op := spec.GetOperation(opRef.OperationID)
 		opNode := script.GetNode(graph, opRefID, op)
@@ -81,11 +80,6 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
-
-		// script.Log.NOMESSAGE("Execution node %s is ready.", opRefID)
-		// opNode.Data.URL.Print()
-		// script.Log.NOMESSAGE("")
-		// script.Log.NOMESSAGE("")
 	}
 
 	// Checking for cycles.
@@ -110,8 +104,6 @@ func (script *Script) SetupDependencies(
 	refParams := params.NewReferenceSource()
 	memParams := params.NewMemorySource("script data")
 
-	// script.Log.NOMESSAGE("Setting dependencies for the %s operation.", opRefID)
-
 	for pn, pv := range *srcParams {
 		isref, op2RefID, selector := Dereference(pv)
 		if isref {
@@ -135,8 +127,6 @@ func (script *Script) SetupDependencies(
 			memParams.Add(pn, pv)
 		}
 	}
-
-	// refParams.Print()
 
 	dstParams.Load(refParams)
 	dstParams.Load(memParams)

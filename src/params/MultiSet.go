@@ -1,7 +1,6 @@
 package params
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -86,11 +85,4 @@ func (params *MultiSet) Iterate() contract.ParameterIterator {
 	}()
 
 	return ch
-}
-
-func (s *MultiSet) Print() {
-	fmt.Printf("Contents of %s\n", s.Name)
-	for p := range s.Iterate() {
-		fmt.Printf("%s = %s (from %s)\n", p.N, p.V(), p.Source)
-	}
 }

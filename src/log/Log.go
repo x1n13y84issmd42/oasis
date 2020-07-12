@@ -52,6 +52,15 @@ func (log Log) NOMESSAGE(msg string, args ...interface{}) {
 	log.Println(1, "\t"+msg, args...)
 }
 
+// Parameters prints a ParameterSource contents.
+func (log Log) Parameters(name string, params contract.ParameterSource) {
+	log.Println(0, "Contents of %s", name)
+	for p := range params.Iterate() {
+		fmt.Printf("%s = %s (from %s)\n", log.Style.ID(p.N), log.Style.ValueActual(p.V()), p.Source)
+	}
+	log.Println(0, "")
+}
+
 // Error outputs errors. It accepts both built-in errors as well as errors.IError instances.
 // The latter carry their cause error, if any, and those will be recursively printed.
 func (log Log) Error(err error) {

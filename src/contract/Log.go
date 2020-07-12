@@ -7,6 +7,7 @@ import (
 // Logger - interface for test execution loggers.
 type Logger interface {
 	NOMESSAGE(msg string, args ...interface{})
+	Parameters(name string, params ParameterSource)
 
 	Print(l int64, msg string, args ...interface{})
 

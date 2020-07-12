@@ -8,8 +8,6 @@ type Set interface {
 	Require(paramName string)
 	Validate() error
 	Iterate() ParameterIterator
-
-	Print()
 }
 
 // StringParameters represent all the available parameters as a string value.
