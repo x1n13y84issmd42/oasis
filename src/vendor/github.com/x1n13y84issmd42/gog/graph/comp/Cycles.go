@@ -46,8 +46,8 @@ func dfs(graph gcontract.Graph, n gcontract.Node, stack *collection.NodeStack, v
 
 	visited.Visit(nID)
 
-	for n := range graph.AdjacentNodes(nID).Range() {
-		if dfs(graph, n, stack, visited) {
+	for an := range graph.AdjacentNodes(nID).Range() {
+		if dfs(graph, an, stack, visited) {
 			return true
 		}
 	}

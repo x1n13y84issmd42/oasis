@@ -11,7 +11,8 @@ type NodeAccess interface {
 // IAdjacency is an interface to access node's adjacency info.
 type IAdjacency interface {
 	NodeAccess
-	AddEdge(v1 Node, v2 Node)
+	AddNode(n Node)
+	AddEdge(v1 NodeID, v2 NodeID)
 }
 
 // IWAdjacency the same as IAdjacency, but for weighted nodes.

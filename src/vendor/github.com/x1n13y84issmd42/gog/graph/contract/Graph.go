@@ -8,7 +8,8 @@ type Graph interface {
 	RDFS(n NodeID, traverse TraversalOrder) NChannel
 	RBFS(n NodeID) NChannel
 
-	AddEdge(v1 Node, v2 Node)
+	AddNode(n Node)
+	AddEdge(v1 NodeID, v2 NodeID)
 	//TODO: RemoveEdge(v1 Node, v2 Node)
 }
 

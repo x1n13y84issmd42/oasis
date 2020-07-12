@@ -22,10 +22,23 @@ func NewAdjacencyList() *AdjacencyList {
 	}
 }
 
+// AddNode adds a node to the list of nodes.
+func (list *AdjacencyList) AddNode(n contract.Node) {
+	list.nodes.Add(n)
+}
+
 // AddEdge adds a v2 to the adjacency list of v1.
-func (list *AdjacencyList) AddEdge(v1 contract.Node, v2 contract.Node) {
-	v1ID := v1.ID()
-	v2ID := v2.ID()
+func (list *AdjacencyList) AddEdge(v1ID contract.NodeID, v2ID contract.NodeID) {
+	v1 := list.Node(v1ID)
+	v2 := list.Node(v2ID)
+
+	if v1 == nil {
+		panic("There is no node with ID=" + v1ID)
+	}
+
+	if v2 == nil {
+		panic("There is no node with ID=" + v2ID)
+	}
 
 	if list.list[v1ID] == nil {
 		list.list[v1ID] = collection.NewNodes()
@@ -36,9 +49,6 @@ func (list *AdjacencyList) AddEdge(v1 contract.Node, v2 contract.Node) {
 			return
 		}
 	}
-
-	list.nodes.Add(v1)
-	list.nodes.Add(v2)
 
 	list.list[v1ID].Add(v2)
 }

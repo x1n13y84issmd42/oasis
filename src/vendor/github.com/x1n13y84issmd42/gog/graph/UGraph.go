@@ -17,47 +17,52 @@ func (e UEdge) Reverse() contract.Edge {
 
 // UGraph is an unweighted undirected graph.
 type UGraph struct {
-	A contract.IAdjacency
+	adjacency contract.IAdjacency
 }
 
 // NewUGraph creates a new UGraph instance.
 // Provided nodes will be added pairwise as edges.
 func NewUGraph(nodes ...contract.Node) *UGraph {
 	g := &UGraph{
-		A: storage.NewAdjacencyList(),
+		adjacency: storage.NewAdjacencyList(),
 	}
 
-	for i := 0; i < len(nodes); i += 2 {
-		g.AddEdge(nodes[i], nodes[i+1])
+	for i := 0; i < len(nodes); i++ {
+		g.AddNode(nodes[i])
 	}
 
 	return g
 }
 
+// AddNode adds a node to the graph.
+func (graph *UGraph) AddNode(n contract.Node) {
+	graph.adjacency.AddNode(n)
+}
+
 // AddEdge creates an edge between v1 and v2 nodes.
-func (graph *UGraph) AddEdge(v1 contract.Node, v2 contract.Node) {
-	graph.A.AddEdge(v1, v2)
-	graph.A.AddEdge(v2, v1)
+func (graph *UGraph) AddEdge(v1 contract.NodeID, v2 contract.NodeID) {
+	graph.adjacency.AddEdge(v1, v2)
+	graph.adjacency.AddEdge(v2, v1)
 }
 
 // Node returns a node instance by it's ID.
 func (graph *UGraph) Node(nID contract.NodeID) contract.Node {
-	return graph.A.Node(nID)
+	return graph.adjacency.Node(nID)
 }
 
 // Nodes returns a set of all graph's nodes.
 func (graph *UGraph) Nodes() contract.Nodes {
-	return graph.A.Nodes()
+	return graph.adjacency.Nodes()
 }
 
 // AdjacentNodes returns a list of adjacent nodes for a node defined by nID.
 func (graph *UGraph) AdjacentNodes(nID contract.NodeID) contract.Nodes {
-	return graph.A.AdjacentNodes(nID)
+	return graph.adjacency.AdjacentNodes(nID)
 }
 
 // UpstreamNodes returns a list of adjacent nodes for a node defined by nID.
 func (graph *UGraph) UpstreamNodes(nID contract.NodeID) contract.Nodes {
-	return graph.A.UpstreamNodes(nID)
+	return graph.adjacency.UpstreamNodes(nID)
 }
 
 // DFS returns a DFS node iterator.

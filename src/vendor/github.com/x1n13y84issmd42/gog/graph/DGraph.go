@@ -23,46 +23,51 @@ func (e DEdge) Reverse() contract.Edge {
 
 // DGraph is an unweighted directed graph.
 type DGraph struct {
-	A contract.IAdjacency
+	adjacency contract.IAdjacency
 }
 
 // NewDGraph creates a new DGraph instance.
 // Provided nodes will be added pairwise as edges.
 func NewDGraph(nodes ...contract.Node) *DGraph {
 	g := &DGraph{
-		A: storage.NewAdjacencyList(),
+		adjacency: storage.NewAdjacencyList(),
 	}
 
-	for i := 0; i < len(nodes); i += 2 {
-		g.AddEdge(nodes[i], nodes[i+1])
+	for i := 0; i < len(nodes); i++ {
+		g.AddNode(nodes[i])
 	}
 
 	return g
 }
 
+// AddNode adds a node to the graph.
+func (graph *DGraph) AddNode(n contract.Node) {
+	graph.adjacency.AddNode(n)
+}
+
 // AddEdge creates an edge between v1 and v2 nodes.
-func (graph *DGraph) AddEdge(v1 contract.Node, v2 contract.Node) {
-	graph.A.AddEdge(v1, v2)
+func (graph *DGraph) AddEdge(v1 contract.NodeID, v2 contract.NodeID) {
+	graph.adjacency.AddEdge(v1, v2)
 }
 
 // Node returns a node instance by it's ID.
 func (graph *DGraph) Node(nID contract.NodeID) contract.Node {
-	return graph.A.Node(nID)
+	return graph.adjacency.Node(nID)
 }
 
 // Nodes returns a set of all graph's nodes.
 func (graph *DGraph) Nodes() contract.Nodes {
-	return graph.A.Nodes()
+	return graph.adjacency.Nodes()
 }
 
 // AdjacentNodes returns a list of adjacent nodes for a node defined by nID.
 func (graph *DGraph) AdjacentNodes(nID contract.NodeID) contract.Nodes {
-	return graph.A.AdjacentNodes(nID)
+	return graph.adjacency.AdjacentNodes(nID)
 }
 
 // UpstreamNodes returns a list of adjacent nodes for a node defined by nID.
 func (graph *DGraph) UpstreamNodes(nID contract.NodeID) contract.Nodes {
-	return graph.A.UpstreamNodes(nID)
+	return graph.adjacency.UpstreamNodes(nID)
 }
 
 // DFS returns a DFS node iterator.
