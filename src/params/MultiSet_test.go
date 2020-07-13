@@ -57,6 +57,8 @@ func Test_MultiSet(T *testing.T) {
 		set.Require("D")
 
 		expected := errors.NoParameters([]string{"C", "D"}, "7357", nil)
+		// Otherwise TheCaller points to this ^ place.
+		expected.TheCaller = "github.com/x1n13y84issmd42/oasis/src/params/MultiSet.go:60"
 
 		assert.Equal(T, expected, set.Validate())
 	})
