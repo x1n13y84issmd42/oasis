@@ -3,6 +3,7 @@ package errors
 import (
 	"runtime"
 	"strconv"
+	gostrings "strings"
 
 	"github.com/x1n13y84issmd42/gog/graph/collection"
 	"github.com/x1n13y84issmd42/oasis/src/strings"
@@ -28,6 +29,10 @@ func NewBase(cause error, details string) Base {
 	caller := ""
 	if _, f, l, ok := runtime.Caller(2); ok {
 		caller = f + ":" + strconv.Itoa(l)
+	}
+
+	if ghi := gostrings.Index(caller, "github.com"); ghi != -1 {
+		caller = caller[ghi:]
 	}
 
 	return Base{
