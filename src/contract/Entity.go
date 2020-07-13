@@ -1,7 +1,5 @@
 package contract
 
-import "os"
-
 // EntityTrait contains basic functions shared by multiple different app components,
 // such as logging.
 type EntityTrait struct {
@@ -18,6 +16,6 @@ func Entity(log Logger) EntityTrait {
 // Error is an error handler.
 func (e EntityTrait) Error(err error) {
 	e.Log.Error(err)
-	os.Exit(1)
-	// panic("Why are you like this?..")
+	//TODO: this definitely needs rethinking.
+	panic("Why are you like this?..")
 }
