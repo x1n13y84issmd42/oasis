@@ -1,6 +1,7 @@
 package strings
 
 import (
+	"regexp"
 	"sort"
 	gostrings "strings"
 )
@@ -44,4 +45,20 @@ func (m SIMap) Keys() []string {
 		res = append(res, k)
 	}
 	return res
+}
+
+// RxMatches returns a map of named capture groups.
+func RxMatches(s string, rx *regexp.Regexp) map[string]string {
+	matches := make(map[string]string)
+
+	if rx.Match([]byte(s)) {
+		match := rx.FindStringSubmatch(s)
+		for i, name := range rx.SubexpNames() {
+			if i != 0 && name != "" {
+				matches[name] = match[i]
+			}
+		}
+	}
+
+	return matches
 }
