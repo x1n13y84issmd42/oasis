@@ -9,7 +9,7 @@ import (
 
 // JSONResponse tests JSON response bodies.
 func JSONResponse(result *contract.OperationResult, schema *api.Schema, log contract.Logger) bool {
-	if result.HTTPResponse.Body == nil {
+	if len(result.ResponseBytes) == 0 {
 		return false
 	}
 

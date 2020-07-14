@@ -42,33 +42,33 @@
 			// 	"level",
 			// 	"4",
 			// ]
+			"args": [
+				"from",
+				"../../spec/petstore.yaml",
+				"test",
+				"findPetsByStatus",
+				"log",
+				"at",
+				"level",
+				"6",
+				"use",
+				"query",
+				"status=pending",
+			]
 			// "args": [
 			// 	"from",
 			// 	"../../spec/petstore.yaml",
 			// 	"test",
-			// 	"findPetsByStatus",
+			// 	"getPetById",
 			// 	"log",
 			// 	"at",
 			// 	"level",
 			// 	"4",
 			// 	"use",
-			// 	"query",
-			// 	"status=pending",
+			// 	"path",
+			// 	"parameters",
+			// 	"petId=9",
 			// ]
-			"args": [
-				"from",
-				"../../spec/petstore.yaml",
-				"test",
-				"getPetById",
-				"log",
-				"at",
-				"level",
-				"4",
-				"use",
-				"path",
-				"parameters",
-				"petId=9",
-			]
 		},
 
 		{

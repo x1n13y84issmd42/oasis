@@ -6,7 +6,7 @@ operations:
       path:
         HOSTNAME: http://petstore.swagger.io/v2
       query:
-        status: pending
+        status: sold
     expect:
       status: 200
   getPetDetails:

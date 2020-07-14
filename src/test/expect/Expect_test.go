@@ -1,8 +1,6 @@
 package expect_test
 
 import (
-	"bytes"
-	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -118,8 +116,8 @@ func Test_ContentSchema(T *testing.T) {
 					"3",
 				},
 			},
-			Body: ioutil.NopCloser(bytes.NewReader([]byte("42"))),
 		},
+		ResponseBytes: []byte("42"),
 	}
 
 	T.Run("True", func(T *testing.T) {
