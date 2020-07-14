@@ -1,7 +1,6 @@
 package test_test
 
 import (
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func Test_Validator(T *testing.T) {
 	log := log.NewPlain(0)
 	v := test.NewValidator(log)
 
-	v.Expect(func(req *http.Response) bool {
+	v.Expect(func(req *contract.OperationResult) bool {
 		return false
 	})
 

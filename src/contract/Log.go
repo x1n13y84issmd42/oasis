@@ -2,6 +2,8 @@ package contract
 
 import (
 	"strings"
+
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // Logger - interface for test execution loggers.
@@ -37,8 +39,8 @@ type Logger interface {
 	OperationFail()
 
 	// SchemaTesting(schema *api.Schema, data interface{})
-	// SchemaOK(schema *api.Schema)
-	// SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError)
+	SchemaOK()
+	SchemaFail(errors []gojsonschema.ResultError)
 
 	XError(err error, style LogStyle, tab TabFn)
 }

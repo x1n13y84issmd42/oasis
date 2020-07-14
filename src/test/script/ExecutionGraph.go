@@ -19,7 +19,6 @@ type ExecutionNode struct {
 
 // NewExecutionNode creates a new ExecutionNode instance.
 func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger) *ExecutionNode {
-	// log.NOMESSAGE("NewExecutionNode %s", opRefID)
 	n := &ExecutionNode{
 		Operation: op,
 		OpRefID:   opRefID,

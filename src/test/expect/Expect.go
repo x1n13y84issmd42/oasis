@@ -1,7 +1,6 @@
 package expect
 
 import (
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -14,12 +13,12 @@ import (
 func Status(status int, log contract.Logger) contract.Expectation {
 	log.Expecting("status", strconv.Itoa(status))
 
-	return func(resp *http.Response) bool {
-		if resp.StatusCode == status {
+	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse.StatusCode == status {
 			return true
 		}
 
-		log.ResponseHasWrongStatus(status, resp.StatusCode)
+		log.ResponseHasWrongStatus(status, result.HTTPResponse.StatusCode)
 		return false
 	}
 }
@@ -28,8 +27,8 @@ func Status(status int, log contract.Logger) contract.Expectation {
 func HeaderRequired(n string, log contract.Logger) contract.Expectation {
 	log.Expecting("required header", n)
 
-	return func(resp *http.Response) bool {
-		if resp.Header.Get(n) != "" {
+	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse.Header.Get(n) != "" {
 			return true
 		}
 
@@ -43,8 +42,8 @@ func HeaderRequired(n string, log contract.Logger) contract.Expectation {
 func HeaderSchema(n string, schema *api.Schema, log contract.Logger) contract.Expectation {
 	log.Expecting("header "+n+" to conform schema", schema.Name)
 
-	return func(resp *http.Response) bool {
-		return test.Schema(schema.Cast(resp.Header.Get(n)), schema, log)
+	return func(result *contract.OperationResult) bool {
+		return test.Schema(schema.Cast(result.HTTPResponse.Header.Get(n)), schema, log)
 	}
 }
 
@@ -52,14 +51,14 @@ func HeaderSchema(n string, schema *api.Schema, log contract.Logger) contract.Ex
 func ContentType(v string, log contract.Logger) contract.Expectation {
 	log.Expecting("Content-Type", v)
 
-	return func(resp *http.Response) bool {
+	return func(result *contract.OperationResult) bool {
 		// This is to get rid of the possible "; charset=utf-8" part.
-		respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+		respCT := strings.Split(result.HTTPResponse.Header.Get("Content-Type"), ";")[0]
 		if respCT == v {
 			return true
 		}
 
-		log.ResponseHasWrongContentType(v, resp.Header.Get("Content-Type"))
+		log.ResponseHasWrongContentType(v, result.HTTPResponse.Header.Get("Content-Type"))
 		return false
 	}
 }
@@ -69,12 +68,12 @@ func ContentType(v string, log contract.Logger) contract.Expectation {
 func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation {
 	log.Expecting("content schema", schema.Name)
 
-	return func(resp *http.Response) bool {
-		respCT := strings.Split(resp.Header.Get("Content-Type"), ";")[0]
+	return func(result *contract.OperationResult) bool {
+		respCT := strings.Split(result.HTTPResponse.Header.Get("Content-Type"), ";")[0]
 
 		switch respCT {
 		case "application/json":
-			if test.JSONResponse(resp, schema, log) {
+			if test.JSONResponse(result, schema, log) {
 				return true
 			}
 
@@ -82,7 +81,6 @@ func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation
 			log.NOMESSAGE("The Content-Type of '%s' is not supported.\n", respCT)
 		}
 
-		log.NOMESSAGE("Response data is wrong.")
 		return false
 	}
 }

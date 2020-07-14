@@ -7,9 +7,10 @@ import (
 // OperationResult describes the outcome of an operation test.
 // It is bo te used as a possible source of data for subsequent tests.
 type OperationResult struct {
-	Success      bool
-	HTTPRequest  *http.Request
-	HTTPResponse *http.Response
+	Success       bool
+	HTTPRequest   *http.Request
+	HTTPResponse  *http.Response
+	ResponseBytes []byte
 }
 
 // And creates a new OperationResult instance with the Success field assigned

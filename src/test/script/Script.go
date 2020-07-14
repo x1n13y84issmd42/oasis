@@ -3,10 +3,10 @@ package script
 import (
 	"github.com/x1n13y84issmd42/gog/graph/comp"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/params"
-	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // OperationRef ...
@@ -49,34 +49,34 @@ type OperationDataUse struct {
 
 // Script ...
 type Script struct {
+	api.OperationCache
 	contract.EntityTrait
-	Spec       string                   `yaml:"spec"`
+	SpecPath   string                   `yaml:"spec"`
 	Operations map[string]*OperationRef `yaml:"operations"`
 }
 
 // GetExecutionGraph builds and returns an operation execution graph.
 func (script *Script) GetExecutionGraph() gcontract.Graph {
-	spec := utility.Load(script.Spec, script.Log)
 	graph := NewExecutionGraph(script.Log)
 
 	for opRefID, opRef := range script.Operations {
-		//TODO: opRef.OperationID may be absent, use opID then.
-		op := spec.GetOperation(opRef.OperationID)
+		//TODO: opRef.OperationID may be absent, use opRefID then.
+		op := script.GetOperation(opRef.OperationID)
 		opNode := script.GetNode(graph, opRefID, op)
 
 		var err error
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Path, opNode.Data.URL, opNode, opRefID)
+		err = script.SetupDependencies(graph, &opRef.Use.Path, opNode.Data.URL, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Query, opNode.Data.Query, opNode, opRefID)
+		err = script.SetupDependencies(graph, &opRef.Use.Query, opNode.Data.Query, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(spec, graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRefID)
+		err = script.SetupDependencies(graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
@@ -94,14 +94,13 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 // SetupDependencies iterates over the provided map, looks for reference values,
 // collects a list of references operations along with ParameterAccess functions.
 func (script *Script) SetupDependencies(
-	spec contract.Spec,
 	graph *ExecutionGraph,
 	srcParams *OperationDataMap,
 	dstParams contract.Set,
 	opNode *ExecutionNode,
 	opRefID string,
 ) error {
-	refParams := params.NewReferenceSource()
+	refParams := params.NewReferenceSource(script.Log)
 	memParams := params.NewMemorySource("script data")
 
 	for pn, pv := range *srcParams {
@@ -113,7 +112,7 @@ func (script *Script) SetupDependencies(
 				return errors.NotFound("Operation reference", op2RefID, nil)
 			}
 
-			op2 := spec.GetOperation(opRef2.OperationID)
+			op2 := script.GetOperation(opRef2.OperationID)
 			if opRef2 == nil {
 				return errors.NotFound("Spec operation", opRef2.OperationID, nil)
 			}

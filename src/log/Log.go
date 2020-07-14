@@ -207,15 +207,15 @@ func (log Log) SchemaTesting(schema *api.Schema, data interface{}) {
 }
 
 // SchemaOK informs that JSON schema testing finished successfully.
-func (log Log) SchemaOK(schema *api.Schema) {
-	log.Println(4, log.Style.Success(" - OK"))
+func (log Log) SchemaOK() {
+	log.Println(3, "\t%s", log.Style.Success("Schema OK."))
 }
 
 // SchemaFail informs that JSON schema testing finished unsuccessfully.
-func (log Log) SchemaFail(schema *api.Schema, errors []gojsonschema.ResultError) {
-	log.Println(4, log.Style.Error(" - FAILURE"))
+func (log Log) SchemaFail(errors []gojsonschema.ResultError) {
+	log.Println(3, "\t%s", log.Style.Error("Schema failure."))
 
 	for _, desc := range errors {
-		log.Println(4, "\t\t%s", log.Style.Error(desc))
+		log.Println(3, "\t%s", log.Style.Error(desc))
 	}
 }

@@ -4,7 +4,9 @@ import (
 	"io/ioutil"
 
 	"github.com/go-yaml/yaml"
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/utility"
 )
 
 // Load loads a script file.
@@ -19,6 +21,7 @@ func Load(path string, log contract.Logger) contract.Script {
 	}
 
 	yaml.Unmarshal([]byte(fileData), script)
+	script.OperationCache = api.NewOperationCache(utility.Load(script.SpecPath, script.Log))
 
 	//TODO: some validation is required
 	// Like unique op IDs.

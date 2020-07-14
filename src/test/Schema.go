@@ -20,11 +20,11 @@ func Schema(data interface{}, schema *api.Schema, logger contract.Logger) bool {
 	}
 
 	if result.Valid() {
-		// logger.SchemaOK(schema)
+		logger.SchemaOK()
 		return true
 	}
 
-	// logger.SchemaFail(schema, result.Errors())
+	logger.SchemaFail(result.Errors())
 
 	return false
 }

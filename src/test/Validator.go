@@ -20,7 +20,7 @@ func NewValidator(log contract.Logger) *Validator {
 // instance from the OperationResult against them.
 func (v *Validator) Validate(r *contract.OperationResult) *contract.OperationResult {
 	for _, ex := range v.expectations {
-		r.Success = ex(r.HTTPResponse) && r.Success
+		r.Success = ex(r) && r.Success
 	}
 	return r
 }

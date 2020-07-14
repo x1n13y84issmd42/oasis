@@ -1,6 +1,7 @@
 package test
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -51,6 +52,9 @@ func (req *Request) Execute() *contract.OperationResult {
 	response, err := req.HTTPClient.Do(req.HTTPRequest)
 
 	req.Result.HTTPResponse = response
+	//TODO: this may fail on very large responses (GB++)
+	//TODO: handle the error.
+	req.Result.ResponseBytes, _ = ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		req.Log.Error(err)
