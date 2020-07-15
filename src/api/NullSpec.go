@@ -5,7 +5,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
-// NullSpec ...
+// NullSpec is a placehilder spec used when we can't have a real one.
 type NullSpec struct {
 	errors.NullObjectPrototype
 }
@@ -17,31 +17,31 @@ func NoSpec(err error, log contract.Logger) NullSpec {
 	}
 }
 
-// Operations ...
+// Operations reports an error.
 func (spec NullSpec) Operations() contract.OperationIterator {
 	spec.Report()
 	return nil
 }
 
-// GetOperation ...
+// GetOperation reports an error.
 func (spec NullSpec) GetOperation(name string) contract.Operation {
 	spec.Report()
 	return nil
 }
 
-// Title return project title.
+// Title reports an error.
 func (spec NullSpec) Title() string {
 	spec.Report()
 	return ""
 }
 
-// Description return project description.
+// Description reports an error.
 func (spec NullSpec) Description() string {
 	spec.Report()
 	return ""
 }
 
-// Version return project version.
+// Version reports an error.
 func (spec NullSpec) Version() string {
 	spec.Report()
 	return ""

@@ -33,7 +33,7 @@ func (ex Executor) Execute(graph gcontract.Graph) {
 	wg.Wait()
 }
 
-// Walk ...
+// Walk walks the execution graph and executes operations.
 func (ex Executor) Walk(
 	graph gcontract.Graph,
 	n *ExecutionNode,
@@ -50,6 +50,8 @@ func (ex Executor) Walk(
 	}
 
 	anwg.Wait()
+
+	//TODO: check for successful outcome of the previous ops.
 
 	n.Operation.Data().Load(&n.Data)
 

@@ -5,7 +5,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
-// NullRequest ...
+// NullRequest is a placeholder request used when we can't have a real one.
 type NullRequest struct {
 	errors.NullObjectPrototype
 }

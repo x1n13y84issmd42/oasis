@@ -9,14 +9,15 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
-// OperationRef ...
+// OperationRef is a node of execution graph as desfined in the script file.
+// It references a spec operation and contains the needed data.
 type OperationRef struct {
 	OperationID string           `yaml:"operationId"`
 	Use         OperationDataUse `yaml:"use"`
 	Expect      OperationDataUse `yaml:"expect"`
 }
 
-// OperationDataMap ...
+// OperationDataMap is a map of parameters for an OperationRef.
 type OperationDataMap map[string]string
 
 // Iterate creates an iterable channel.
@@ -40,14 +41,16 @@ func (m OperationDataMap) Iterate() contract.ParameterIterator {
 	return ch
 }
 
-// OperationDataUse ...
+// OperationDataUse corresponds to the 'use' block of the OperationRef in a script file.``
 type OperationDataUse struct {
 	Path    OperationDataMap
 	Query   OperationDataMap
 	Headers OperationDataMap
 }
 
-// Script ...
+// Script is a complex API testing scenario.
+// It defines dependencies between various operations
+// and order of their execution.
 type Script struct {
 	api.OperationCache
 	contract.EntityTrait

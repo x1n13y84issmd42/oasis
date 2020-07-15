@@ -18,27 +18,27 @@ type Operation struct {
 	Resolver *DataResolver
 }
 
-// ID ...
+// ID returns an operation ID.
 func (op *Operation) ID() string {
 	return op.SpecOp.OperationID
 }
 
-// Name ...
+// Name returns an operation name.
 func (op *Operation) Name() string {
 	return op.SpecOp.Summary
 }
 
-// Description ...
+// Description returns an operation description.
 func (op *Operation) Description() string {
 	return op.SpecOp.Description
 }
 
-// Method ...
+// Method returns an operation request method.
 func (op *Operation) Method() string {
 	return op.RequestMethod
 }
 
-// Path ...
+// Path returns an operation request path.
 func (op *Operation) Path() string {
 	return op.RequestPath
 }

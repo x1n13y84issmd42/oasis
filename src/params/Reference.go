@@ -93,7 +93,7 @@ func (pr Reference) Cast(v interface{}) string {
 	return fmt.Sprintf("%#v", v)
 }
 
-// ReferenceAccess ...
+// ReferenceAccess is a function to compute and return a referenced value.
 type ReferenceAccess func(interface{}, contract.Logger) interface{}
 
 // ParseArrayIndexRef parses the JSON array index signature [N]
@@ -167,7 +167,8 @@ func AccessObject(access ReferenceAccess, f string) ReferenceAccess {
 	}
 }
 
-// NoAccess ...
+// NoAccess is a placeholder ref access function used when we can't have a real one.
+// Usually when it is impossible to parse a reference selector.
 func NoAccess(err error) ReferenceAccess {
 	return func(v interface{}, log contract.Logger) interface{} {
 		if err != nil {

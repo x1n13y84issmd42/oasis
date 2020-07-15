@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-// Operation ...
+// Operation is an interface for accessing operation properties.
 type Operation interface {
 	ID() string
 	Name() string
