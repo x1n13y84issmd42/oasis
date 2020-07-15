@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
@@ -30,7 +31,9 @@ func New(style string, level int64) contract.Logger {
 	fmt.Println("\tplain - a plain text logger")
 	fmt.Println("\tfestive - a nicer colorized logger")
 
-	panic("No way.")
+	os.Exit(1)
+
+	return nil
 }
 
 // Print prints.

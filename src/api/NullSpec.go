@@ -1,16 +1,19 @@
 package api
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
+)
 
 // NullSpec ...
 type NullSpec struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoSpec creates a new NullSpec instance.
 func NoSpec(err error, log contract.Logger) NullSpec {
 	return NullSpec{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

@@ -1,18 +1,18 @@
-package contract
+package errors
 
 import (
-	"errors"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
 // NullObjectPrototype is a prototype implementation of null entities,
 // such as NullSpec and NullOperation.
 type NullObjectPrototype struct {
-	Log   Logger
+	Log   contract.Logger
 	Error error
 }
 
 // NullObject creates a new NullONullObjectPrototype instance.
-func NullObject(err error, log Logger) NullObjectPrototype {
+func NullObject(err error, log contract.Logger) NullObjectPrototype {
 	return NullObjectPrototype{
 		Error: err,
 		Log:   log,
@@ -21,11 +21,5 @@ func NullObject(err error, log Logger) NullObjectPrototype {
 
 // Report reports the contained error.
 func (null NullObjectPrototype) Report() {
-	if null.Error != nil {
-		null.Log.Error(null.Error)
-	} else {
-		null.Log.Error(errors.New("no error in a null object"))
-	}
-
-	panic("A NullObject has triggered a panic.\nSee the error message reported above.\nCheck where the object comes from\nfor the source of the error.")
+	Report(null.Error, "NullObject", null.Log)
 }

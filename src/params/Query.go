@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // QueryParameters is the source for URL query parameters.
@@ -25,7 +26,7 @@ func Query(log contract.Logger) *QueryParameters {
 // Enrich applies the parameters as query values to the request.
 func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 	if err := params.Validate(); err != nil {
-		params.Error(err)
+		errors.Report(err, "QueryParameters", params.Log)
 	}
 
 	q := req.URL.Query()

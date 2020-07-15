@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // HeadersParameters is the source for request header parameters.
@@ -25,7 +26,7 @@ func Headers(log contract.Logger) *HeadersParameters {
 // Enrich applies the parameters as header values to the request.
 func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 	if err := params.Validate(); err != nil {
-		params.Error(err)
+		errors.Report(err, "HeadersParameters", params.Log)
 	}
 
 	for p := range params.Iterate() {

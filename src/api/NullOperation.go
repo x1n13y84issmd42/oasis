@@ -4,18 +4,19 @@ import (
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // NullOperation is used whenever we can't have a real one.
 // Reports the contained error on every method call.
 type NullOperation struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoOperation creates a new NullOperation instance.
 func NoOperation(err error, log contract.Logger) *NullOperation {
 	return &NullOperation{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

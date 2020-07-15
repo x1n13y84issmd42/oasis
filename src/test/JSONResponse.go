@@ -70,6 +70,7 @@ func TryJSONBooleanResponse(respData *[]byte, log contract.Logger) (res bool, er
 
 // TryJSONObjectResponse tries to unmarshal respData as an object.
 func TryJSONObjectResponse(respData *[]byte, log contract.Logger) (res JSONMap, err error) {
+	//TODO: this will consume all the RAM with big responses.
 	v := make(JSONMap)
 	err = json.Unmarshal(*respData, &v)
 
@@ -85,6 +86,7 @@ func TryJSONObjectResponse(respData *[]byte, log contract.Logger) (res JSONMap, 
 
 // TryJSONArrayResponse tries to unmarshal respData as an array.
 func TryJSONArrayResponse(respData *[]byte, log contract.Logger) (res JSONArray, err error) {
+	//TODO: this will consume all the RAM with big responses.
 	var v JSONArray
 	err = json.Unmarshal(*respData, &v)
 

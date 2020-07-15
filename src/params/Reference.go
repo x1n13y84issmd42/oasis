@@ -1,12 +1,13 @@
 package params
 
 import (
-	"errors"
+	goerrors "errors"
 	"fmt"
 	"regexp"
 	"strconv"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/strings"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 )
@@ -33,11 +34,11 @@ func (pr Reference) Value() contract.ParameterAccess {
 		var err error
 
 		if res, err := test.TryJSONObjectResponse(&pr.Result.ResponseBytes, pr.Log); err == nil {
-			return pr.Cast(access(res))
+			return pr.Cast(access(res, pr.Log))
 		}
 
 		if res, err := test.TryJSONArrayResponse(&pr.Result.ResponseBytes, pr.Log); err == nil {
-			return pr.Cast(access(res))
+			return pr.Cast(access(res, pr.Log))
 		}
 
 		if res, err := test.TryJSONStringResponse(&pr.Result.ResponseBytes, pr.Log); err == nil {
@@ -56,7 +57,7 @@ func (pr Reference) Value() contract.ParameterAccess {
 			pr.Log.Error(err)
 		}
 
-		return pr.Cast(access(data))
+		return pr.Cast(access(data, pr.Log))
 	}
 }
 
@@ -93,7 +94,7 @@ func (pr Reference) Cast(v interface{}) string {
 }
 
 // ReferenceAccess ...
-type ReferenceAccess func(interface{}) interface{}
+type ReferenceAccess func(interface{}, contract.Logger) interface{}
 
 // ParseArrayIndexRef parses the JSON array index signature [N]
 // in the beginning of selector. It returns the index and number
@@ -125,52 +126,56 @@ func ParseObjectFieldRef(selector string) (string, int) {
 
 // AccessContent passes through.
 func AccessContent() ReferenceAccess {
-	return func(v interface{}) interface{} {
+	return func(v interface{}, log contract.Logger) interface{} {
 		return v
 	}
 }
 
 // AccessArray treats v as an array and returns i-th element of it.
 func AccessArray(access ReferenceAccess, i int) ReferenceAccess {
-	return func(v interface{}) interface{} {
-		xv := access(v)
+	return func(v interface{}, log contract.Logger) interface{} {
+		xv := access(v, log)
 		arrv, ok := xv.([]interface{})
 		if ok {
 			if len(arrv) <= i {
-				panic(fmt.Sprintf("Array index %d is out of range 0-%d.", i, (len(arrv) - 1)))
+				errors.Report(errors.OutOfRange(i, &arrv, nil), "AccessArray", log)
 			}
 
 			return (arrv)[i]
 		}
-		panic("Not an array.")
+
+		errors.Report(errors.NotAn("array", &arrv, nil), "AccessArray", log)
+		return nil
 	}
 }
 
 // AccessObject treats v as a map and returns f-th element of it.
 func AccessObject(access ReferenceAccess, f string) ReferenceAccess {
-	return func(v interface{}) interface{} {
-		objv, ok := access(v).(map[string]interface{})
+	return func(v interface{}, log contract.Logger) interface{} {
+		objv, ok := access(v, log).(map[string]interface{})
 		if ok {
 			v, vok := (objv)[f]
 			if vok {
 				return v
 			}
 
-			panic("Field '" + f + "' is not found in the object.")
+			errors.Report(errors.NoProperty(f, nil), "AccessObject", log)
 		}
 
-		panic("Not an object.")
+		errors.Report(errors.NotAn("array", &objv, nil), "AccessObject", log)
+		return nil
 	}
 }
 
 // NoAccess ...
-func NoAccess(err error, log contract.Logger) ReferenceAccess {
-	return func(interface{}) interface{} {
+func NoAccess(err error) ReferenceAccess {
+	return func(v interface{}, log contract.Logger) interface{} {
 		if err != nil {
 			log.Error(err)
 		}
 
-		panic("NoAccess")
+		errors.Report(err, "NoAccess", log)
+		return nil
 	}
 }
 
@@ -186,7 +191,7 @@ func ParseSelector(selector string, log contract.Logger) (ReferenceAccess, strin
 			res = AccessObject(res, f)
 			selector = selector[n:]
 		} else {
-			return NoAccess(errors.New("impossible to parse selector "+selector), log), selector
+			return NoAccess(goerrors.New("impossible to parse selector " + selector)), selector
 		}
 	}
 

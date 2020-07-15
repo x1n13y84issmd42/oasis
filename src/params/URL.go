@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // URLParameters is the source for URL path parameters.
@@ -33,7 +34,7 @@ func URL(path string, log contract.Logger) *URLParameters {
 // and parameters it has.
 func (params URLParameters) String() string {
 	if err := params.Validate(); err != nil {
-		params.Error(err)
+		errors.Report(err, "URLParameters", params.Log)
 	}
 
 	tpl := "{" + KeyHost + "}" + params.Path

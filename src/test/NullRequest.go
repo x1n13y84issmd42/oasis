@@ -1,16 +1,19 @@
 package test
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
+)
 
 // NullRequest ...
 type NullRequest struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoRequest creates a new NullRequest instance.
 func NoRequest(err error, log contract.Logger) contract.Request {
 	return &NullRequest{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

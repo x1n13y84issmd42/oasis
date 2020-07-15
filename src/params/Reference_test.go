@@ -13,7 +13,7 @@ import (
 
 func Test_AccessContent(T *testing.T) {
 	d := "foobar"
-	assert.Equal(T, "foobar", params.AccessContent()(d))
+	assert.Equal(T, "foobar", params.AccessContent()(d, log.NewPlain(0)))
 }
 
 func jsonarray(js string) interface{} {
@@ -55,11 +55,11 @@ func Test_AccessArray(T *testing.T) {
 		]
 		`)
 		access := params.AccessContent()
-		assert.Equal(T, "qeq", params.AccessArray(access, 2)(d))
+		assert.Equal(T, "qeq", params.AccessArray(access, 2)(d, log.NewPlain(0)))
 	})
 
 	T.Run("Out of bounds", func(T *testing.T) {
-		defer unpanic(T, "Array index 200 is out of range 0-3.")
+		defer unpanic(T, "AccessArray has panicked.\nSee the error message reported above for details.")
 
 		d := jsonarray(`
 		[
@@ -67,20 +67,20 @@ func Test_AccessArray(T *testing.T) {
 			"bar",
 			"qeq",
 			"baz"
-		]
-		`)
+			]
+			`)
 
 		access := params.AccessContent()
-		assert.Equal(T, "IRRELEVANT", params.AccessArray(access, 200)(d))
+		assert.Equal(T, "IRRELEVANT", params.AccessArray(access, 200)(d, log.NewPlain(0)))
 	})
 
 	T.Run("Not an array", func(T *testing.T) {
-		defer unpanic(T, "Not an array.")
+		defer unpanic(T, "AccessArray has panicked.\nSee the error message reported above for details.")
 
 		d := jsondata(`{"foo": 42}`)
 
 		access := params.AccessContent()
-		assert.Equal(T, "IRRELEVANT", params.AccessArray(access, 200)(d))
+		assert.Equal(T, "IRRELEVANT", params.AccessArray(access, 200)(d, log.NewPlain(0)))
 	})
 }
 
@@ -93,12 +93,12 @@ func Test_AccessObject(T *testing.T) {
 		}
 		`)
 		access := params.AccessContent()
-		assert.Equal(T, "F00", params.AccessObject(access, "foo")(d))
-		assert.Equal(T, "B4R", params.AccessObject(access, "bar")(d))
+		assert.Equal(T, "F00", params.AccessObject(access, "foo")(d, log.NewPlain(0)))
+		assert.Equal(T, "B4R", params.AccessObject(access, "bar")(d, log.NewPlain(0)))
 	})
 
-	T.Run("Out of bounds", func(T *testing.T) {
-		defer unpanic(T, "Field 'FAILURE' is not found in the object.")
+	T.Run("No property", func(T *testing.T) {
+		defer unpanic(T, "AccessObject has panicked.\nSee the error message reported above for details.")
 
 		d := jsondata(`
 		{
@@ -108,16 +108,16 @@ func Test_AccessObject(T *testing.T) {
 		`)
 
 		access := params.AccessContent()
-		assert.Equal(T, "IRRELEVANT", params.AccessObject(access, "FAILURE")(d))
+		assert.Equal(T, "IRRELEVANT", params.AccessObject(access, "FAILURE")(d, log.NewPlain(0)))
 	})
 
 	T.Run("Not an object", func(T *testing.T) {
-		defer unpanic(T, "Not an object.")
+		defer unpanic(T, "AccessObject has panicked.\nSee the error message reported above for details.")
 
 		d := jsondata(`42`)
 
 		access := params.AccessContent()
-		assert.Equal(T, "IRRELEVANT", params.AccessObject(access, "IRRELEVANT")(d))
+		assert.Equal(T, "IRRELEVANT", params.AccessObject(access, "IRRELEVANT")(d, log.NewPlain(0)))
 	})
 }
 
@@ -252,7 +252,7 @@ func Test_Reference(T *testing.T) {
 }
 
 func Test_NoAccess(T *testing.T) {
-	defer unpanic(T, "")
+	defer unpanic(T, "NoAccess has panicked.\nSee the error message reported above for details.")
 
-	params.NoAccess(fmt.Errorf("alas"), log.NewPlain(0))(nil)
+	params.NoAccess(fmt.Errorf("alas"))(nil, log.NewPlain(0))
 }

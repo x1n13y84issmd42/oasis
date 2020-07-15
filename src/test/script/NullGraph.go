@@ -3,18 +3,19 @@ package script
 import (
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // NullGraph is used whenever we can't have a real execution graph from a script.
 // Reports the contained error on every method call.
 type NullGraph struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoGraph creates a new NullGraph instance.
 func NoGraph(err error, log contract.Logger) gcontract.Graph {
 	return &NullGraph{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

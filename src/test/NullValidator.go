@@ -1,17 +1,20 @@
 package test
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
+)
 
 // NullValidator is used whenever we can't have a real one from DataResolver.Response().
 // Reports the contained error on every method call.
 type NullValidator struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoValidator creates a new NullValidator instance.
 func NoValidator(err error, log contract.Logger) *NullValidator {
 	return &NullValidator{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

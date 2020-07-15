@@ -2,17 +2,18 @@ package params
 
 import (
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/errors"
 )
 
 // NullSource is a placeholder source used when we can't have a real one.
 type NullSource struct {
-	contract.NullObjectPrototype
+	errors.NullObjectPrototype
 }
 
 // NoSource creates a new NullSource instance.
 func NoSource(err error, log contract.Logger) *NullSource {
 	return &NullSource{
-		NullObjectPrototype: contract.NullObject(err, log),
+		NullObjectPrototype: errors.NullObject(err, log),
 	}
 }
 

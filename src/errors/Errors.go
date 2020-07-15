@@ -1,13 +1,26 @@
 package errors
 
 import (
+	"fmt"
 	"runtime"
 	"strconv"
 	gostrings "strings"
 
 	"github.com/x1n13y84issmd42/gog/graph/collection"
+	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/strings"
 )
+
+// Report reports errors.
+func Report(err error, source string, log contract.Logger) {
+	if err != nil {
+		log.Error(err)
+	} else {
+		log.Error(NewBase(nil, "Reporting nothing."))
+	}
+
+	panic(gostrings.Title(source) + " has panicked.\nSee the error message reported above for details.")
+}
 
 // IError is an error interface.
 type IError interface {
@@ -245,5 +258,63 @@ func GraphHasCycles(cycle *collection.NodeStack, cause error) ErrGraphHasCycles 
 	return ErrGraphHasCycles{
 		Base:   NewBase(cause, msg1+cycleString+msg2),
 		Cycles: cycle,
+	}
+}
+
+// ErrOutOfRange happens when an array index is out of range.
+type ErrOutOfRange struct {
+	Base
+	i int
+	a *[]interface{}
+}
+
+func (err ErrOutOfRange) Error() string {
+	return fmt.Sprintf("Array index %d is out of range 0-%d.", err.i, len(*err.a)-1)
+}
+
+// OutOfRange creates a new ErrOutOfRange error instance.
+func OutOfRange(i int, a *[]interface{}, cause error) ErrOutOfRange {
+	return ErrOutOfRange{
+		Base: NewBase(cause, ""),
+		i:    i,
+		a:    a,
+	}
+}
+
+// ErrNoProperty happens when a property was not found in an object.
+type ErrNoProperty struct {
+	Base
+	prop string
+}
+
+func (err ErrNoProperty) Error() string {
+	return "Property '" + err.prop + "' is not found in the object."
+}
+
+// NoProperty creates a new ErrNoProperty error instance.
+func NoProperty(prop string, cause error) ErrNoProperty {
+	return ErrNoProperty{
+		Base: NewBase(cause, ""),
+		prop: prop,
+	}
+}
+
+// ErrNotAn happens when something is not what it appears to be.
+type ErrNotAn struct {
+	Base
+	whatShouldBe string
+	whatIs       interface{}
+}
+
+func (err ErrNotAn) Error() string {
+	return "Not an " + err.whatShouldBe + ", but a " + fmt.Sprintf("%T", err.whatIs) + "."
+}
+
+// NotAn creates a new ErrNotAn error instance.
+func NotAn(whatShouldBe string, whatIs interface{}, cause error) ErrNotAn {
+	return ErrNotAn{
+		Base:         NewBase(cause, ""),
+		whatShouldBe: whatShouldBe,
+		whatIs:       whatIs,
 	}
 }
