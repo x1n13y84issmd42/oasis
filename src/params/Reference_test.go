@@ -250,3 +250,11 @@ func Test_Reference(T *testing.T) {
 		assert.Equal(T, "true", ref.Value()())
 	})
 }
+
+func Test_NoAccess(T *testing.T) {
+	defer unpanic(T, "")
+
+	params.NoAccess(fmt.Errorf("alas"), log.NewPlain(0))
+
+	T.Error("Shoud have panicked.")
+}

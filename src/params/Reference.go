@@ -3,7 +3,6 @@ package params
 import (
 	"errors"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 
@@ -169,11 +168,9 @@ func NoAccess(err error, log contract.Logger) ReferenceAccess {
 	return func(interface{}) interface{} {
 		if err != nil {
 			log.Error(err)
-		} else {
-			log.Error(errors.New("no error in a null object"))
 		}
-		os.Exit(1)
-		return nil
+
+		panic("NoAccess")
 	}
 }
 
