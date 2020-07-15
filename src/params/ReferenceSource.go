@@ -51,7 +51,8 @@ func (src *ReferenceSource) Iterate() contract.ParameterIterator {
 
 		sort.Strings(keys)
 
-		for pn, pvs := range src.Refs {
+		for _, pn := range keys {
+			pvs := src.Refs[pn]
 			for _, pv := range pvs {
 				ch <- contract.ParameterTuple{
 					N: pn,
