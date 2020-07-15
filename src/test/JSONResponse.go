@@ -84,17 +84,17 @@ func TryJSONObjectResponse(respData *[]byte, log contract.Logger) (res JSONMap, 
 }
 
 // TryJSONArrayResponse tries to unmarshal respData as an array.
-func TryJSONArrayResponse(respData *[]byte, log contract.Logger) (res *JSONArray, err error) {
+func TryJSONArrayResponse(respData *[]byte, log contract.Logger) (res JSONArray, err error) {
 	var v JSONArray
 	err = json.Unmarshal(*respData, &v)
 
 	if err != nil {
-		res = &v
+		res = v
 		log.Error(err)
 		return nil, err
 	}
 
-	res = &v
+	res = v
 
 	return
 }

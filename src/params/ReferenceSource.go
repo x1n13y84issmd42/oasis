@@ -1,6 +1,8 @@
 package params
 
 import (
+	"sort"
+
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 )
 
@@ -42,6 +44,13 @@ func (src *ReferenceSource) Iterate() contract.ParameterIterator {
 	ch := make(contract.ParameterIterator)
 
 	go func() {
+		keys := []string{}
+		for pn := range src.Refs {
+			keys = append(keys, pn)
+		}
+
+		sort.Strings(keys)
+
 		for pn, pvs := range src.Refs {
 			for _, pv := range pvs {
 				ch <- contract.ParameterTuple{

@@ -17,7 +17,7 @@ func Test_AccessContent(T *testing.T) {
 }
 
 func jsonarray(js string) interface{} {
-	var d *[]interface{}
+	var d []interface{}
 	err := json.Unmarshal([]byte(js), &d)
 	if err != nil {
 		fmt.Printf("JSON Error: %s", err.Error())

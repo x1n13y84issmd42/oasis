@@ -135,13 +135,13 @@ func AccessContent() ReferenceAccess {
 func AccessArray(access ReferenceAccess, i int) ReferenceAccess {
 	return func(v interface{}) interface{} {
 		xv := access(v)
-		arrv, ok := xv.(*[]interface{})
+		arrv, ok := xv.([]interface{})
 		if ok {
-			if len(*arrv) <= i {
-				panic(fmt.Sprintf("Array index %d is out of range 0-%d.", i, (len(*arrv) - 1)))
+			if len(arrv) <= i {
+				panic(fmt.Sprintf("Array index %d is out of range 0-%d.", i, (len(arrv) - 1)))
 			}
 
-			return (*arrv)[i]
+			return (arrv)[i]
 		}
 		panic("Not an array.")
 	}
