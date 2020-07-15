@@ -37,11 +37,6 @@ func (src *ReferenceSource) AddReference(pn string, opID string, result *contrac
 	})
 }
 
-// Get returns a parameter by it's name.
-func (src *ReferenceSource) Get(pn string) string {
-	return ""
-}
-
 // Iterate creates an iterable channel.
 func (src *ReferenceSource) Iterate() contract.ParameterIterator {
 	ch := make(contract.ParameterIterator)
