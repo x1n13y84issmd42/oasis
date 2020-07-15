@@ -63,4 +63,8 @@ func Test_OperationPrototype(T *testing.T) {
 		assert.Equal(T, expectedURL, req.URL.String())
 		assert.Equal(T, expectedMethod, req.Method)
 	})
+
+	T.Run("Result", func(T *testing.T) {
+		assert.NotNil(T, op.Result())
+	})
 }

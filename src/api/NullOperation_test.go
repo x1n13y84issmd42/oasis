@@ -66,4 +66,10 @@ func Test_NullOperation(T *testing.T) {
 		op.Resolve()
 		T.Error("Should have panicked.")
 	})
+
+	T.Run("Result", func(T *testing.T) {
+		defer recovery()
+		op.Result()
+		T.Error("Should have panicked.")
+	})
 }

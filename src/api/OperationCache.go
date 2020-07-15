@@ -5,12 +5,12 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 // OperationCache proxies the GetOperation method
 // and caches returned operations.
 type OperationCache struct {
-	spec  contract.Spec
+	spec  contract.OperationAccess
 	stash map[string]contract.Operation
 }
 
 // NewOperationCache creates a new OperationCache instance.
-func NewOperationCache(spec contract.Spec) OperationCache {
+func NewOperationCache(spec contract.OperationAccess) OperationCache {
 	return OperationCache{
 		spec:  spec,
 		stash: make(map[string]contract.Operation),

@@ -27,6 +27,18 @@ paths:
         required: true
         schema:
           type: string
+      - name: derp
+        in: query
+        description: The derp that is derpy.
+        required: true
+        schema:
+          type: string
+      - name: yolo
+        in: headers
+        description: \#YOLO.
+        required: true
+        schema:
+          type: string
       responses:
         400:
           description: Invalid username supplied

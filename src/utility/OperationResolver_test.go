@@ -11,7 +11,7 @@ import (
 
 func Test_OperationResolver(T *testing.T) {
 	log := log.NewPlain(0)
-	spec := utility.Load("../../spec/test/oas3_ok.yaml", log)
+	spec := utility.Load("../../spec/test/oas3.yaml", log)
 	resolver := utility.NewOperationResolver(spec, log)
 
 	getOpsIDs := func(ops []contract.Operation) []string {

@@ -12,7 +12,7 @@ import (
 
 func Test_Loader(T *testing.T) {
 	T.Run("OK", func(T *testing.T) {
-		spec := utility.Load("../../spec/test/oas3_ok.yaml", log.NewPlain(1))
+		spec := utility.Load("../../spec/test/oas3.yaml", log.NewPlain(1))
 		_, ok := spec.(*openapi3.Spec)
 		assert.True(T, ok)
 	})
