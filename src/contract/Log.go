@@ -38,9 +38,10 @@ type Logger interface {
 	OperationOK()
 	OperationFail()
 
-	// SchemaTesting(schema *api.Schema, data interface{})
 	SchemaOK()
 	SchemaFail(errors []gojsonschema.ResultError)
+
+	ScriptExecutionStart(node string)
 
 	XError(err error, style LogStyle, tab TabFn)
 }

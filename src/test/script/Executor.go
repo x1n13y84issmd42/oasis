@@ -1,7 +1,6 @@
 package script
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/x1n13y84issmd42/gog/graph/comp"
@@ -25,7 +24,7 @@ func NewExecutor(log contract.Logger) *Executor {
 // Execute executes.
 func (ex Executor) Execute(graph gcontract.Graph) {
 	n0 := comp.MotherNode(graph)
-	fmt.Printf("Execution starts from the node '%s'\n", n0.ID())
+	ex.Log.ScriptExecutionStart(string(n0.ID()))
 
 	results := contract.OperationResults{}
 
@@ -60,6 +59,8 @@ func (ex Executor) Walk(
 
 		//TODO: Security.
 	}
+
+	ex.Log.TestingOperation(n.Operation)
 
 	v := n.Operation.Resolve().Response(0, "")
 

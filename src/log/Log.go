@@ -219,3 +219,8 @@ func (log Log) SchemaFail(errors []gojsonschema.ResultError) {
 		log.Println(3, "\t%s", log.Style.Error(desc))
 	}
 }
+
+// ScriptExecutionStart logs the starting node of the script execution graph.
+func (log Log) ScriptExecutionStart(node string) {
+	log.Println(3, "Execution starts from the node %s.\n", log.Style.Op(node))
+}
