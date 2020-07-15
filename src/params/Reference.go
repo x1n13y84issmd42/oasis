@@ -63,19 +63,26 @@ func (pr Reference) Value() contract.ParameterAccess {
 
 // Cast casts the given value to string.
 func (pr Reference) Cast(v interface{}) string {
-	if iv, ok := v.(int64); ok {
-		return strconv.Itoa(int(iv))
+	if cv, ok := v.(string); ok {
+		return cv
 	}
 
-	if fv, ok := v.(float64); ok {
-		if float64(int64(fv)) == fv {
-			return fmt.Sprintf("%d", int64(fv))
+	if cv, ok := v.(int64); ok {
+		return strconv.Itoa(int(cv))
+	}
+
+	if cv, ok := v.(float64); ok {
+		// This is here because json.Unmarshal parses integer values as float64s.
+		if float64(int64(cv)) == cv {
+			return fmt.Sprintf("%d", int64(cv))
 		}
-		return fmt.Sprintf("%f", fv)
+		//TODO: this loses precision on numbers like .00000001
+		res := fmt.Sprintf("%f", cv)
+		return res
 	}
 
-	if bv, ok := v.(bool); ok {
-		if bv {
+	if cv, ok := v.(bool); ok {
+		if cv {
 			return "true"
 		}
 
@@ -145,7 +152,7 @@ func AccessObject(access ReferenceAccess, f string) ReferenceAccess {
 	return func(v interface{}) interface{} {
 		objv, ok := access(v).(map[string]interface{})
 		if ok {
-			v, vok := objv[f]
+			v, vok := (objv)[f]
 			if vok {
 				return v
 			}

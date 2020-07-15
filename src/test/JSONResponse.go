@@ -69,16 +69,16 @@ func TryJSONBooleanResponse(respData *[]byte, log contract.Logger) (res bool, er
 }
 
 // TryJSONObjectResponse tries to unmarshal respData as an object.
-func TryJSONObjectResponse(respData *[]byte, log contract.Logger) (res *JSONMap, err error) {
+func TryJSONObjectResponse(respData *[]byte, log contract.Logger) (res JSONMap, err error) {
 	v := make(JSONMap)
 	err = json.Unmarshal(*respData, &v)
 
 	if err != nil {
-		res = &v
+		res = v
 		return nil, err
 	}
 
-	res = &v
+	res = v
 
 	return
 }
