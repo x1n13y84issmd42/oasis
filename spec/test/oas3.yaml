@@ -33,6 +33,12 @@ paths:
         required: true
         schema:
           type: string
+      - name: whatever
+        in: query
+        description: Whetever.
+        required: false
+        schema:
+          type: string
       - name: yolo
         in: headers
         description: \#YOLO.
