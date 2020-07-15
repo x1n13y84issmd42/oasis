@@ -254,7 +254,5 @@ func Test_Reference(T *testing.T) {
 func Test_NoAccess(T *testing.T) {
 	defer unpanic(T, "")
 
-	params.NoAccess(fmt.Errorf("alas"), log.NewPlain(0))
-
-	T.Error("Shoud have panicked.")
+	params.NoAccess(fmt.Errorf("alas"), log.NewPlain(0))(nil)
 }

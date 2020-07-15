@@ -70,7 +70,7 @@ func (r *DataResolver) Security(name string) contract.Security {
 func (r *DataResolver) Response(status int64, CT string) contract.Validator {
 	v := test.NewValidator(r.Log)
 
-	// Responses a grouped under status codes, so selecting the status code first.
+	// Responses are grouped under status codes, so selecting the status code first.
 	// When no particular status is expected, trying to use the 200 as default.
 	specStatus, specResp, err := func() (int64, *openapi3.Response, error) {
 		if status == 0 {
@@ -108,6 +108,7 @@ func (r *DataResolver) Response(status int64, CT string) contract.Validator {
 
 		return "", nil, errors.NotFound("spec response", CT, nil)
 	}()
+
 	if err != nil {
 		return test.NoValidator(err, r.Log)
 	}

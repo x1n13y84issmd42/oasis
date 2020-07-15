@@ -10,7 +10,7 @@ import (
 
 func Test_Loader(T *testing.T) {
 	T.Run("OK", func(T *testing.T) {
-		spec, specerr := openapi3.Load("../../../spec/test/oas3.yaml", log.NewPlain(1))
+		spec, specerr := openapi3.Load("../../../spec/test/oas3.yaml", log.NewPlain(0))
 		assert.NotNil(T, spec)
 		assert.Nil(T, specerr)
 	})
