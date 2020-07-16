@@ -8,6 +8,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/api/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 func Test_DataResolver(T *testing.T) {
@@ -29,6 +30,35 @@ func Test_DataResolver(T *testing.T) {
 		}
 
 		assert.Equal(T, expected, actual)
+	})
+
+	T.Run("Host/Named", func(T *testing.T) {
+		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil)
+
+		src := resolver.Host("HTTP")
+
+		expected := []string{
+			"http://petstore.swagger.io/v2",
+		}
+
+		actual := []string{}
+
+		for p := range src.Iterate() {
+			actual = append(actual, p.V())
+		}
+
+		assert.Equal(T, expected, actual)
+	})
+
+	T.Run("Host/NoSource", func(T *testing.T) {
+		log := log.NewPlain(0)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil)
+
+		actual := resolver.Host("INVALID_HOST_NAME")
+
+		expected := params.NoSource(errors.NotFound("Host", "IRRELEVANT", nil), log)
+
+		assert.IsType(T, expected, actual)
 	})
 
 	T.Run("MakeSchema/InvalidSchema/Marshal", func(T *testing.T) {

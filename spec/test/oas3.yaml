@@ -5,7 +5,9 @@ info:
   version: 1.0.0
 servers:
 - url: https://petstore.swagger.io/v2
+  description: HTTPS
 - url: http://petstore.swagger.io/v2
+  description: HTTP
 tags:
 - name: pet
   description: Everything about your Pets
