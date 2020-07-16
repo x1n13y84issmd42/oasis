@@ -161,3 +161,5 @@ Field Name|Applies To|Description
 [Reyesoft API Playground](https://jsonapiplayground.reyesoft.com/)
 
 [Nuxeo API Playground](https://nuxeo.github.io/api-playground/#/resources)
+
+[Oasis V2](https://github.com/x1n13y84issmd42/oasis/blob/c88c9a15e0a05abbf732f7fd95aa30f7cf4947fd/src/api/openapi3/Spec.go)
