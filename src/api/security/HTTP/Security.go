@@ -37,14 +37,16 @@ type WWWAuthenticate struct {
 }
 
 // New creates a new HTTP security.
-func New(name string, scheme string, value string, logger contract.Logger) contract.Security {
+func New(name string, scheme string, token string, username string, password string, logger contract.Logger) contract.Security {
 	switch scheme {
 	case "basic":
 		return Basic{
 			Security{
-				Name:  name,
-				Token: value,
-				Log:   logger,
+				Name:     name,
+				Token:    token,
+				Log:      logger,
+				Username: username,
+				Password: password,
 			},
 		}
 
@@ -52,7 +54,7 @@ func New(name string, scheme string, value string, logger contract.Logger) contr
 		return Digest{
 			Security{
 				Name:  name,
-				Token: value,
+				Token: token,
 				Log:   logger,
 			},
 		}

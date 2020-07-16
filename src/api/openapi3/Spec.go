@@ -110,9 +110,9 @@ func (spec *Spec) MakeOperation(
 		RequestPath:        oasPath,
 		SpecOp:             oasOp,
 		SpecPath:           oasPathItem,
-		Resolver:           NewDataResolver(spec.Log, spec.OAS, &oasOp.Responses),
 	}
 
+	op.Resolver = NewDataResolver(spec.Log, spec.OAS, op, &oasOp.Responses)
 	op.OperationPrototype.Operation = op
 
 	op.Data().URL = params.URL(oasPath, spec.Log)

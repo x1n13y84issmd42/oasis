@@ -33,8 +33,7 @@ func Manual(args *env.Args, logger contract.Logger) {
 				op.Data().Query,
 				op.Data().Headers,
 
-				//TODO
-				// op.Resolve().Security(args.Use.Security),
+				op.Resolve().Security(args.Use.Security),
 			}
 
 			v := op.Resolve().Response(args.Expect.Status, args.Expect.CT)

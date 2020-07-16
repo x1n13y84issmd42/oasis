@@ -50,7 +50,7 @@ func Test_New(T *testing.T) {
 	token := "0011223344"
 
 	T.Run("Basic", func(T *testing.T) {
-		sec := http.New("test sec", "basic", token, log.NewPlain(0))
+		sec := http.New("test sec", "basic", token, "", "", log.NewPlain(0))
 		tsec, ok := sec.(http.Basic)
 		assert.True(T, ok)
 
@@ -60,7 +60,7 @@ func Test_New(T *testing.T) {
 	})
 
 	T.Run("Digest", func(T *testing.T) {
-		sec := http.New("test sec", "digest", token, log.NewPlain(0))
+		sec := http.New("test sec", "digest", token, "", "", log.NewPlain(0))
 		tsec, ok := sec.(http.Digest)
 		assert.True(T, ok)
 
@@ -70,7 +70,7 @@ func Test_New(T *testing.T) {
 	})
 
 	T.Run("Invalid", func(T *testing.T) {
-		sec := http.New("test sec", "INVALID SCHEMA", "", log.NewPlain(0))
+		sec := http.New("test sec", "INVALID SCHEMA", "", "", "", log.NewPlain(0))
 		_, ok := sec.(*api.NullSecurity)
 		assert.True(T, ok)
 	})

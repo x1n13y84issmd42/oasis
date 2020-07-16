@@ -15,7 +15,7 @@ func Test_DataResolver(T *testing.T) {
 	spec, _ := openapi3.Load("../../../spec/test/oas3.yaml", log.NewPlain(1))
 
 	T.Run("Host", func(T *testing.T) {
-		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil)
+		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil, nil)
 
 		src := resolver.Host("")
 
@@ -33,7 +33,7 @@ func Test_DataResolver(T *testing.T) {
 	})
 
 	T.Run("Host/Named", func(T *testing.T) {
-		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil)
+		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil, nil)
 
 		src := resolver.Host("HTTP")
 
@@ -52,7 +52,7 @@ func Test_DataResolver(T *testing.T) {
 
 	T.Run("Host/NoSource", func(T *testing.T) {
 		log := log.NewPlain(0)
-		resolver := openapi3.NewDataResolver(log, spec.OAS, nil)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil, nil)
 
 		actual := resolver.Host("INVALID_HOST_NAME")
 
@@ -63,7 +63,7 @@ func Test_DataResolver(T *testing.T) {
 
 	T.Run("MetaData/OK", func(T *testing.T) {
 		log := log.NewPlain(0)
-		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
 
 		actualStatus, actualCT, actualSpecResp, actualSpecMT, err := resolver.MetaData(0, "")
 
@@ -77,7 +77,7 @@ func Test_DataResolver(T *testing.T) {
 	T.Run("CollectHeaders", func(T *testing.T) {
 		log := log.NewPlain(0)
 		op := spec.OAS.Paths["/pet/{petId}"].Get
-		resolver := openapi3.NewDataResolver(log, spec.OAS, &op.Responses)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil, &op.Responses)
 
 		actual, err := resolver.CollectHeaders(op.Responses["200"].Value)
 
@@ -103,7 +103,7 @@ func Test_DataResolver(T *testing.T) {
 
 	T.Run("MetaData/StatusError", func(T *testing.T) {
 		log := log.NewPlain(0)
-		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
 
 		expectedError := errors.NotFound("spec response", "201", nil)
 		// Otherwise TheCaller points to this ^ place.
@@ -124,7 +124,7 @@ func Test_DataResolver(T *testing.T) {
 
 	T.Run("MetaData/CTError", func(T *testing.T) {
 		log := log.NewPlain(0)
-		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, nil, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
 
 		expectedError := errors.NotFound("spec response", "image/png", nil)
 		// Otherwise TheCaller points to this ^ place.
@@ -144,7 +144,7 @@ func Test_DataResolver(T *testing.T) {
 	})
 
 	T.Run("MakeSchema/InvalidSchema/Marshal", func(T *testing.T) {
-		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil)
+		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil, nil)
 
 		schemaName := "schema_one"
 		expectedErr := errors.InvalidSchema(schemaName, "Failed to marshal the schema.", nil)
@@ -180,7 +180,7 @@ func Test_DataResolver(T *testing.T) {
 			},
 		}
 
-		resolver := openapi3.NewDataResolver(log.NewPlain(0), OAS, nil)
+		resolver := openapi3.NewDataResolver(log.NewPlain(0), OAS, nil, nil)
 
 		actual, actualErr := resolver.MakeSchema(schemaName, &schema)
 

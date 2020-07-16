@@ -6,11 +6,15 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/api"
+	"github.com/x1n13y84issmd42/oasis/src/api/security"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/params"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/test/expect"
+
+	secAPIKey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
+	secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 )
 
 // DataResolver provides spec data based on user input.
@@ -20,6 +24,7 @@ import (
 type DataResolver struct {
 	contract.EntityTrait
 	Spec          *openapi3.Swagger
+	Op            *Operation
 	SpecResponses *openapi3.Responses
 }
 
@@ -31,11 +36,12 @@ type ResolverExpectedHeader struct {
 }
 
 // NewDataResolver creates a new DataResolver instance.
-func NewDataResolver(log contract.Logger, spec *openapi3.Swagger, resps *openapi3.Responses) *DataResolver {
+func NewDataResolver(log contract.Logger, spec *openapi3.Swagger, op *Operation, resps *openapi3.Responses) *DataResolver {
 	return &DataResolver{
 		EntityTrait:   contract.Entity(log),
 		Spec:          spec,
 		SpecResponses: resps,
+		Op:            op,
 	}
 }
 
@@ -64,9 +70,94 @@ func (resolver *DataResolver) Host(hostHint string) contract.ParameterSource {
 	return params.NoSource(errors.NotFound("Host", hostHint, nil), resolver.Log)
 }
 
-// Security ...
+// SecurityName figures security scheme name from the operation.
+func (resolver *DataResolver) SecurityName(name string) string {
+	for _, opSecRef := range *resolver.Op.SpecOp.Security {
+		for specSecName := range opSecRef {
+			if name != "" {
+				if specSecName == name {
+					return specSecName
+				}
+			}
+
+			return specSecName
+		}
+	}
+
+	return ""
+}
+
+// SecurityCredentials returns a username, password and token when available.
+func (resolver *DataResolver) SecurityCredentials(scheme *openapi3.SecurityScheme) (string, string, string, error) {
+	username := ""
+	password := ""
+	token := ""
+
+	extract := func(n string) (string, error) {
+		if scheme.Extensions[n] != nil {
+			ev := scheme.Extensions[n]
+			if jre, ok := ev.(json.RawMessage); ok {
+				v := ""
+				err := json.Unmarshal(jre, &v)
+				if err != nil {
+					return "", errors.Oops("Cannot unmarshal the '"+n+"' field.", err)
+				}
+
+				return v, nil
+			}
+		}
+
+		return "", nil
+	}
+
+	username, err := extract("x-username")
+	if err != nil {
+		return "", "", "", err
+	}
+
+	password, err = extract("x-password")
+	if err != nil {
+		return "", "", "", err
+	}
+
+	token, err = extract("x-token")
+	if err != nil {
+		return "", "", "", err
+	}
+
+	return username, password, token, nil
+}
+
+// Security returns a security object to use in request.
 func (resolver *DataResolver) Security(name string) contract.Security {
-	return nil
+	if resolver.Op.SpecOp.Security != nil {
+		secName := resolver.SecurityName(name)
+
+		if secName == "" {
+			return api.NoSecurity(errors.NotFound("Security", name, nil), resolver.Log)
+		}
+
+		// Retrieving security scheme details from the spec components.
+		if secSchemeRef, ok := resolver.Spec.Components.SecuritySchemes[secName]; ok {
+			if secScheme := secSchemeRef.Value; secScheme != nil {
+				username, password, token, err := resolver.SecurityCredentials(secScheme)
+
+				if err != nil {
+					return api.NoSecurity(err, resolver.Log)
+				}
+
+				switch secScheme.Type {
+				case "apiKey":
+					return secAPIKey.New(secName, secScheme.In, secScheme.Name, token, resolver.Log)
+
+				case "http":
+					return secHTTP.New(secName, secScheme.Scheme, token, username, password, resolver.Log)
+				}
+			}
+		}
+	}
+
+	return security.Insecurity(resolver.Log)
 }
 
 // Response returns a Validator instance to test response correctness.
@@ -91,9 +182,11 @@ func (resolver *DataResolver) Response(status int64, CT string) contract.Validat
 		return test.NoValidator(err, resolver.Log)
 	}
 
-	err = resolver.Content(specMT, specCT, v)
-	if err != nil {
-		return test.NoValidator(err, resolver.Log)
+	if specMT != nil {
+		err = resolver.Content(specMT, specCT, v)
+		if err != nil {
+			return test.NoValidator(err, resolver.Log)
+		}
 	}
 
 	return v
@@ -138,12 +231,15 @@ func (resolver *DataResolver) MetaData(status int64, CT string) (
 			//TODO: log using default CT
 		}
 
-		mt := specResp.Content[CT]
-		if mt != nil {
-			return CT, mt, nil
+		if len(specResp.Content) > 0 {
+			mt := specResp.Content[CT]
+			if mt != nil {
+				return CT, mt, nil
+			}
+			return "", nil, errors.NotFound("spec response", CT, nil)
 		}
 
-		return "", nil, errors.NotFound("spec response", CT, nil)
+		return CT, nil, nil
 	}()
 
 	if err != nil {

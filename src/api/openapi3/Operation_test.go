@@ -40,9 +40,9 @@ func Test_Operation(T *testing.T) {
 		RequestPath:        oasPath,
 		SpecOp:             oasOperation,
 		SpecPath:           oasPathItem,
-		Resolver:           openapi3.NewDataResolver(log, OAS, &oasOperation.Responses),
 	}
 
+	op.Resolver = openapi3.NewDataResolver(log, OAS, op, &oasOperation.Responses)
 	op.OperationPrototype.Operation = op
 
 	T.Run("ID", func(T *testing.T) {

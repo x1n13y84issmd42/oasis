@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/base64"
 	"net/http"
 
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -18,7 +19,9 @@ func (sec Basic) Enrich(req *http.Request, log contract.Logger) {
 	if sec.Token != "" {
 		req.Header["Authorization"] = append(req.Header["Authorization"], sec.Token)
 	} else if sec.Username != "" {
-		//TODO: implement client-side basic encoding
+		token := base64.StdEncoding.EncodeToString([]byte(sec.Username + ":" + sec.Password))
+		token = "Basic " + token
+		req.Header["Authorization"] = append(req.Header["Authorization"], token)
 	} else {
 		log.SecurityHasNoData(sec)
 	}

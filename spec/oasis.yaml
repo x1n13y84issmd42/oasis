@@ -730,7 +730,9 @@ components:
     HTTP Basic:
       type: http
       scheme: basic
-      x-example: Basic dXNlcjoxMjM=
+      x-token_: Basic dXNlcjoxMjM=
+      x-username: admin
+      x-password: 4dm1n_31337
     HTTP Digest:
       type: http
       scheme: digest
