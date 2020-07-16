@@ -14,4 +14,4 @@ operations:
     use:
       path:
         HOSTNAME: http://petstore.swagger.io/v2
-        petId: "#listPets.response[13].id"
+        petId: "#listPets.response[2].id"

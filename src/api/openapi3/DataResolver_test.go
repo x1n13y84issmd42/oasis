@@ -61,6 +61,88 @@ func Test_DataResolver(T *testing.T) {
 		assert.IsType(T, expected, actual)
 	})
 
+	T.Run("MetaData/OK", func(T *testing.T) {
+		log := log.NewPlain(0)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+
+		actualStatus, actualCT, actualSpecResp, actualSpecMT, err := resolver.MetaData(0, "")
+
+		assert.Nil(T, err)
+		assert.Equal(T, actualStatus, 200)
+		assert.Equal(T, actualCT, "application/json")
+		assert.NotNil(T, actualSpecResp)
+		assert.NotNil(T, actualSpecMT)
+	})
+
+	T.Run("CollectHeaders", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := spec.OAS.Paths["/pet/{petId}"].Get
+		resolver := openapi3.NewDataResolver(log, spec.OAS, &op.Responses)
+
+		actual, err := resolver.CollectHeaders(op.Responses["200"].Value)
+
+		expected := []openapi3.ResolverExpectedHeader{
+			{
+				Name:     "X-Expires-After",
+				Required: true,
+			},
+
+			{
+				Name:     "X-Rate-Limit",
+				Required: false,
+			},
+		}
+
+		for i := range actual {
+			actual[i].Schema = nil
+		}
+
+		assert.Nil(T, err)
+		assert.Equal(T, expected, actual)
+	})
+
+	T.Run("MetaData/StatusError", func(T *testing.T) {
+		log := log.NewPlain(0)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+
+		expectedError := errors.NotFound("spec response", "201", nil)
+		// Otherwise TheCaller points to this ^ place.
+		expectedError.TheCaller = ""
+
+		actualStatus, actualCT, actualSpecResp, actualSpecMT, err := resolver.MetaData(201, "")
+
+		assert.IsType(T, expectedError, err)
+		xerr := err.(errors.ErrNotFound)
+		xerr.TheCaller = ""
+		assert.Equal(T, expectedError, xerr)
+
+		assert.Equal(T, actualStatus, 0)
+		assert.Equal(T, actualCT, "")
+		assert.Nil(T, actualSpecResp)
+		assert.Nil(T, actualSpecMT)
+	})
+
+	T.Run("MetaData/CTError", func(T *testing.T) {
+		log := log.NewPlain(0)
+		resolver := openapi3.NewDataResolver(log, spec.OAS, &spec.OAS.Paths["/pet/{petId}"].Get.Responses)
+
+		expectedError := errors.NotFound("spec response", "image/png", nil)
+		// Otherwise TheCaller points to this ^ place.
+		expectedError.TheCaller = ""
+
+		actualStatus, actualCT, actualSpecResp, actualSpecMT, err := resolver.MetaData(0, "image/png")
+
+		assert.IsType(T, expectedError, err)
+		xerr := err.(errors.ErrNotFound)
+		xerr.TheCaller = ""
+		assert.Equal(T, expectedError, xerr)
+
+		assert.Equal(T, actualStatus, 0)
+		assert.Equal(T, actualCT, "")
+		assert.Nil(T, actualSpecResp)
+		assert.Nil(T, actualSpecMT)
+	})
+
 	T.Run("MakeSchema/InvalidSchema/Marshal", func(T *testing.T) {
 		resolver := openapi3.NewDataResolver(log.NewPlain(0), spec.OAS, nil)
 
