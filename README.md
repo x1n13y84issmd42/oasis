@@ -157,3 +157,7 @@ Field Name|Applies To|Description
 [HTTP Auth Registry](http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml)
 
 [Stoplight OAS Editor](https://stoplight.io/p/studio/sl/_/6c5faofy)
+
+[Reyesoft API Playground](https://jsonapiplayground.reyesoft.com/)
+
+[Nuxeo API Playground](https://nuxeo.github.io/api-playground/#/resources)
