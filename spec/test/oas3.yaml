@@ -54,6 +54,8 @@ paths:
         404:
           description: User not found
           content: {}
+      security:
+        - HTTP Basic: []
     get:
       tags:
       - user
@@ -223,3 +225,10 @@ components:
           format: int32
       xml:
         name: User
+  securitySchemes:
+    HTTP Basic:
+      type: http
+      scheme: basic
+      x-token: Basic dXNlcjoxMjM=
+      x-username: admin
+      x-password: 4dm1n_31337

@@ -2,6 +2,7 @@ package openapi3
 
 import (
 	"encoding/json"
+	"sort"
 	"strconv"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -80,7 +81,9 @@ func (resolver *DataResolver) SecurityName(name string) string {
 				}
 			}
 
-			return specSecName
+			if name == "" {
+				return specSecName
+			}
 		}
 	}
 
@@ -275,7 +278,15 @@ func (resolver *DataResolver) CollectHeaders(specResp *openapi3.Response) (
 ) {
 	res := []ResolverExpectedHeader{}
 
-	for headerName, specHeaderRef := range specResp.Headers {
+	keys := []string{}
+	for pn := range specResp.Headers {
+		keys = append(keys, pn)
+	}
+
+	sort.Strings(keys)
+
+	for _, headerName := range keys {
+		specHeaderRef := specResp.Headers[headerName]
 		if specHeaderRef.Value != nil {
 			eh := ResolverExpectedHeader{
 				Name: headerName,

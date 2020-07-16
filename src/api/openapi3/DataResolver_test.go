@@ -3,8 +3,12 @@ package openapi3_test
 import (
 	"testing"
 
+	"github.com/x1n13y84issmd42/oasis/src/api/security"
+	secHTTP "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
+
 	kinopenapi3 "github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
+	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/api/openapi3"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
 	"github.com/x1n13y84issmd42/oasis/src/log"
@@ -186,5 +190,81 @@ func Test_DataResolver(T *testing.T) {
 
 		assert.Nil(T, actual)
 		assert.Equal(T, expectedErr.Error(), actualErr.Error())
+	})
+}
+
+func Test_DataResolver_Security(T *testing.T) {
+	spec, _ := openapi3.Load("../../../spec/test/oas3.yaml", log.NewPlain(1))
+
+	T.Run("SecurityName", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := &openapi3.Operation{
+			SpecOp: spec.OAS.Paths["/user/{username}"].Delete,
+		}
+
+		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
+
+		expected := "HTTP Basic"
+		actual := resolver.SecurityName("")
+
+		assert.Equal(T, expected, actual)
+	})
+
+	T.Run("SecurityCredentials", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := &openapi3.Operation{
+			SpecOp: spec.OAS.Paths["/user/{username}"].Delete,
+		}
+		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
+
+		expectedUsername := "admin"
+		expectedPassword := "4dm1n_31337"
+		expectedToken := "Basic dXNlcjoxMjM="
+
+		actualUsername, actualPassword, actualToken, err := resolver.SecurityCredentials(spec.OAS.Components.SecuritySchemes["HTTP Basic"].Value)
+
+		assert.Nil(T, err)
+		assert.Equal(T, expectedUsername, actualUsername)
+		assert.Equal(T, expectedPassword, actualPassword)
+		assert.Equal(T, expectedToken, actualToken)
+	})
+
+	T.Run("Security/OK", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := &openapi3.Operation{
+			SpecOp: spec.OAS.Paths["/user/{username}"].Delete,
+		}
+		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
+
+		expected := secHTTP.Basic{}
+		actual := resolver.Security("")
+
+		assert.IsType(T, expected, actual)
+	})
+
+	T.Run("Security/Fail/InvalidName", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := &openapi3.Operation{
+			SpecOp: spec.OAS.Paths["/user/{username}"].Delete,
+		}
+		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
+
+		expected := api.NoSecurity(errors.NotFound("Security", "INVALID SECURITY NAME", nil), resolver.Log)
+		actual := resolver.Security("INVALID SECURITY NAME")
+
+		assert.IsType(T, expected, actual)
+	})
+
+	T.Run("Insecurity", func(T *testing.T) {
+		log := log.NewPlain(0)
+		op := &openapi3.Operation{
+			SpecOp: spec.OAS.Paths["/pet/{petId}"].Get,
+		}
+		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
+
+		expected := &security.Empty{}
+		actual := resolver.Security("")
+
+		assert.IsType(T, expected, actual)
 	})
 }
