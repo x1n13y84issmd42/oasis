@@ -20,7 +20,7 @@ func Schema(data interface{}, schema *api.Schema, logger contract.Logger) bool {
 	}
 
 	if result.Valid() {
-		logger.SchemaOK()
+		logger.SchemaOK(schema.Name)
 		return true
 	}
 

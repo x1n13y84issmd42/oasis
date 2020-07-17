@@ -210,20 +210,20 @@ func (log Log) SchemaTesting(schema *api.Schema, data interface{}) {
 }
 
 // SchemaOK informs that JSON schema testing finished successfully.
-func (log Log) SchemaOK() {
-	log.Println(3, "\t%s", log.Style.Success("Schema OK."))
+func (log Log) SchemaOK(schemaName string) {
+	log.Println(4, "\t%s", log.Style.Success(schemaName+" schema OK."))
 }
 
 // SchemaFail informs that JSON schema testing finished unsuccessfully.
 func (log Log) SchemaFail(schemaName string, errors []gojsonschema.ResultError) {
-	log.Println(3, "\t%s", log.Style.Error("Schema '"+schemaName+"' failure."))
+	log.Println(4, "\t%s", log.Style.Error(schemaName+"schema failure."))
 
 	for _, desc := range errors {
-		log.Println(3, "\t%s", log.Style.Error(desc))
+		log.Println(4, "\t%s", log.Style.Error(desc))
 	}
 }
 
 // ScriptExecutionStart logs the starting node of the script execution graph.
 func (log Log) ScriptExecutionStart(node string) {
-	log.Println(3, "Execution starts from the node %s.\n", log.Style.Op(node))
+	log.Println(5, "Execution starts from the node %s.\n", log.Style.Op(node))
 }

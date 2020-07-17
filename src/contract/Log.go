@@ -38,7 +38,7 @@ type Logger interface {
 	OperationOK()
 	OperationFail()
 
-	SchemaOK()
+	SchemaOK(schemaName string)
 	SchemaFail(schemaName string, errors []gojsonschema.ResultError)
 
 	ScriptExecutionStart(node string)
