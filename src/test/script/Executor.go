@@ -59,7 +59,7 @@ func (ex Executor) Walk(
 		n.Operation.Data().Query,
 		n.Operation.Data().Headers,
 
-		//TODO: Security.
+		n.Operation.Resolve().Security(""),
 	}
 
 	ex.Log.TestingOperation(n.Operation)
