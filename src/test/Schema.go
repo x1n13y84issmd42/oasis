@@ -24,7 +24,7 @@ func Schema(data interface{}, schema *api.Schema, logger contract.Logger) bool {
 		return true
 	}
 
-	logger.SchemaFail(result.Errors())
+	logger.SchemaFail(schema.Name, result.Errors())
 
 	return false
 }

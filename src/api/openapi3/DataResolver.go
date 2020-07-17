@@ -316,7 +316,12 @@ func (resolver *DataResolver) CollectHeaders(specResp *openapi3.Response) (
 func (resolver *DataResolver) Content(mt *openapi3.MediaType, CT string, v contract.Validator) error {
 	if mt.Schema != nil && mt.Schema.Value != nil {
 
-		specSchema, specSchemaErr := resolver.MakeSchema("Response", mt.Schema.Value)
+		schemaName := "Response"
+		if mt.Schema.Value.Title != "" {
+			schemaName = mt.Schema.Value.Title
+		}
+
+		specSchema, specSchemaErr := resolver.MakeSchema(schemaName, mt.Schema.Value)
 		if specSchemaErr != nil {
 			return errors.InvalidResponse("Failed to create a '"+CT+"' response body schema.", specSchemaErr)
 		}
