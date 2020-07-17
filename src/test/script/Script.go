@@ -121,7 +121,7 @@ func (script *Script) SetupDependencies(
 			}
 
 			// Adding the value so it's available for op later.
-			refParams.AddReference(pn, op2.ID(), op2.Result(), selector)
+			refParams.AddReference(pn, op2.ID()+" node", op2.Result(), selector)
 
 			// Adding an edge to the execution graph.
 			graph.AddEdge(opNode.ID(), script.GetNode(graph, op2RefID, op2).ID())
