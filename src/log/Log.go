@@ -216,7 +216,7 @@ func (log Log) SchemaOK(schemaName string) {
 
 // SchemaFail informs that JSON schema testing finished unsuccessfully.
 func (log Log) SchemaFail(schemaName string, errors []gojsonschema.ResultError) {
-	log.Println(4, "\t%s", log.Style.Error(schemaName+"schema failure."))
+	log.Println(4, "\t%s", log.Style.Error(schemaName+" schema failure."))
 
 	for _, desc := range errors {
 		log.Println(4, "\t%s", log.Style.Error(desc))

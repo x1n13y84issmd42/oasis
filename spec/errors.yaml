@@ -1,0 +1,331 @@
+openapi: 3.0.0
+info:
+  title: Nuxeo
+  version: '1.0'
+servers:
+  - url: 'https://demo.nuxeo.com/nuxeo/api/v1'
+    description: Demo
+paths:
+  /config/types:
+    get:
+      summary: List registered document type
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doctypes:
+                    type: object
+                    properties:
+                      TemplateRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      DocumentRouteModelsRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      CommentRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      Document:
+                        $ref: '#/components/schemas/DocType'
+                      RoutingTask:
+                        $ref: '#/components/schemas/DocType'
+                      PublicationRelation:
+                        type: string
+                      UserInvitation:
+                        type: string
+                      Collections:
+                        $ref: '#/components/schemas/DocType'
+                      DefaultRelation:
+                        type: string
+                      Root__:
+                        $ref: '#/components/schemas/DocType'
+                      RouteNode:
+                        $ref: '#/components/schemas/DocType'
+                      DocumentRoute:
+                        $ref: '#/components/schemas/DocType'
+                      Note:
+                        $ref: '#/components/schemas/DocType'
+                      Collection:
+                        type: string
+                      AdvancedSearch:
+                        $ref: '#/components/schemas/DocType'
+                      Domain:
+                        $ref: '#/components/schemas/DocType'
+                      File:
+                        $ref: '#/components/schemas/DocType'
+                      ManagementRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      Favorites:
+                        $ref: '#/components/schemas/DocType'
+                      OrderedFolder:
+                        $ref: '#/components/schemas/DocType'
+                      TaskRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      TaskDoc:
+                        $ref: '#/components/schemas/DocType'
+                      UserProfile:
+                        $ref: '#/components/schemas/DocType'
+                      CommentRelation:
+                        type: string
+                      SavedSearch:
+                        $ref: '#/components/schemas/DocType'
+                      AdvancedContent:
+                        $ref: '#/components/schemas/DocType'
+                      PermissionsSearch:
+                        $ref: '#/components/schemas/DocType'
+                      UserInvitationContainer:
+                        $ref: '#/components/schemas/DocType'
+                      UserWorkspacesRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      DocumentRouteStep:
+                        $ref: '#/components/schemas/DocType'
+                      Folder:
+                        $ref: '#/components/schemas/DocType'
+                      WorkspaceRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      BasicAuditSearch:
+                        $ref: '#/components/schemas/DocType'
+                      Relation:
+                        type: string
+                      StepFolder:
+                        $ref: '#/components/schemas/DocType'
+                      Comment:
+                        $ref: '#/components/schemas/DocType'
+                      DocumentRouteInstancesRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      DefaultSearch:
+                        $ref: '#/components/schemas/DocType'
+                      AdministrativeStatus:
+                        $ref: '#/components/schemas/DocType'
+                      SectionRoot__:
+                        $ref: '#/components/schemas/DocType'
+                      HiddenFolder:
+                        $ref: '#/components/schemas/DocType'
+                      Section:
+                        type: string
+                      AdministrativeStatusContainer:
+                        $ref: '#/components/schemas/DocType'
+                      Annotation:
+                        type: string
+                      ExpiredSearch:
+                        $ref: '#/components/schemas/DocType'
+                      ConditionalStepFolder:
+                        $ref: '#/components/schemas/DocType'
+                      Tagging:
+                        $ref: '#/components/schemas/DocType'
+                      Tag:
+                        $ref: '#/components/schemas/DocType'
+                      Workspace:
+                        $ref: '#/components/schemas/DocType'
+                    required:
+                      - TemplateRoot__
+                      - DocumentRouteModelsRoot__
+                      - CommentRoot__
+                      - Root__
+                      - ManagementRoot__
+                      - TaskRoot__
+                      - UserWorkspacesRoot__
+                      - WorkspaceRoot__
+                      - DocumentRouteInstancesRoot__
+                      - SectionRoot__
+      operationId: configTypes
+      security:
+        - Demo Auth: []
+  /task:
+    get:
+      summary: Query tasks by user and workflow ids
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskList'
+      operationId: taskList
+      security:
+        - Demo Auth: []
+components:
+  schemas:
+    DocType:
+      title: DocType
+      type: object
+      properties:
+        parent:
+          type: string
+          enum:
+            - Comment
+            - Document
+            - File
+            - Folder
+            - 'None!!!'
+            - OrderedFolder
+            - Relation
+            - StepFolder
+            - TaskDoc
+            - Workspace
+            - SavedSearch
+        facets:
+          type: array
+          items:
+            type: string
+        schemas:
+          type: array
+          items:
+            type: string
+    Task:
+      title: Task
+      type: object
+      properties:
+        id:
+          type: string
+          format: uri
+        entity-type:
+          type: string
+        name:
+          type: integer
+        __workflowInstanceId:
+          type: string
+          format: uuid
+        __workflowModelName:
+          type: string
+        __workflowInitiator:
+          type: string
+        __workflowTitle:
+          type: string
+        __workflowLifeCycleState:
+          type: string
+        graphResource:
+          type: string
+          format: uri
+        state:
+          type: string
+        directive:
+          type: string
+        created:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        nodeName:
+          type: string
+        targetDocumentIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocRef'
+        actors:
+          type: array
+          items:
+            type: string
+        taskInfo:
+          $ref: '#/components/schemas/TaskInfo'
+      required:
+        - id
+        - entity-type
+        - name
+        - __workflowInstanceId
+        - __workflowModelName
+        - __workflowInitiator
+        - __workflowTitle
+        - __workflowLifeCycleState
+      description: ''
+    DocRef:
+      title: DocRef
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    Actor:
+      title: Actor
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    TaskAction:
+      title: TaskAction
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        label:
+          type: string
+        validate:
+          type: boolean
+      required:
+        - name
+        - url
+        - label
+    LayoutResource:
+      title: LayoutResource
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+      required:
+        - name
+        - url
+    SchemaURL:
+      title: SchemaURL
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+      required:
+        - name
+        - url
+    TaskInfo:
+      title: TaskInfo
+      type: object
+      properties:
+        allowTaskReassignment:
+          type: boolean
+        taskActions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAction'
+        layoutResource:
+          $ref: '#/components/schemas/LayoutResource'
+        schemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchemaURL'
+    TaskList:
+      title: TaskList
+      type: object
+      properties:
+        entity-type:
+          type: string
+          enum:
+            - tasks
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - entity-type
+        - entries
+  securitySchemes:
+    Demo Auth:
+      type: http
+      scheme: basic
+      x-username: Administrator
+      x-password: Administrator
+security:
+  - Demo Auth: []
