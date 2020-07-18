@@ -41,8 +41,8 @@ func (ds *SpecParameterSource) Iterate() contract.ParameterIterator {
 		for _, pref := range *ds.Params {
 			if pref != nil && pref.Value != nil && pref.Value.In == ds.In {
 				p := pref.Value
-				se, ok := p.Example.(string)
-				if ok && se != "" {
+				if p.Example != nil {
+					se := params.Cast(p.Example)
 					keys = append(keys, p.Name)
 					m[p.Name] = se
 				}

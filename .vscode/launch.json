@@ -80,14 +80,14 @@
 				"from",
 				"../../spec/petstore.yaml",
 				"test",
-				"findPetsByStatus",
+				"getPetById",
 				"log",
 				"at",
 				"level",
 				"6",
-				"use",
-				"query",
-				"status=pending",
+				// "use",
+				// "query",
+				// "status=pending",
 			]
 			// "args": [
 			// 	"from",
