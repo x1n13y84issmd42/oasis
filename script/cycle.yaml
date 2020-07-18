@@ -1,0 +1,34 @@
+spec: spec/nuxeo.yaml
+operations:
+  taskList:
+    operationId: taskList
+    use:
+      path:
+        HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
+      query:
+        # This parameter introduces a cycle to the graph.
+        # Comment it so the script works.
+        buggy: "#document.response[0]"
+    expect:
+      status: 200
+  task:
+    operationId: task
+    use:
+      path:
+        HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
+        taskId: "#taskList.response.entries[0].id"
+  search:
+    operationId: search
+    use:
+      path:
+        HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
+        queryLanguage: NXQL
+      query:
+        query: "SELECT * FROM Document"
+  document:
+    operationId: docFromRepo
+    use:
+      path:
+        HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
+        repoId: "#search.response.entries[0].repository"
+        docId: "#task.response.targetDocumentIds[0].id"

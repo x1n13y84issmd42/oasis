@@ -246,8 +246,12 @@ func GraphHasCycles(cycle *collection.NodeStack, cause error) ErrGraphHasCycles 
 		} else {
 			cycleString += "│ "
 		}
+
 		cycleString += string(n.ID())
+
 		if i < len(*cycle)-1 {
+			cycleString += "\n"
+			cycleString += "  │ ↓"
 			cycleString += "\n"
 		}
 	}
