@@ -5,10 +5,6 @@ operations:
     use:
       path:
         HOSTNAME: http://petstore.swagger.io/v2
-      query:
-        status: sold
-    expect:
-      status: 200
   getPetDetails:
     operationId: getPetById
     use:
