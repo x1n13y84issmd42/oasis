@@ -124,6 +124,25 @@ func ParseObjectFieldRef(selector string) (string, int) {
 	return "", 0
 }
 
+// ParseSelector parses selectors and constructs a parameter access function from it.
+func ParseSelector(selector string, log contract.Logger) (ReferenceAccess, string) {
+	res := AccessContent()
+
+	for len(selector) > 0 {
+		if i, n := ParseArrayIndexRef(selector); n > 0 {
+			res = AccessArray(res, i)
+			selector = selector[n:]
+		} else if f, n := ParseObjectFieldRef(selector); n > 0 {
+			res = AccessObject(res, f)
+			selector = selector[n:]
+		} else {
+			return NoAccess(goerrors.New("impossible to parse selector " + selector)), selector
+		}
+	}
+
+	return res, ""
+}
+
 // AccessContent passes through.
 func AccessContent() ReferenceAccess {
 	return func(v interface{}, log contract.Logger) interface{} {
@@ -178,23 +197,4 @@ func NoAccess(err error) ReferenceAccess {
 		errors.Report(err, "NoAccess", log)
 		return nil
 	}
-}
-
-// ParseSelector parses selectors and constructs a .
-func ParseSelector(selector string, log contract.Logger) (ReferenceAccess, string) {
-	res := AccessContent()
-
-	for len(selector) > 0 {
-		if i, n := ParseArrayIndexRef(selector); n > 0 {
-			res = AccessArray(res, i)
-			selector = selector[n:]
-		} else if f, n := ParseObjectFieldRef(selector); n > 0 {
-			res = AccessObject(res, f)
-			selector = selector[n:]
-		} else {
-			return NoAccess(goerrors.New("impossible to parse selector " + selector)), selector
-		}
-	}
-
-	return res, ""
 }
