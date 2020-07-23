@@ -29,6 +29,7 @@ func (ex Executor) Execute(graph gcontract.Graph) {
 	results := contract.OperationResults{}
 
 	wg := sync.WaitGroup{}
+	wg.Add(1)
 	ex.Walk(graph, n0.(*ExecutionNode), &wg, &results)
 	wg.Wait()
 }
@@ -40,13 +41,13 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
-	nwg.Add(1)
 	anwg := sync.WaitGroup{}
+	anwg.Add(graph.AdjacentNodes(n.ID()).Count())
 	anresults := contract.OperationResults{}
 
 	for _an := range graph.AdjacentNodes(n.ID()).Range() {
 		an := _an.(*ExecutionNode)
-		ex.Walk(graph, an, &anwg, &anresults)
+		go ex.Walk(graph, an, &anwg, &anresults)
 	}
 
 	anwg.Wait()
