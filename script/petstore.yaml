@@ -4,10 +4,12 @@ operations:
     operationId: findPetsByStatus
     use:
       path:
-        HOSTNAME: http://petstore.swagger.io/v2
+        HOSTNAME: https://petstore.swagger.io/v2
   getPetDetails:
     operationId: getPetById
     use:
       path:
-        HOSTNAME: http://petstore.swagger.io/v2
+        HOSTNAME: https://petstore.swagger.io/v2
         petId: "#listPets.response[2].id"
+      query:
+        thename: "#listPets.response[2].name"

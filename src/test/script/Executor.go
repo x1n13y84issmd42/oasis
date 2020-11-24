@@ -41,6 +41,7 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
+	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
 	anwg.Add(graph.AdjacentNodes(n.ID()).Count())
 	anresults := contract.OperationResults{}
@@ -54,6 +55,7 @@ func (ex Executor) Walk(
 
 	//TODO: check for successful outcome of the previous ops.
 
+	// Executing the current node after it's children.
 	n.Operation.Data().Load(&n.Data)
 
 	enrichment := []contract.RequestEnrichment{
