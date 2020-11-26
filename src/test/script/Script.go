@@ -43,9 +43,11 @@ func (m OperationDataMap) Iterate() contract.ParameterIterator {
 
 // OperationDataUse corresponds to the 'use' block of the OperationRef in a script file.``
 type OperationDataUse struct {
-	Path    OperationDataMap
-	Query   OperationDataMap
-	Headers OperationDataMap
+	Path     OperationDataMap `yaml:"path"`
+	Body     OperationDataMap `yaml:"body"`
+	Query    OperationDataMap `yaml:"query"`
+	Headers  OperationDataMap `yaml:"headers"`
+	Security OperationDataMap `yaml:"security"`
 }
 
 // Script is a complex API testing scenario.
@@ -80,6 +82,11 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 		}
 
 		err = script.SetupDependencies(graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRefID)
+		if err != nil {
+			return NoGraph(err, script.Log)
+		}
+
+		err = script.SetupDependencies(graph, &opRef.Use.Body, opNode.Data.Body, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
@@ -137,8 +144,8 @@ func (script *Script) SetupDependencies(
 }
 
 // GetNode returns an ExecutionNode instance corresponding to the opRefID.
-// If such a node exists in the graph, it is be returned, otherwise a new
-// one is created.
+// If such a node exists in the graph, it will be returned, otherwise a new
+// node is created.
 func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract.Operation) *ExecutionNode {
 	var opNode *ExecutionNode
 	_opNode := graph.Node(gcontract.NodeID(opRefID))

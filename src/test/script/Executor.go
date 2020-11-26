@@ -24,6 +24,7 @@ func NewExecutor(log contract.Logger) *Executor {
 // Execute executes.
 func (ex Executor) Execute(graph gcontract.Graph) {
 	n0 := comp.MotherNode(graph)
+	// TODO: it returns nil sometimes (on script/noosa_test.yaml)
 	ex.Log.ScriptExecutionStart(string(n0.ID()))
 
 	results := contract.OperationResults{}
@@ -61,6 +62,7 @@ func (ex Executor) Walk(
 	enrichment := []contract.RequestEnrichment{
 		n.Operation.Data().Query,
 		n.Operation.Data().Headers,
+		n.Operation.Data().Body,
 
 		n.Operation.Resolve().Security(""),
 	}

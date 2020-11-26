@@ -34,4 +34,5 @@ func (data *OperationData) Load(data2 *OperationData) {
 	data.URL.Load(data2.URL)
 	data.Query.Load(data2.Query)
 	data.Headers.Load(data2.Headers)
+	data.Body.Load(data2.Body)
 }

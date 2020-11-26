@@ -70,6 +70,23 @@
 			]
 		},
 		{
+			"name": "Test Noosa Script",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/src/main",
+			"env": {},
+			"args": [
+				"execute",
+				"script/noosa_test.yaml",
+				"log",
+				"at",
+				"level",
+				"6",
+			],
+			"cwd": "${workspaceFolder}"
+		},
+		{
 			"name": "Test Nuxeo Script",
 			"type": "go",
 			"request": "launch",

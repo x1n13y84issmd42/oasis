@@ -1,0 +1,21 @@
+spec: spec/noosa.yaml
+operations:
+  pinLogin:
+    operationId: consumer.pinLogin
+    use:
+      path:
+        HOSTNAME: http://localhost:3000/api
+      query:
+        foo: bar
+      body:
+        mobile: +380632700628
+        pin: 111
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  getCards:
+    operationId: card.getCards
+    use:
+      path:
+        HOSTNAME: http://localhost:3000/api
+      query:
+        access_token: "yolo_#pinLogin.response.token"

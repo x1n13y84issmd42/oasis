@@ -27,6 +27,7 @@ func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger
 	n.Data.URL = params.URL("", log)
 	n.Data.Query = params.Query(log)
 	n.Data.Headers = params.Headers(log)
+	n.Data.Body = params.Body(log)
 
 	return n
 }
