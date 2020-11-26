@@ -28,10 +28,12 @@ func Manual(args *env.Args, logger contract.Logger) {
 			op.Data().URL.Load(op.Resolve().Host(args.Host))
 			op.Data().Query.Load(args.Use.Query)
 			op.Data().Headers.Load(args.Use.Headers)
+			op.Data().Body.Load(args.Use.Body)
 
 			enrichment := []contract.RequestEnrichment{
 				op.Data().Query,
 				op.Data().Headers,
+				op.Data().Body,
 
 				op.Resolve().Security(args.Use.Security),
 			}

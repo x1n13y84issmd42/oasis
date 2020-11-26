@@ -18,7 +18,7 @@ type StringParameters interface {
 }
 
 // RequestEnrichmentParameters is used to enrich http.Request instances
-// with parameters. Ued for headers & query values.
+// with parameters. Used for headers & query values.
 type RequestEnrichmentParameters interface {
 	Set
 	RequestEnrichment

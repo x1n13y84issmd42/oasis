@@ -26,6 +26,7 @@ type OperationData struct {
 	URL     StringParameters
 	Query   RequestEnrichmentParameters
 	Headers RequestEnrichmentParameters
+	Body    RequestEnrichmentParameters
 }
 
 // Load loads parameters from data2.

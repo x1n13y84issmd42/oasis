@@ -29,9 +29,13 @@ func (params HeadersParameters) Enrich(req *http.Request, log contract.Logger) {
 		errors.Report(err, "HeadersParameters", params.Log)
 	}
 
+	// (*params.MultiSet)["Content-type"] = "application/json"
+
 	for p := range params.Iterate() {
 		v := p.V()
 		params.Log.UsingParameterExample(p.N, "header", p.Source, v)
 		req.Header.Add(p.N, v)
 	}
+
+	// req.Header.Add("Content-type", "application/json")
 }

@@ -43,6 +43,14 @@ func (m ParameterMapPath) Iterate() contract.ParameterIterator {
 	return ParameterMap(m).DoIterate("arguments, path")
 }
 
+// ParameterMapBody is a map of parameters used in request bodies.
+type ParameterMapBody ParameterMap
+
+// Iterate creates an iterable channel to read parameters.
+func (m ParameterMapBody) Iterate() contract.ParameterIterator {
+	return ParameterMap(m).DoIterate("arguments, body")
+}
+
 // ParameterMultiMap is a map of operation test parameters
 // where each key can have multiple values. Used for HTTP headers
 // & query parameters. It is must be subclassed/aliased/whatever-this-is-called-in-go
@@ -95,6 +103,7 @@ type ArgsUse struct {
 	PathParameters ParameterMapPath
 	Query          ParameterMultiMapQuery
 	Headers        ParameterMultiMapHeaders
+	Body           ParameterMapBody
 }
 
 // ArgsExpect is what goes after the "expect" command line argument.
@@ -133,6 +142,8 @@ func ParseArgs(args *Args) {
 
 	args.Use.Query = ParameterMultiMapQuery{}
 	args.Use.Headers = ParameterMultiMapHeaders{}
+	// args.Use.Headers["Content-Type"] = []string{"application/json"}
+	args.Use.Headers["Content-Type"] = []string{"application/x-www-form-urlencoded"}
 
 	hQueryParams := func(params []string) {
 		for _, pp := range params {
@@ -144,11 +155,22 @@ func ParseArgs(args *Args) {
 		}
 	}
 
+	args.Use.Body = ParameterMapBody{}
+
+	hBodyProps := func(params []string) {
+		for _, pp := range params {
+			pps := strings.Split(pp, "=")
+			args.Use.Body[pps[0]] = pps[1]
+		}
+	}
+
 	expUse := ssp.String("use").Repeat(ssp.OneOf(
 		ssp.String("security").CaptureString(&args.Use.Security),
 		ssp.Strings("path", "parameters").HandleStringSlice(hPathParams),
 		ssp.String("query").HandleStringSlice(hQueryParams),
-	), 0, 3)
+		// ssp.String("body").CaptureString(&args.Use.Body),
+		ssp.Strings("body", "props").HandleStringSlice(hBodyProps),
+	), 0, 4)
 
 	expExpect := ssp.String("expect").Repeat(ssp.OneOf(
 		ssp.String("CT").CaptureString(&args.Expect.CT),

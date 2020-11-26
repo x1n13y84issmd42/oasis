@@ -127,6 +127,8 @@ func (spec *Spec) MakeOperation(
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters, "op"))
 
+	op.Data().Body = params.Body(spec.Log)
+
 	requireParameters := func(p *openapi3.Parameter) {
 		switch p.In {
 		case "path":

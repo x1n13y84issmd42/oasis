@@ -43,6 +43,33 @@
 			]
 		},
 		{
+			"name": "Test Noosa",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/src/main",
+			"env": {},
+			"args": [
+				"from",
+				"../../spec/noosa.yaml",
+				"test",
+				"consumer.pinLogin",
+				"log",
+				"at",
+				"level",
+				"6",
+				"use",
+				"body",
+				"props",
+				"mobile=+380632700628,pin=111",
+				"expect",
+				"status",
+				"200",
+				"CT",
+				"application/json",
+			]
+		},
+		{
 			"name": "Test Nuxeo Script",
 			"type": "go",
 			"request": "launch",
