@@ -9486,41 +9486,51 @@ paths:
                   paymentStatus:
                     type: string
                   refundStatus:
-                    type:
-                      - string
-                      - 'null'
+                    anyOf:
+                      - type: string
+                        properties: {}
+                      - type: 'null'
+                        properties: {}
                   timeBeforeExpiration:
                     type: number
                     format: double
                   isExpired:
                     type: boolean
                   amount:
-                    type:
-                      - number
-                      - 'null'
-                    format: double
+                    anyOf:
+                      - type: number
+                        properties: {}
+                      - type: 'null'
+                        properties: {}
                   processingErrors:
                     type: array
-                    items:
-                      type: object
+                    items: {}
                   storeName:
-                    type:
-                      - string
-                      - 'null'
+                    anyOf:
+                      - properties: {}
+                        type: string
+                      - type: 'null'
+                        properties: {}
                   merchantDisplayName:
-                    type:
-                      - string
-                      - 'null'
+                    anyOf:
+                      - properties: {}
+                        type: string
+                      - properties: {}
+                        type: 'null'
                   confirmationNumber:
-                    type:
-                      - string
-                      - 'null'
+                    anyOf:
+                      - type: string
+                        properties: {}
+                      - type: 'null'
+                        properties: {}
                   barcodeId:
                     type: string
                   paymentRequestStatus:
-                    type:
-                      - string
-                      - 'null'
+                    anyOf:
+                      - type: string
+                        properties: {}
+                      - type: 'null'
+                        properties: {}
             application/xml:
               schema:
                 type: object
