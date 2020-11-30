@@ -53,7 +53,7 @@ type Schema struct {
 	AnyOf        []*SchemaRef  `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
 	AllOf        []*SchemaRef  `json:"allOf,omitempty" yaml:"allOf,omitempty"`
 	Not          *SchemaRef    `json:"not,omitempty" yaml:"not,omitempty"`
-	Type         string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Type         interface{}   `json:"type,omitempty" yaml:"type,omitempty"`
 	Title        string        `json:"title,omitempty" yaml:"title,omitempty"`
 	Format       string        `json:"format,omitempty" yaml:"format,omitempty"`
 	Description  string        `json:"description,omitempty" yaml:"description,omitempty"`
@@ -1120,7 +1120,7 @@ func (schema *Schema) expectedType(typ string, fast bool) error {
 		Value:       typ,
 		Schema:      schema,
 		SchemaField: "type",
-		Reason:      "Field must be set to " + schema.Type + " or not be present",
+		Reason:      "Field must be set to " + schema.Type.(string) + " or not be present",
 	}
 }
 
