@@ -14,6 +14,10 @@ func Status(status int, log contract.Logger) contract.Expectation {
 	log.Expecting("status", strconv.Itoa(status))
 
 	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse == nil {
+			return false
+		}
+
 		if result.HTTPResponse.StatusCode == status {
 			return true
 		}
@@ -52,6 +56,10 @@ func ContentType(v string, log contract.Logger) contract.Expectation {
 	log.Expecting("Content-Type", v)
 
 	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse == nil {
+			return false
+		}
+
 		// This is to get rid of the possible "; charset=utf-8" part.
 		respCT := strings.Split(result.HTTPResponse.Header.Get("Content-Type"), ";")[0]
 		if respCT == v {
@@ -69,6 +77,10 @@ func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation
 	log.Expecting("content schema", schema.Name)
 
 	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse == nil {
+			return false
+		}
+
 		respCT := strings.Split(result.HTTPResponse.Header.Get("Content-Type"), ";")[0]
 
 		switch respCT {

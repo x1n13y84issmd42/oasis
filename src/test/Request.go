@@ -51,6 +51,11 @@ func (req *Request) Execute() *contract.OperationResult {
 	req.Log.Requesting(req.HTTPRequest.Method, req.HTTPRequest.URL.String())
 	response, err := req.HTTPClient.Do(req.HTTPRequest)
 
+	if err != nil {
+		req.Log.Error(err)
+		return req.Result
+	}
+
 	req.Result.HTTPResponse = response
 	//TODO: this may fail on very large responses (GB++)
 	//TODO: handle the error.
