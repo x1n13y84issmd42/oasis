@@ -12,10 +12,19 @@ operations:
         pin: 111
       headers:
         Content-Type: application/x-www-form-urlencoded
-  getCards:
-    operationId: card.getCards
+  createTX:
+    operationId: transaction.createPayment
     use:
       path:
         HOSTNAME: http://localhost:3000/api
       query:
         access_token: "#pinLogin.response.token"
+        type: credit
+  getTXStatus:
+    operationId: transaction.getStatus
+    use:
+      path:
+        HOSTNAME: http://localhost:3000/api
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"

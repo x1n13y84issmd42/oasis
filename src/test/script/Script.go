@@ -1,7 +1,6 @@
 package script
 
 import (
-	"github.com/x1n13y84issmd42/gog/graph/comp"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -93,10 +92,10 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	}
 
 	// Checking for cycles.
-	cycle := comp.Cycle(graph)
-	if len(*cycle) > 0 {
-		return NoGraph(errors.GraphHasCycles(cycle, nil), script.Log)
-	}
+	// cycle := comp.Cycle(graph)
+	// if len(*cycle) > 0 {
+	// 	return NoGraph(errors.GraphHasCycles(cycle, nil), script.Log)
+	// }
 
 	return graph
 }

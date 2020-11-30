@@ -1,47 +1,56 @@
 openapi: 3.0.1
 info:
-  title: Noosa-API-for-POS
-  description: Noosa-API-for-POS
+  title: Noosa POS API
+  description: Noosa POS API
   version: 1.0.0
+  contact:
+    name: Dan
+    url: Zamir
+    email: dan@noosa.io
 servers:
-# - url: https://noosa-api-dev.herokuapp.com/api
-- url: http://localhost:3000/api
+  - url: 'http://localhost:3000/api'
+    description: Localhost
+  - url: 'https://noosa-api-dev.herokuapp.com/api'
+    description: Dev
+  - url: 'https://noosa-api-staging.herokuapp.com/api'
+    description: Staging
 tags:
-- name: RoleMapping
-  description: Map principals to roles
-- name: Role
-- name: user
-- name: merchant
-- name: store
-- name: appVersion
-- name: consumer
-- name: transaction
-- name: otp
-- name: card
-- name: paymentRequest
-- name: notificationToken
-- name: SummaryMessage
+  - name: RoleMapping
+    description: Map principals to roles
+  - name: Role
+  - name: user
+  - name: merchant
+  - name: store
+  - name: appVersion
+  - name: consumer
+  - name: transaction
+  - name: otp
+  - name: card
+  - name: paymentRequest
+  - name: notificationToken
+  - name: SummaryMessage
 paths:
-  /RoleMappings/{id}/role:
+  '/RoleMappings/{id}/role':
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Fetches belongsTo relation role.
       summary: Fetches belongsTo relation role.
       operationId: RoleMapping.prototype.__get__role
       parameters:
-      - name: id
-        in: path
-        description: RoleMapping id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: refresh
-        in: query
-        schema:
-          type: boolean
+        - name: id
+          in: path
+          description: RoleMapping id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -63,21 +72,19 @@ paths:
   /RoleMappings:
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Find all instances of the model matched by filter from the data source.
       summary: Find all instances of the model matched by filter from the data source.
       operationId: RoleMapping.find
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -108,9 +115,9 @@ paths:
       deprecated: false
     put:
       tags:
-      - RoleMapping
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - RoleMapping
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: RoleMapping.replaceOrCreate__put_RoleMappings
       requestBody:
         description: Model instance data
@@ -129,7 +136,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -151,7 +158,8 @@ paths:
       x-codegen-request-body-name: data
     post:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Create a new instance of the model and persist it into the data source.
       summary: Create a new instance of the model and persist it into the data source.
       operationId: RoleMapping.create
       requestBody:
@@ -171,7 +179,7 @@ paths:
               $ref: '#/components/schemas/new_RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -193,9 +201,9 @@ paths:
       x-codegen-request-body-name: data
     patch:
       tags:
-      - RoleMapping
-      summary: Patch an existing model instance or insert a new one into the data
-        source.
+        - RoleMapping
+      description: Patch an existing model instance or insert a new one into the data source.
+      summary: Patch an existing model instance or insert a new one into the data source.
       operationId: RoleMapping.patchOrCreate
       requestBody:
         description: Model instance data
@@ -214,7 +222,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -237,9 +245,9 @@ paths:
   /RoleMappings/replaceOrCreate:
     post:
       tags:
-      - RoleMapping
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - RoleMapping
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: RoleMapping.replaceOrCreate__post_RoleMappings_replaceOrCreate
       requestBody:
         description: Model instance data
@@ -258,7 +266,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -281,17 +289,17 @@ paths:
   /RoleMappings/upsertWithWhere:
     post:
       tags:
-      - RoleMapping
-      summary: Update an existing model instance or insert a new one into the data
-        source based on the where criteria.
+        - RoleMapping
+      description: Update an existing model instance or insert a new one into the data source based on the where criteria.
+      summary: Update an existing model instance or insert a new one into the data source based on the where criteria.
       operationId: RoleMapping.upsertWithWhere
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -309,7 +317,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -329,22 +337,23 @@ paths:
                 $ref: '#/components/schemas/RoleMapping'
       deprecated: false
       x-codegen-request-body-name: data
-  /RoleMappings/{id}/exists:
+  '/RoleMappings/{id}/exists':
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: RoleMapping.exists__get_RoleMappings_{id}_exists
+      operationId: RoleMapping.exists__get_RoleMappings__exists
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -378,29 +387,29 @@ paths:
                   exists:
                     type: boolean
       deprecated: false
-  /RoleMappings/{id}:
+  '/RoleMappings/{id}':
     get:
       tags:
-      - RoleMapping
-      summary: Find a model instance by {{id}} from the data source.
+        - RoleMapping
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: RoleMapping.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -421,18 +430,18 @@ paths:
       deprecated: false
     put:
       tags:
-      - RoleMapping
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: RoleMapping.replaceById__put_RoleMappings_{id}
+        - RoleMapping
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: RoleMapping.replaceById__put_RoleMappings_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -450,7 +459,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -472,19 +481,20 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - RoleMapping
-      summary: Delete a model instance by {{id}} from the data source.
+        - RoleMapping
+      description: 'Delete a model instance by {{id}} from the data source.'
+      summary: 'Delete a model instance by {{id}} from the data source.'
       operationId: RoleMapping.deleteById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -505,19 +515,20 @@ paths:
       deprecated: false
     head:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: RoleMapping.exists__head_RoleMappings_{id}
+      operationId: RoleMapping.exists__head_RoleMappings_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -553,18 +564,18 @@ paths:
       deprecated: false
     patch:
       tags:
-      - RoleMapping
-      summary: Patch attributes for a model instance and persist it into the data
-        source.
+        - RoleMapping
+      description: Patch attributes for a model instance and persist it into the data source.
+      summary: Patch attributes for a model instance and persist it into the data source.
       operationId: RoleMapping.prototype.patchAttributes
       parameters:
-      - name: id
-        in: path
-        description: RoleMapping id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: RoleMapping id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -582,7 +593,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -602,21 +613,21 @@ paths:
                 $ref: '#/components/schemas/RoleMapping'
       deprecated: false
       x-codegen-request-body-name: data
-  /RoleMappings/{id}/replace:
+  '/RoleMappings/{id}/replace':
     post:
       tags:
-      - RoleMapping
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: RoleMapping.replaceById__post_RoleMappings_{id}_replace
+        - RoleMapping
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: RoleMapping.replaceById__post_RoleMappings__replace
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -634,7 +645,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -657,21 +668,19 @@ paths:
   /RoleMappings/findOne:
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Find first instance of the model matched by filter from the data source.
       summary: Find first instance of the model matched by filter from the data source.
       operationId: RoleMapping.findOne
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -693,16 +702,17 @@ paths:
   /RoleMappings/update:
     post:
       tags:
-      - RoleMapping
-      summary: Update instances of the model matched by {{where}} from the data source.
+        - RoleMapping
+      description: 'Update instances of the model matched by {{where}} from the data source.'
+      summary: 'Update instances of the model matched by {{where}} from the data source.'
       operationId: RoleMapping.updateAll
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -720,7 +730,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -773,18 +783,19 @@ paths:
   /RoleMappings/count:
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Count instances of the model matched by where from the data source.
       summary: Count instances of the model matched by where from the data source.
       operationId: RoleMapping.count
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -826,17 +837,18 @@ paths:
   /RoleMappings/change-stream:
     get:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: RoleMapping.createChangeStream__get_RoleMappings_change-stream
       parameters:
-      - name: options
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: options
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -862,7 +874,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - RoleMapping
+        - RoleMapping
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: RoleMapping.createChangeStream__post_RoleMappings_change-stream
       requestBody:
@@ -892,7 +905,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -916,29 +929,30 @@ paths:
                 type: string
                 format: binary
       deprecated: false
-  /Roles/{id}/principals/{fk}:
+  '/Roles/{id}/principals/{fk}':
     get:
       tags:
-      - Role
+        - Role
+      description: Find a related item by id for principals.
       summary: Find a related item by id for principals.
       operationId: Role.prototype.__findById__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for principals
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for principals
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -959,24 +973,25 @@ paths:
       deprecated: false
     put:
       tags:
-      - Role
+        - Role
+      description: Update a related item by id for principals.
       summary: Update a related item by id for principals.
       operationId: Role.prototype.__updateById__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for principals
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for principals
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -993,7 +1008,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1015,50 +1030,52 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - Role
+        - Role
+      description: Delete a related item by id for principals.
       summary: Delete a related item by id for principals.
       operationId: Role.prototype.__destroyById__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for principals
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for principals
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /Roles/{id}/principals:
+  '/Roles/{id}/principals':
     get:
       tags:
-      - Role
+        - Role
+      description: Queries principals of Role.
       summary: Queries principals of Role.
       operationId: Role.prototype.__get__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1089,17 +1106,18 @@ paths:
       deprecated: false
     post:
       tags:
-      - Role
+        - Role
+      description: Creates a new instance in principals of this model.
       summary: Creates a new instance in principals of this model.
       operationId: Role.prototype.__create__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -1116,7 +1134,7 @@ paths:
               $ref: '#/components/schemas/new_RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1138,44 +1156,46 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - Role
+        - Role
+      description: Deletes all principals of this model.
       summary: Deletes all principals of this model.
       operationId: Role.prototype.__delete__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /Roles/{id}/principals/count:
+  '/Roles/{id}/principals/count':
     get:
       tags:
-      - Role
+        - Role
+      description: Counts principals of Role.
       summary: Counts principals of Role.
       operationId: Role.prototype.__count__principals
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1217,21 +1237,19 @@ paths:
   /Roles:
     get:
       tags:
-      - Role
+        - Role
+      description: Find all instances of the model matched by filter from the data source.
       summary: Find all instances of the model matched by filter from the data source.
       operationId: Role.find
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1262,9 +1280,9 @@ paths:
       deprecated: false
     put:
       tags:
-      - Role
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - Role
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: Role.replaceOrCreate__put_Roles
       requestBody:
         description: Model instance data
@@ -1283,7 +1301,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1305,7 +1323,8 @@ paths:
       x-codegen-request-body-name: data
     post:
       tags:
-      - Role
+        - Role
+      description: Create a new instance of the model and persist it into the data source.
       summary: Create a new instance of the model and persist it into the data source.
       operationId: Role.create
       requestBody:
@@ -1325,7 +1344,7 @@ paths:
               $ref: '#/components/schemas/new_Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1347,9 +1366,9 @@ paths:
       x-codegen-request-body-name: data
     patch:
       tags:
-      - Role
-      summary: Patch an existing model instance or insert a new one into the data
-        source.
+        - Role
+      description: Patch an existing model instance or insert a new one into the data source.
+      summary: Patch an existing model instance or insert a new one into the data source.
       operationId: Role.patchOrCreate
       requestBody:
         description: Model instance data
@@ -1368,7 +1387,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1391,9 +1410,9 @@ paths:
   /Roles/replaceOrCreate:
     post:
       tags:
-      - Role
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - Role
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: Role.replaceOrCreate__post_Roles_replaceOrCreate
       requestBody:
         description: Model instance data
@@ -1412,7 +1431,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1435,17 +1454,17 @@ paths:
   /Roles/upsertWithWhere:
     post:
       tags:
-      - Role
-      summary: Update an existing model instance or insert a new one into the data
-        source based on the where criteria.
+        - Role
+      description: Update an existing model instance or insert a new one into the data source based on the where criteria.
+      summary: Update an existing model instance or insert a new one into the data source based on the where criteria.
       operationId: Role.upsertWithWhere
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -1463,7 +1482,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1483,22 +1502,23 @@ paths:
                 $ref: '#/components/schemas/Role'
       deprecated: false
       x-codegen-request-body-name: data
-  /Roles/{id}/exists:
+  '/Roles/{id}/exists':
     get:
       tags:
-      - Role
+        - Role
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: Role.exists__get_Roles_{id}_exists
+      operationId: Role.exists__get_Roles__exists
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1532,29 +1552,29 @@ paths:
                   exists:
                     type: boolean
       deprecated: false
-  /Roles/{id}:
+  '/Roles/{id}':
     get:
       tags:
-      - Role
-      summary: Find a model instance by {{id}} from the data source.
+        - Role
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: Role.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1575,18 +1595,18 @@ paths:
       deprecated: false
     put:
       tags:
-      - Role
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: Role.replaceById__put_Roles_{id}
+        - Role
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: Role.replaceById__put_Roles_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -1604,7 +1624,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1626,19 +1646,20 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - Role
-      summary: Delete a model instance by {{id}} from the data source.
+        - Role
+      description: 'Delete a model instance by {{id}} from the data source.'
+      summary: 'Delete a model instance by {{id}} from the data source.'
       operationId: Role.deleteById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1659,19 +1680,20 @@ paths:
       deprecated: false
     head:
       tags:
-      - Role
+        - Role
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: Role.exists__head_Roles_{id}
+      operationId: Role.exists__head_Roles_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1707,18 +1729,18 @@ paths:
       deprecated: false
     patch:
       tags:
-      - Role
-      summary: Patch attributes for a model instance and persist it into the data
-        source.
+        - Role
+      description: Patch attributes for a model instance and persist it into the data source.
+      summary: Patch attributes for a model instance and persist it into the data source.
       operationId: Role.prototype.patchAttributes
       parameters:
-      - name: id
-        in: path
-        description: Role id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Role id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -1736,7 +1758,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1756,21 +1778,21 @@ paths:
                 $ref: '#/components/schemas/Role'
       deprecated: false
       x-codegen-request-body-name: data
-  /Roles/{id}/replace:
+  '/Roles/{id}/replace':
     post:
       tags:
-      - Role
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: Role.replaceById__post_Roles_{id}_replace
+        - Role
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: Role.replaceById__post_Roles__replace
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -1788,7 +1810,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1811,21 +1833,19 @@ paths:
   /Roles/findOne:
     get:
       tags:
-      - Role
+        - Role
+      description: Find first instance of the model matched by filter from the data source.
       summary: Find first instance of the model matched by filter from the data source.
       operationId: Role.findOne
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1847,16 +1867,17 @@ paths:
   /Roles/update:
     post:
       tags:
-      - Role
-      summary: Update instances of the model matched by {{where}} from the data source.
+        - Role
+      description: 'Update instances of the model matched by {{where}} from the data source.'
+      summary: 'Update instances of the model matched by {{where}} from the data source.'
       operationId: Role.updateAll
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -1874,7 +1895,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1927,18 +1948,19 @@ paths:
   /Roles/count:
     get:
       tags:
-      - Role
+        - Role
+      description: Count instances of the model matched by where from the data source.
       summary: Count instances of the model matched by where from the data source.
       operationId: Role.count
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -1980,17 +2002,18 @@ paths:
   /Roles/change-stream:
     get:
       tags:
-      - Role
+        - Role
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: Role.createChangeStream__get_Roles_change-stream
       parameters:
-      - name: options
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: options
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2016,7 +2039,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - Role
+        - Role
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: Role.createChangeStream__post_Roles_change-stream
       requestBody:
@@ -2046,7 +2070,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2070,29 +2094,30 @@ paths:
                 type: string
                 format: binary
       deprecated: false
-  /users/{id}/accessTokens/{fk}:
+  '/users/{id}/accessTokens/{fk}':
     get:
       tags:
-      - user
+        - user
+      description: Find a related item by id for accessTokens.
       summary: Find a related item by id for accessTokens.
       operationId: user.prototype.__findById__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for accessTokens
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for accessTokens
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2113,24 +2138,25 @@ paths:
       deprecated: false
     put:
       tags:
-      - user
+        - user
+      description: Update a related item by id for accessTokens.
       summary: Update a related item by id for accessTokens.
       operationId: user.prototype.__updateById__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for accessTokens
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for accessTokens
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -2147,7 +2173,7 @@ paths:
               $ref: '#/components/schemas/AccessToken'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2169,52 +2195,54 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
+        - user
+      description: Delete a related item by id for accessTokens.
       summary: Delete a related item by id for accessTokens.
       operationId: user.prototype.__destroyById__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for accessTokens
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for accessTokens
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /users/{id}/roles/{fk}:
+  '/users/{id}/roles/{fk}':
     get:
       tags:
-      - user
+        - user
+      description: Find a related item by id for roles.
       summary: Find a related item by id for roles.
       operationId: user.prototype.__findById__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2235,24 +2263,25 @@ paths:
       deprecated: false
     put:
       tags:
-      - user
+        - user
+      description: Update a related item by id for roles.
       summary: Update a related item by id for roles.
       operationId: user.prototype.__updateById__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -2269,7 +2298,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2291,50 +2320,52 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
+        - user
+      description: Delete a related item by id for roles.
       summary: Delete a related item by id for roles.
       operationId: user.prototype.__destroyById__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /users/{id}/roles/rel/{fk}:
+  '/users/{id}/roles/rel/{fk}':
     put:
       tags:
-      - user
+        - user
+      description: Add a related item by id for roles.
       summary: Add a related item by id for roles.
       operationId: user.prototype.__link__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -2351,7 +2382,7 @@ paths:
               $ref: '#/components/schemas/RoleMapping'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2373,51 +2404,53 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
+        - user
+      description: Remove the roles relation to an item by id.
       summary: Remove the roles relation to an item by id.
       operationId: user.prototype.__unlink__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
     head:
       tags:
-      - user
+        - user
+      description: Check the existence of roles relation to an item by id.
       summary: Check the existence of roles relation to an item by id.
       operationId: user.prototype.__exists__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: fk
-        in: path
-        description: Foreign key for roles
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: fk
+          in: path
+          description: Foreign key for roles
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2436,27 +2469,28 @@ paths:
               schema:
                 type: boolean
       deprecated: false
-  /users/{id}/accessTokens:
+  '/users/{id}/accessTokens':
     get:
       tags:
-      - user
+        - user
+      description: Queries accessTokens of user.
       summary: Queries accessTokens of user.
       operationId: user.prototype.__get__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2487,17 +2521,18 @@ paths:
       deprecated: false
     post:
       tags:
-      - user
+        - user
+      description: Creates a new instance in accessTokens of this model.
       summary: Creates a new instance in accessTokens of this model.
       operationId: user.prototype.__create__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -2514,7 +2549,7 @@ paths:
               $ref: '#/components/schemas/AccessToken'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2536,44 +2571,46 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
+        - user
+      description: Deletes all accessTokens of this model.
       summary: Deletes all accessTokens of this model.
       operationId: user.prototype.__delete__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /users/{id}/accessTokens/count:
+  '/users/{id}/accessTokens/count':
     get:
       tags:
-      - user
+        - user
+      description: Counts accessTokens of user.
       summary: Counts accessTokens of user.
       operationId: user.prototype.__count__accessTokens
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2612,27 +2649,28 @@ paths:
                     type: number
                     format: double
       deprecated: false
-  /users/{id}/roles:
+  '/users/{id}/roles':
     get:
       tags:
-      - user
+        - user
+      description: Queries roles of user.
       summary: Queries roles of user.
       operationId: user.prototype.__get__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2663,17 +2701,18 @@ paths:
       deprecated: false
     post:
       tags:
-      - user
+        - user
+      description: Creates a new instance in roles of this model.
       summary: Creates a new instance in roles of this model.
       operationId: user.prototype.__create__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -2690,7 +2729,7 @@ paths:
               $ref: '#/components/schemas/new_Role'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2712,44 +2751,46 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
+        - user
+      description: Deletes all roles of this model.
       summary: Deletes all roles of this model.
       operationId: user.prototype.__delete__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /users/{id}/roles/count:
+  '/users/{id}/roles/count':
     get:
       tags:
-      - user
+        - user
+      description: Counts roles of user.
       summary: Counts roles of user.
       operationId: user.prototype.__count__roles
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2791,21 +2832,19 @@ paths:
   /users:
     get:
       tags:
-      - user
+        - user
+      description: Find all instances of the model matched by filter from the data source.
       summary: Find all instances of the model matched by filter from the data source.
       operationId: user.find
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2836,9 +2875,9 @@ paths:
       deprecated: false
     put:
       tags:
-      - user
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - user
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: user.replaceOrCreate__put_users
       requestBody:
         description: Model instance data
@@ -2857,7 +2896,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2879,7 +2918,8 @@ paths:
       x-codegen-request-body-name: data
     post:
       tags:
-      - user
+        - user
+      description: Create a new instance of the model and persist it into the data source.
       summary: Create a new instance of the model and persist it into the data source.
       operationId: user.create
       requestBody:
@@ -2899,7 +2939,7 @@ paths:
               $ref: '#/components/schemas/new_user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2921,9 +2961,9 @@ paths:
       x-codegen-request-body-name: data
     patch:
       tags:
-      - user
-      summary: Patch an existing model instance or insert a new one into the data
-        source.
+        - user
+      description: Patch an existing model instance or insert a new one into the data source.
+      summary: Patch an existing model instance or insert a new one into the data source.
       operationId: user.patchOrCreate
       requestBody:
         description: Model instance data
@@ -2942,7 +2982,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -2965,9 +3005,9 @@ paths:
   /users/replaceOrCreate:
     post:
       tags:
-      - user
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - user
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: user.replaceOrCreate__post_users_replaceOrCreate
       requestBody:
         description: Model instance data
@@ -2986,7 +3026,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3009,17 +3049,17 @@ paths:
   /users/upsertWithWhere:
     post:
       tags:
-      - user
-      summary: Update an existing model instance or insert a new one into the data
-        source based on the where criteria.
+        - user
+      description: Update an existing model instance or insert a new one into the data source based on the where criteria.
+      summary: Update an existing model instance or insert a new one into the data source based on the where criteria.
       operationId: user.upsertWithWhere
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -3037,7 +3077,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3057,22 +3097,23 @@ paths:
                 $ref: '#/components/schemas/user'
       deprecated: false
       x-codegen-request-body-name: data
-  /users/{id}/exists:
+  '/users/{id}/exists':
     get:
       tags:
-      - user
+        - user
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: user.exists__get_users_{id}_exists
+      operationId: user.exists__get_users__exists
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3106,29 +3147,29 @@ paths:
                   exists:
                     type: boolean
       deprecated: false
-  /users/{id}:
+  '/users/{id}':
     get:
       tags:
-      - user
-      summary: Find a model instance by {{id}} from the data source.
+        - user
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: user.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3149,18 +3190,18 @@ paths:
       deprecated: false
     put:
       tags:
-      - user
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: user.replaceById__put_users_{id}
+        - user
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: user.replaceById__put_users_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -3178,7 +3219,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3200,19 +3241,20 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - user
-      summary: Delete a model instance by {{id}} from the data source.
+        - user
+      description: 'Delete a model instance by {{id}} from the data source.'
+      summary: 'Delete a model instance by {{id}} from the data source.'
       operationId: user.deleteById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3233,19 +3275,20 @@ paths:
       deprecated: false
     head:
       tags:
-      - user
+        - user
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: user.exists__head_users_{id}
+      operationId: user.exists__head_users_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3281,18 +3324,18 @@ paths:
       deprecated: false
     patch:
       tags:
-      - user
-      summary: Patch attributes for a model instance and persist it into the data
-        source.
+        - user
+      description: Patch attributes for a model instance and persist it into the data source.
+      summary: Patch attributes for a model instance and persist it into the data source.
       operationId: user.prototype.patchAttributes
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -3310,7 +3353,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3330,21 +3373,21 @@ paths:
                 $ref: '#/components/schemas/user'
       deprecated: false
       x-codegen-request-body-name: data
-  /users/{id}/replace:
+  '/users/{id}/replace':
     post:
       tags:
-      - user
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: user.replaceById__post_users_{id}_replace
+        - user
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: user.replaceById__post_users__replace
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -3362,7 +3405,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3385,21 +3428,19 @@ paths:
   /users/findOne:
     get:
       tags:
-      - user
+        - user
+      description: Find first instance of the model matched by filter from the data source.
       summary: Find first instance of the model matched by filter from the data source.
       operationId: user.findOne
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3421,16 +3462,17 @@ paths:
   /users/update:
     post:
       tags:
-      - user
-      summary: Update instances of the model matched by {{where}} from the data source.
+        - user
+      description: 'Update instances of the model matched by {{where}} from the data source.'
+      summary: 'Update instances of the model matched by {{where}} from the data source.'
       operationId: user.updateAll
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -3448,7 +3490,7 @@ paths:
               $ref: '#/components/schemas/user'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3501,18 +3543,19 @@ paths:
   /users/count:
     get:
       tags:
-      - user
+        - user
+      description: Count instances of the model matched by where from the data source.
       summary: Count instances of the model matched by where from the data source.
       operationId: user.count
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3554,17 +3597,18 @@ paths:
   /users/change-stream:
     get:
       tags:
-      - user
+        - user
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: user.createChangeStream__get_users_change-stream
       parameters:
-      - name: options
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: options
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3590,7 +3634,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - user
+        - user
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: user.createChangeStream__post_users_change-stream
       requestBody:
@@ -3620,7 +3665,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3647,17 +3692,17 @@ paths:
   /users/login:
     post:
       tags:
-      - user
+        - user
+      description: Login a user with username/email and password.
       summary: Login a user with username/email and password.
       operationId: user.login
       parameters:
-      - name: include
-        in: query
-        description: Related objects to include in the response. See the description
-          of return value for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: include
+          in: query
+          description: Related objects to include in the response. See the description of return value for more details.
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -3674,116 +3719,115 @@ paths:
               type: object
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             application/xml:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             text/xml:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             application/javascript:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             text/javascript:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
       deprecated: false
       x-codegen-request-body-name: credentials
   /users/logout:
     post:
       tags:
-      - user
+        - user
+      description: Logout a user with access token.
       summary: Logout a user with access token.
       operationId: user.logout
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
-  /users/{id}/verify:
+  '/users/{id}/verify':
     post:
       tags:
-      - user
+        - user
+      description: Trigger user's identity verification with configured verifyOptions
       summary: Trigger user's identity verification with configured verifyOptions
       operationId: user.prototype.verify
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /users/confirm:
     get:
       tags:
-      - user
+        - user
+      description: Confirm a user registration with identity verification token.
       summary: Confirm a user registration with identity verification token.
       operationId: user.confirm
       parameters:
-      - name: uid
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: redirect
-        in: query
-        schema:
-          type: string
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redirect
+          in: query
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /users/reset:
     post:
       tags:
-      - user
+        - user
+      description: Reset password for a user with email.
       summary: Reset password for a user with email.
       operationId: user.resetPassword
       requestBody:
@@ -3802,7 +3846,7 @@ paths:
               type: object
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
@@ -3810,7 +3854,8 @@ paths:
   /users/change-password:
     post:
       tags:
-      - user
+        - user
+      description: Change a user's password.
       summary: Change a user's password.
       operationId: user.changePassword
       requestBody:
@@ -3818,8 +3863,8 @@ paths:
           application/json:
             schema:
               required:
-              - newPassword
-              - oldPassword
+                - newPassword
+                - oldPassword
               properties:
                 oldPassword:
                   type: string
@@ -3828,8 +3873,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - newPassword
-              - oldPassword
+                - newPassword
+                - oldPassword
               properties:
                 oldPassword:
                   type: string
@@ -3838,8 +3883,8 @@ paths:
           application/xml:
             schema:
               required:
-              - newPassword
-              - oldPassword
+                - newPassword
+                - oldPassword
               properties:
                 oldPassword:
                   type: string
@@ -3848,8 +3893,8 @@ paths:
           text/xml:
             schema:
               required:
-              - newPassword
-              - oldPassword
+                - newPassword
+                - oldPassword
               properties:
                 oldPassword:
                   type: string
@@ -3857,14 +3902,15 @@ paths:
                   type: string
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /users/reset-password:
     post:
       tags:
-      - user
+        - user
+      description: Reset user's password via a password-reset token.
       summary: Reset user's password via a password-reset token.
       operationId: user.setPassword
       requestBody:
@@ -3872,44 +3918,45 @@ paths:
           application/json:
             schema:
               required:
-              - newPassword
+                - newPassword
               properties:
                 newPassword:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - newPassword
+                - newPassword
               properties:
                 newPassword:
                   type: string
           application/xml:
             schema:
               required:
-              - newPassword
+                - newPassword
               properties:
                 newPassword:
                   type: string
           text/xml:
             schema:
               required:
-              - newPassword
+                - newPassword
               properties:
                 newPassword:
                   type: string
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /users/getByToken:
     get:
       tags:
-      - user
+        - user
       operationId: user.getByToken
+      description: user.getByToken
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -3951,7 +3998,8 @@ paths:
   /users/validateMobile:
     post:
       tags:
-      - user
+        - user
+      description: Validate mobile phone
       summary: Validate mobile phone
       operationId: user.validateMobile
       requestBody:
@@ -3977,7 +4025,7 @@ paths:
                 mobile:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4014,7 +4062,8 @@ paths:
   /merchants:
     post:
       tags:
-      - merchant
+        - merchant
+      description: Create a new instance of the model and persist it into the data source.
       summary: Create a new instance of the model and persist it into the data source.
       operationId: merchant.create
       requestBody:
@@ -4034,7 +4083,7 @@ paths:
               $ref: '#/components/schemas/new_merchant'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4054,29 +4103,29 @@ paths:
                 $ref: '#/components/schemas/merchant'
       deprecated: false
       x-codegen-request-body-name: data
-  /merchants/{id}:
+  '/merchants/{id}':
     get:
       tags:
-      - merchant
-      summary: Find a model instance by {{id}} from the data source.
+        - merchant
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: merchant.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4097,19 +4146,20 @@ paths:
       deprecated: false
     delete:
       tags:
-      - merchant
-      summary: Delete a model instance by {{id}} from the data source.
+        - merchant
+      description: 'Delete a model instance by {{id}} from the data source.'
+      summary: 'Delete a model instance by {{id}} from the data source.'
       operationId: merchant.deleteById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4131,17 +4181,17 @@ paths:
   /merchants/login:
     post:
       tags:
-      - merchant
+        - merchant
+      description: Login a user with username/email and password.
       summary: Login a user with username/email and password.
       operationId: merchant.login
       parameters:
-      - name: include
-        in: query
-        description: Related objects to include in the response. See the description
-          of return value for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: include
+          in: query
+          description: Related objects to include in the response. See the description of return value for more details.
+          schema:
+            type: string
+            format: JSON
       requestBody:
         content:
           application/json:
@@ -4158,97 +4208,95 @@ paths:
               type: object
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             application/xml:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             text/xml:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             application/javascript:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
             text/javascript:
               schema:
                 type: object
-                description: |+
+                description: |
                   The response body contains properties of the AccessToken created on login.
                   Depending on the value of `include` parameter, the body may contain additional properties:
 
                     - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
-
       deprecated: false
       x-codegen-request-body-name: credentials
   /merchants/logout:
     post:
       tags:
-      - merchant
+        - merchant
+      description: Logout a user with access token.
       summary: Logout a user with access token.
       operationId: merchant.logout
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /merchants/confirm:
     get:
       tags:
-      - merchant
+        - merchant
+      description: Confirm a user registration with identity verification token.
       summary: Confirm a user registration with identity verification token.
       operationId: merchant.confirm
       parameters:
-      - name: uid
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: redirect
-        in: query
-        schema:
-          type: string
+        - name: uid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redirect
+          in: query
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /merchants/v1/auth/accessToken:
     post:
       tags:
-      - merchant
+        - merchant
+      description: Create Access Token
       summary: Create Access Token
       operationId: merchant.accessTokenV1
       requestBody:
@@ -4267,7 +4315,7 @@ paths:
               type: object
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4315,7 +4363,8 @@ paths:
   /merchants/v1/paymentRequest:
     post:
       tags:
-      - merchant
+        - merchant
+      description: Create Payment Request
       summary: Create Payment Request
       operationId: merchant.createPaymentV1
       requestBody:
@@ -4445,7 +4494,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4624,20 +4673,21 @@ paths:
                   redirectURL:
                     type: string
       deprecated: false
-  /merchants/v1/paymentRequest/{id}:
+  '/merchants/v1/paymentRequest/{id}':
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get Payment details
       summary: Get Payment details
       operationId: merchant.getPaymentV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -4826,18 +4876,19 @@ paths:
                   confirmationNumber:
                     type: string
       deprecated: false
-  /merchants/v1/paymentRequest/{id}/capture:
+  '/merchants/v1/paymentRequest/{id}/capture':
     post:
       tags:
-      - merchant
+        - merchant
+      description: Capture Payment Request
       summary: Capture Payment Request
       operationId: merchant.capturePaymentV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -4885,7 +4936,7 @@ paths:
                 currency:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5084,20 +5135,21 @@ paths:
                   redirectURL:
                     type: string
       deprecated: false
-  /merchants/v1/paymentRequest/{id}/cancel:
+  '/merchants/v1/paymentRequest/{id}/cancel':
     post:
       tags:
-      - merchant
+        - merchant
+      description: Cancel Payment Request
       summary: Cancel Payment Request
       operationId: merchant.cancelPaymentV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5276,18 +5328,19 @@ paths:
                   redirectURL:
                     type: string
       deprecated: false
-  /merchants/v1/paymentRequest/{id}/refund:
+  '/merchants/v1/paymentRequest/{id}/refund':
     post:
       tags:
-      - merchant
+        - merchant
+      description: Create Refund
       summary: Create Refund
       operationId: merchant.createRefundV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -5347,7 +5400,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5486,20 +5539,21 @@ paths:
                   modified:
                     type: string
       deprecated: false
-  /merchants/v1/refundPayment/{id}:
+  '/merchants/v1/refundPayment/{id}':
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get Refund details
       summary: Get Refund details
       operationId: merchant.getRefundV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5641,20 +5695,21 @@ paths:
   /merchants/v1/paymentRequest/configuration:
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get payment request configuration
       summary: Get payment request configuration
       operationId: merchant.getPaymentConfigurationV1
       parameters:
-      - name: mobile
-        in: query
-        schema:
-          type: string
-      - name: merchantCustomerID
-        in: query
-        schema:
-          type: string
+        - name: mobile
+          in: query
+          schema:
+            type: string
+        - name: merchantCustomerID
+          in: query
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5711,16 +5766,17 @@ paths:
   /merchants/v1/paymentRequest/paymentPlan:
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get payment plan
       summary: Get payment plan
       operationId: merchant.getPaymentPlanV1
       parameters:
-      - name: amount
-        in: query
-        schema:
-          type: string
+        - name: amount
+          in: query
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5787,11 +5843,12 @@ paths:
   /merchants/v1/configuration:
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get merchant configuration
       summary: Get merchant configuration
       operationId: merchant.getConfigurationV1
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -5980,20 +6037,21 @@ paths:
                   merchantId:
                     type: string
       deprecated: false
-  /merchants/v1/paymentRequest/{id}/resendSMS:
+  '/merchants/v1/paymentRequest/{id}/resendSMS':
     get:
       tags:
-      - merchant
+        - merchant
+      description: Resend SMS
       summary: Resend SMS
       operationId: merchant.resendSMSV1
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6030,32 +6088,33 @@ paths:
   /merchants/v1/paymentRequest/history:
     get:
       tags:
-      - merchant
+        - merchant
+      description: Get PaymentRequests history
       summary: Get PaymentRequests history
       operationId: merchant.getHistoryV1
       parameters:
-      - name: mobile
-        in: query
-        schema:
-          type: string
-      - name: from
-        in: query
-        schema:
-          type: string
-      - name: to
-        in: query
-        schema:
-          type: string
-      - name: limit
-        in: query
-        schema:
-          type: string
-      - name: offset
-        in: query
-        schema:
-          type: string
+        - name: mobile
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6104,26 +6163,27 @@ paths:
                       type: object
                       properties: {}
       deprecated: false
-  /stores/{id}/merchant:
+  '/stores/{id}/merchant':
     get:
       tags:
-      - store
+        - store
+      description: Fetches belongsTo relation merchant.
       summary: Fetches belongsTo relation merchant.
       operationId: store.prototype.__get__merchant
       parameters:
-      - name: id
-        in: path
-        description: store id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: refresh
-        in: query
-        schema:
-          type: boolean
+        - name: id
+          in: path
+          description: store id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: refresh
+          in: query
+          schema:
+            type: boolean
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6145,21 +6205,19 @@ paths:
   /stores:
     get:
       tags:
-      - store
+        - store
+      description: Find all instances of the model matched by filter from the data source.
       summary: Find all instances of the model matched by filter from the data source.
       operationId: store.find
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6190,9 +6248,9 @@ paths:
       deprecated: false
     put:
       tags:
-      - store
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - store
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: store.replaceOrCreate__put_stores
       requestBody:
         description: Model instance data
@@ -6211,7 +6269,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6233,7 +6291,8 @@ paths:
       x-codegen-request-body-name: data
     post:
       tags:
-      - store
+        - store
+      description: Create a new instance of the model and persist it into the data source.
       summary: Create a new instance of the model and persist it into the data source.
       operationId: store.create
       requestBody:
@@ -6253,7 +6312,7 @@ paths:
               $ref: '#/components/schemas/new_store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6275,9 +6334,9 @@ paths:
       x-codegen-request-body-name: data
     patch:
       tags:
-      - store
-      summary: Patch an existing model instance or insert a new one into the data
-        source.
+        - store
+      description: Patch an existing model instance or insert a new one into the data source.
+      summary: Patch an existing model instance or insert a new one into the data source.
       operationId: store.patchOrCreate
       requestBody:
         description: Model instance data
@@ -6296,7 +6355,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6319,9 +6378,9 @@ paths:
   /stores/replaceOrCreate:
     post:
       tags:
-      - store
-      summary: Replace an existing model instance or insert a new one into the data
-        source.
+        - store
+      description: Replace an existing model instance or insert a new one into the data source.
+      summary: Replace an existing model instance or insert a new one into the data source.
       operationId: store.replaceOrCreate__post_stores_replaceOrCreate
       requestBody:
         description: Model instance data
@@ -6340,7 +6399,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6363,17 +6422,17 @@ paths:
   /stores/upsertWithWhere:
     post:
       tags:
-      - store
-      summary: Update an existing model instance or insert a new one into the data
-        source based on the where criteria.
+        - store
+      description: Update an existing model instance or insert a new one into the data source based on the where criteria.
+      summary: Update an existing model instance or insert a new one into the data source based on the where criteria.
       operationId: store.upsertWithWhere
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -6391,7 +6450,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6411,22 +6470,23 @@ paths:
                 $ref: '#/components/schemas/store'
       deprecated: false
       x-codegen-request-body-name: data
-  /stores/{id}/exists:
+  '/stores/{id}/exists':
     get:
       tags:
-      - store
+        - store
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: store.exists__get_stores_{id}_exists
+      operationId: store.exists__get_stores__exists
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6460,29 +6520,29 @@ paths:
                   exists:
                     type: boolean
       deprecated: false
-  /stores/{id}:
+  '/stores/{id}':
     get:
       tags:
-      - store
-      summary: Find a model instance by {{id}} from the data source.
+        - store
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: store.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6503,18 +6563,18 @@ paths:
       deprecated: false
     put:
       tags:
-      - store
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: store.replaceById__put_stores_{id}
+        - store
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: store.replaceById__put_stores_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -6532,7 +6592,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6554,19 +6614,20 @@ paths:
       x-codegen-request-body-name: data
     delete:
       tags:
-      - store
-      summary: Delete a model instance by {{id}} from the data source.
+        - store
+      description: 'Delete a model instance by {{id}} from the data source.'
+      summary: 'Delete a model instance by {{id}} from the data source.'
       operationId: store.deleteById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6587,19 +6648,20 @@ paths:
       deprecated: false
     head:
       tags:
-      - store
+        - store
+      description: Check whether a model instance exists in the data source.
       summary: Check whether a model instance exists in the data source.
-      operationId: store.exists__head_stores_{id}
+      operationId: store.exists__head_stores_
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6635,18 +6697,18 @@ paths:
       deprecated: false
     patch:
       tags:
-      - store
-      summary: Patch attributes for a model instance and persist it into the data
-        source.
+        - store
+      description: Patch attributes for a model instance and persist it into the data source.
+      summary: Patch attributes for a model instance and persist it into the data source.
       operationId: store.prototype.patchAttributes
       parameters:
-      - name: id
-        in: path
-        description: store id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: store id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -6664,7 +6726,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6684,21 +6746,21 @@ paths:
                 $ref: '#/components/schemas/store'
       deprecated: false
       x-codegen-request-body-name: data
-  /stores/{id}/replace:
+  '/stores/{id}/replace':
     post:
       tags:
-      - store
-      summary: Replace attributes for a model instance and persist it into the data
-        source.
-      operationId: store.replaceById__post_stores_{id}_replace
+        - store
+      description: Replace attributes for a model instance and persist it into the data source.
+      summary: Replace attributes for a model instance and persist it into the data source.
+      operationId: store.replaceById__post_stores__replace
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: Model instance data
         content:
@@ -6716,7 +6778,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6739,21 +6801,19 @@ paths:
   /stores/findOne:
     get:
       tags:
-      - store
+        - store
+      description: Find first instance of the model matched by filter from the data source.
       summary: Find first instance of the model matched by filter from the data source.
       operationId: store.findOne
       parameters:
-      - name: filter
-        in: query
-        description: Filter defining fields, where, include, order, offset, and limit
-          - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See
-          https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries
-          for more details.
-        schema:
-          type: string
-          format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields, where, include, order, offset, and limit - must be a JSON-encoded string (`{"where":{"something":"value"}}`).  See https://loopback.io/doc/en/lb3/Querying-data.html#using-stringified-json-in-rest-queries for more details.'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6775,16 +6835,17 @@ paths:
   /stores/update:
     post:
       tags:
-      - store
-      summary: Update instances of the model matched by {{where}} from the data source.
+        - store
+      description: 'Update instances of the model matched by {{where}} from the data source.'
+      summary: 'Update instances of the model matched by {{where}} from the data source.'
       operationId: store.updateAll
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       requestBody:
         description: An object of model property name/value pairs
         content:
@@ -6802,7 +6863,7 @@ paths:
               $ref: '#/components/schemas/store'
         required: false
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6855,18 +6916,19 @@ paths:
   /stores/count:
     get:
       tags:
-      - store
+        - store
+      description: Count instances of the model matched by where from the data source.
       summary: Count instances of the model matched by where from the data source.
       operationId: store.count
       parameters:
-      - name: where
-        in: query
-        description: Criteria to match model instances
-        schema:
-          type: string
-          format: JSON
+        - name: where
+          in: query
+          description: Criteria to match model instances
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6908,17 +6970,18 @@ paths:
   /stores/change-stream:
     get:
       tags:
-      - store
+        - store
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: store.createChangeStream__get_stores_change-stream
       parameters:
-      - name: options
-        in: query
-        schema:
-          type: string
-          format: JSON
+        - name: options
+          in: query
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -6944,7 +7007,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - store
+        - store
+      description: Create a change stream.
       summary: Create a change stream.
       operationId: store.createChangeStream__post_stores_change-stream
       requestBody:
@@ -6974,7 +7038,7 @@ paths:
                   type: string
                   format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7001,7 +7065,8 @@ paths:
   /appVersions/checkAppVersionRelevance:
     post:
       tags:
-      - appVersion
+        - appVersion
+      description: Check relevance of the application
       summary: Check relevance of the application
       operationId: appVersion.checkAppVersionRelevance
       requestBody:
@@ -7009,34 +7074,34 @@ paths:
           application/json:
             schema:
               required:
-              - version
+                - version
               properties:
                 version:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - version
+                - version
               properties:
                 version:
                   type: string
           application/xml:
             schema:
               required:
-              - version
+                - version
               properties:
                 version:
                   type: string
           text/xml:
             schema:
               required:
-              - version
+                - version
               properties:
                 version:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7073,7 +7138,8 @@ paths:
   /consumers/savePin:
     patch:
       tags:
-      - consumer
+        - consumer
+      description: Save consumers pincode
       summary: Save consumers pincode
       operationId: consumer.savePin
       requestBody:
@@ -7081,41 +7147,42 @@ paths:
           application/json:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           text/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/saveInformation:
     patch:
       tags:
-      - consumer
+        - consumer
+      description: Save consumers information
       summary: Save consumers information
       operationId: consumer.saveInformation
       requestBody:
@@ -7245,7 +7312,7 @@ paths:
                 issuingPlace:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7412,11 +7479,12 @@ paths:
   /consumers/getInformation:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get consumer's information
       summary: Get consumer's information
       operationId: consumer.getInformation
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7673,11 +7741,12 @@ paths:
   /consumers/getProvinces:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get provinces
       summary: Get provinces
       operationId: consumer.getProvinces
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7729,17 +7798,18 @@ paths:
   /consumers/getCities:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get cities
       summary: Get cities
       operationId: consumer.getCities
       parameters:
-      - name: province
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: province
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7791,17 +7861,18 @@ paths:
   /consumers/getZipCodes:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get Zip codes
       summary: Get Zip codes
       operationId: consumer.getZipCodes
       parameters:
-      - name: city
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: city
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7853,7 +7924,8 @@ paths:
   /consumers/checkPin:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Compare pin
       summary: Compare pin
       operationId: consumer.checkPin
       requestBody:
@@ -7861,34 +7933,34 @@ paths:
           application/json:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           text/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -7925,40 +7997,44 @@ paths:
   /consumers/resetUser:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Reset user
       summary: Reset user
       operationId: consumer.resetUser
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/closeAccount:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Close account
       summary: Close account
       operationId: consumer.closeAccount
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/acceptTerms:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Set privacy flag
       summary: Set privacy flag
       operationId: consumer.acceptTerms
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/acceptPromotionEmails:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Set privacy flag
       summary: Set privacy flag
       operationId: consumer.acceptPromotionEmails
       requestBody:
@@ -7984,14 +8060,15 @@ paths:
                 flag:
                   type: boolean
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/selectLanguage:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Set application language
       summary: Set application language
       operationId: consumer.selectLanguage
       requestBody:
@@ -8017,18 +8094,19 @@ paths:
                 language:
                   type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/getHistory:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get history
       summary: Get history
       operationId: consumer.getHistory
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8080,7 +8158,8 @@ paths:
   /consumers/acceptMarketingMaterials:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Set marketing materials flag
       summary: Set marketing materials flag
       operationId: consumer.acceptMarketingMaterials
       requestBody:
@@ -8106,14 +8185,15 @@ paths:
                 flag:
                   type: boolean
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/validate:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Validate consumer by mobile
       summary: Validate consumer by mobile
       operationId: consumer.validate
       requestBody:
@@ -8121,34 +8201,34 @@ paths:
           application/json:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           application/xml:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           text/xml:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8190,7 +8270,8 @@ paths:
   /consumers/pinLogin:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Login consumer by pin
       summary: Login consumer by pin
       operationId: consumer.pinLogin
       requestBody:
@@ -8198,8 +8279,8 @@ paths:
           application/json:
             schema:
               required:
-              - mobile
-              - pin
+                - mobile
+                - pin
               properties:
                 mobile:
                   type: string
@@ -8208,8 +8289,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - mobile
-              - pin
+                - mobile
+                - pin
               properties:
                 mobile:
                   type: string
@@ -8218,8 +8299,8 @@ paths:
           application/xml:
             schema:
               required:
-              - mobile
-              - pin
+                - mobile
+                - pin
               properties:
                 mobile:
                   type: string
@@ -8228,8 +8309,8 @@ paths:
           text/xml:
             schema:
               required:
-              - mobile
-              - pin
+                - mobile
+                - pin
               properties:
                 mobile:
                   type: string
@@ -8237,7 +8318,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8274,17 +8355,18 @@ paths:
   /consumers/getCoupons:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get consumer coupons
       summary: Get consumer coupons
       operationId: consumer.getCoupons
       parameters:
-      - name: status
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8336,7 +8418,8 @@ paths:
   /consumers/acceptBenefitForfeiture:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Set benefit forfeiture flag
       summary: Set benefit forfeiture flag
       operationId: consumer.acceptBenefitForfeiture
       requestBody:
@@ -8362,14 +8445,15 @@ paths:
                 flag:
                   type: boolean
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/sendRecoverOtp:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Send recover otp
       summary: Send recover otp
       operationId: consumer.sendRecoverOtp
       requestBody:
@@ -8395,7 +8479,7 @@ paths:
                 mobile:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8432,48 +8516,49 @@ paths:
   /consumers/saveRecoverPin:
     patch:
       tags:
-      - consumer
+        - consumer
+      description: Save consumers pincode
       summary: Save consumers pincode
       operationId: consumer.saveRecoverPin
       parameters:
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           application/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
           text/xml:
             schema:
               required:
-              - pin
+                - pin
               properties:
                 pin:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8510,7 +8595,8 @@ paths:
   /consumers/validateRecoverOtp:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Validate recover otp
       summary: Validate recover otp
       operationId: consumer.validateRecoverOtp
       requestBody:
@@ -8518,7 +8604,7 @@ paths:
           application/json:
             schema:
               required:
-              - otp
+                - otp
               properties:
                 otp:
                   type: number
@@ -8528,7 +8614,7 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - otp
+                - otp
               properties:
                 otp:
                   type: number
@@ -8538,7 +8624,7 @@ paths:
           application/xml:
             schema:
               required:
-              - otp
+                - otp
               properties:
                 otp:
                   type: number
@@ -8548,7 +8634,7 @@ paths:
           text/xml:
             schema:
               required:
-              - otp
+                - otp
               properties:
                 otp:
                   type: number
@@ -8557,7 +8643,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8614,21 +8700,22 @@ paths:
   /consumers/checkLastDigits:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Check last 4 digits
       summary: Check last 4 digits
       operationId: consumer.checkLastDigits
       parameters:
-      - name: token
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
               required:
-              - digits
+                - digits
               properties:
                 mobile:
                   type: string
@@ -8637,7 +8724,7 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - digits
+                - digits
               properties:
                 mobile:
                   type: string
@@ -8646,7 +8733,7 @@ paths:
           application/xml:
             schema:
               required:
-              - digits
+                - digits
               properties:
                 mobile:
                   type: string
@@ -8655,7 +8742,7 @@ paths:
           text/xml:
             schema:
               required:
-              - digits
+                - digits
               properties:
                 mobile:
                   type: string
@@ -8663,7 +8750,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8700,18 +8787,20 @@ paths:
   /consumers/consumerLogout:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Logout user
       summary: Logout user
       operationId: consumer.consumerLogout
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /consumers/tokenLogin:
     post:
       tags:
-      - consumer
+        - consumer
+      description: Login consumer by one time token
       summary: Login consumer by one time token
       operationId: consumer.tokenLogin
       requestBody:
@@ -8737,7 +8826,7 @@ paths:
                 token:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8784,11 +8873,12 @@ paths:
   /consumers/exposition:
     get:
       tags:
-      - consumer
+        - consumer
+      description: Get consumer exposition
       summary: Get consumer exposition
       operationId: consumer.exposition
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8827,29 +8917,29 @@ paths:
                     type: number
                     format: double
       deprecated: false
-  /transactions/{id}:
+  '/transactions/{id}':
     get:
       tags:
-      - transaction
-      summary: Find a model instance by {{id}} from the data source.
+        - transaction
+      description: 'Find a model instance by {{id}} from the data source.'
+      summary: 'Find a model instance by {{id}} from the data source.'
       operationId: transaction.findById
       parameters:
-      - name: id
-        in: path
-        description: Model id
-        required: true
-        schema:
-          type: string
-          format: JSON
-      - name: filter
-        in: query
-        description: Filter defining fields and include - must be a JSON-encoded string
-          ({"something":"value"})
-        schema:
-          type: string
-          format: JSON
+        - name: id
+          in: path
+          description: Model id
+          required: true
+          schema:
+            type: string
+            format: JSON
+        - name: filter
+          in: query
+          description: 'Filter defining fields and include - must be a JSON-encoded string ({"something":"value"})'
+          schema:
+            type: string
+            format: JSON
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -8868,27 +8958,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/transaction'
       deprecated: false
-  /transactions/{id}/process:
+  '/transactions/{id}/process':
     post:
       tags:
-      - transaction
+        - transaction
+      description: Consume a transaction
       summary: Consume a transaction
       operationId: transaction.process
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: number
-          format: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+            format: integer
       requestBody:
         content:
           application/json:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -8914,9 +9005,9 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -8942,9 +9033,9 @@ paths:
           application/xml:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -8970,9 +9061,9 @@ paths:
           text/xml:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -8997,7 +9088,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9131,27 +9222,28 @@ paths:
                   documentId:
                     type: string
       deprecated: false
-  /transactions/{id}/refund:
+  '/transactions/{id}/refund':
     post:
       tags:
-      - transaction
+        - transaction
+      description: Refund a transaction
       summary: Refund a transaction
       operationId: transaction.refund
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: number
-          format: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+            format: integer
       requestBody:
         content:
           application/json:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -9173,9 +9265,9 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -9197,9 +9289,9 @@ paths:
           application/xml:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -9221,9 +9313,9 @@ paths:
           text/xml:
             schema:
               required:
-              - amount
-              - currency
-              - storeId
+                - amount
+                - currency
+                - storeId
               properties:
                 amount:
                   type: number
@@ -9244,7 +9336,7 @@ paths:
                   format: double
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9371,17 +9463,18 @@ paths:
   /transactions/getStatus:
     get:
       tags:
-      - transaction
+        - transaction
+      description: Get transaction status
       summary: Get transaction status
       operationId: transaction.getStatus
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9393,30 +9486,41 @@ paths:
                   paymentStatus:
                     type: string
                   refundStatus:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
                   timeBeforeExpiration:
                     type: number
                     format: double
                   isExpired:
                     type: boolean
                   amount:
-                    type: number
+                    type:
+                      - number
+                      - 'null'
                     format: double
                   processingErrors:
                     type: array
                     items:
                       type: object
-                      properties: {}
                   storeName:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
                   merchantDisplayName:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
                   confirmationNumber:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
                   barcodeId:
                     type: string
                   paymentRequestStatus:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
             application/xml:
               schema:
                 type: object
@@ -9553,21 +9657,22 @@ paths:
   /transactions/createPayment:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Create transaction
       summary: Create transaction
       operationId: transaction.createPayment
       parameters:
-      - name: cancelId
-        in: query
-        schema:
-          type: string
-      - name: type
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: cancelId
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9629,15 +9734,16 @@ paths:
   /transactions/simulatePosScan:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Init payment
       summary: Init payment
       operationId: transaction.simulatePosScan
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -9661,14 +9767,15 @@ paths:
                 __simulatedError:
                   type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/validatePagoOtp:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Validate pago OTP
       summary: Validate pago OTP
       operationId: transaction.validatePagoOtp
       requestBody:
@@ -9676,8 +9783,8 @@ paths:
           application/json:
             schema:
               required:
-              - id
-              - otp
+                - id
+                - otp
               properties:
                 otp:
                   type: string
@@ -9689,8 +9796,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - id
-              - otp
+                - id
+                - otp
               properties:
                 otp:
                   type: string
@@ -9702,8 +9809,8 @@ paths:
           application/xml:
             schema:
               required:
-              - id
-              - otp
+                - id
+                - otp
               properties:
                 otp:
                   type: string
@@ -9715,8 +9822,8 @@ paths:
           text/xml:
             schema:
               required:
-              - id
-              - otp
+                - id
+                - otp
               properties:
                 otp:
                   type: string
@@ -9727,7 +9834,7 @@ paths:
                   format: double
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9764,24 +9871,26 @@ paths:
   /transactions/resendPagoOtp:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Resend pago otp
       summary: Resend pago otp
       operationId: transaction.resendPagoOtp
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/cancelCredit:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Cancel credit
       summary: Cancel credit
       operationId: transaction.cancelCredit
       requestBody:
@@ -9815,24 +9924,25 @@ paths:
                 transactionId:
                   type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/getDossier:
     get:
       tags:
-      - transaction
+        - transaction
+      description: Get dossier
       summary: Get dossier
       operationId: transaction.getDossier
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9874,41 +9984,44 @@ paths:
   /transactions/sendPagoOTP:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Get credit
       summary: Get credit
       operationId: transaction.sendPagoOTP
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/acceptDossier:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Accept dossier
       summary: Accept dossier
       operationId: transaction.acceptDossier
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/simulateRefund:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Simulate refund
       summary: Simulate refund
       operationId: transaction.simulateRefund
       requestBody:
@@ -9934,18 +10047,19 @@ paths:
                 id:
                   type: string
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/getMinimumPaymentAmount:
     get:
       tags:
-      - transaction
+        - transaction
+      description: Get minimum payment amount
       summary: Get minimum payment amount
       operationId: transaction.getMinimumPaymentAmount
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -9982,7 +10096,8 @@ paths:
   /transactions/extendTransactionExpiration:
     patch:
       tags:
-      - transaction
+        - transaction
+      description: Extend transaction expiration
       summary: Extend transaction expiration
       operationId: transaction.extendTransactionExpiration
       requestBody:
@@ -9990,45 +10105,46 @@ paths:
           application/json:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
           application/xml:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
           text/xml:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /transactions/getUserActivityState:
     get:
       tags:
-      - transaction
+        - transaction
+      description: Get state of user activity
       summary: Get state of user activity
       operationId: transaction.getUserActivityState
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10185,7 +10301,8 @@ paths:
   /transactions/assignCoupon:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Assign a coupon to a transaction
       summary: Assign a coupon to a transaction
       operationId: transaction.assignCoupon
       requestBody:
@@ -10193,8 +10310,8 @@ paths:
           application/json:
             schema:
               required:
-              - couponId
-              - id
+                - couponId
+                - id
               properties:
                 id:
                   type: string
@@ -10203,8 +10320,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - couponId
-              - id
+                - couponId
+                - id
               properties:
                 id:
                   type: string
@@ -10213,8 +10330,8 @@ paths:
           application/xml:
             schema:
               required:
-              - couponId
-              - id
+                - couponId
+                - id
               properties:
                 id:
                   type: string
@@ -10223,8 +10340,8 @@ paths:
           text/xml:
             schema:
               required:
-              - couponId
-              - id
+                - couponId
+                - id
               properties:
                 id:
                   type: string
@@ -10232,7 +10349,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10269,7 +10386,8 @@ paths:
   /transactions/assignCoupons:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Assign multiple coupons to a transaction
       summary: Assign multiple coupons to a transaction
       operationId: transaction.assignCoupons
       requestBody:
@@ -10277,8 +10395,8 @@ paths:
           application/json:
             schema:
               required:
-              - couponIds
-              - id
+                - couponIds
+                - id
               properties:
                 id:
                   type: string
@@ -10288,8 +10406,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - couponIds
-              - id
+                - couponIds
+                - id
               properties:
                 id:
                   type: string
@@ -10299,8 +10417,8 @@ paths:
           application/xml:
             schema:
               required:
-              - couponIds
-              - id
+                - couponIds
+                - id
               properties:
                 id:
                   type: string
@@ -10310,8 +10428,8 @@ paths:
           text/xml:
             schema:
               required:
-              - couponIds
-              - id
+                - couponIds
+                - id
               properties:
                 id:
                   type: string
@@ -10320,7 +10438,7 @@ paths:
                   format: JSON
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10357,7 +10475,8 @@ paths:
   /transactions/createTransactionByOrder:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Create transaction by order
       summary: Create transaction by order
       operationId: transaction.createTransactionByOrder
       requestBody:
@@ -10365,8 +10484,8 @@ paths:
           application/json:
             schema:
               required:
-              - cancelId
-              - nOrderId
+                - cancelId
+                - nOrderId
               properties:
                 cancelId:
                   type: string
@@ -10375,8 +10494,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - cancelId
-              - nOrderId
+                - cancelId
+                - nOrderId
               properties:
                 cancelId:
                   type: string
@@ -10385,8 +10504,8 @@ paths:
           application/xml:
             schema:
               required:
-              - cancelId
-              - nOrderId
+                - cancelId
+                - nOrderId
               properties:
                 cancelId:
                   type: string
@@ -10395,8 +10514,8 @@ paths:
           text/xml:
             schema:
               required:
-              - cancelId
-              - nOrderId
+                - cancelId
+                - nOrderId
               properties:
                 cancelId:
                   type: string
@@ -10404,7 +10523,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10476,11 +10595,12 @@ paths:
   /transactions/getAmountOfFlags:
     get:
       tags:
-      - transaction
+        - transaction
+      description: Get amount of POL flags
       summary: Get amount of POL flags
       operationId: transaction.getAmountOfFlags
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10522,7 +10642,8 @@ paths:
   /transactions/resendRefundEmail:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Resend refund email for merchant
       summary: Resend refund email for merchant
       operationId: transaction.resendRefundEmail
       requestBody:
@@ -10548,7 +10669,7 @@ paths:
                 id:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10585,11 +10706,12 @@ paths:
   /transactions/scoringCheck:
     post:
       tags:
-      - transaction
+        - transaction
+      description: Check scoring
       summary: Check scoring
       operationId: transaction.scoringCheck
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10626,7 +10748,8 @@ paths:
   /otp/otpLogin:
     post:
       tags:
-      - otp
+        - otp
+      description: Login a consumer by using an OTP
       summary: Login a consumer by using an OTP
       operationId: otp.otpLogin
       requestBody:
@@ -10634,8 +10757,8 @@ paths:
           application/json:
             schema:
               required:
-              - mobile
-              - otp
+                - mobile
+                - otp
               properties:
                 mobile:
                   type: string
@@ -10644,8 +10767,8 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - mobile
-              - otp
+                - mobile
+                - otp
               properties:
                 mobile:
                   type: string
@@ -10654,8 +10777,8 @@ paths:
           application/xml:
             schema:
               required:
-              - mobile
-              - otp
+                - mobile
+                - otp
               properties:
                 mobile:
                   type: string
@@ -10664,8 +10787,8 @@ paths:
           text/xml:
             schema:
               required:
-              - mobile
-              - otp
+                - mobile
+                - otp
               properties:
                 mobile:
                   type: string
@@ -10673,7 +10796,7 @@ paths:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10710,7 +10833,8 @@ paths:
   /otp/otpCreate:
     post:
       tags:
-      - otp
+        - otp
+      description: Create a consumer by using an OTP
       summary: Create a consumer by using an OTP
       operationId: otp.otpCreate
       requestBody:
@@ -10718,34 +10842,34 @@ paths:
           application/json:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           application/x-www-form-urlencoded:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           application/xml:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
           text/xml:
             schema:
               required:
-              - mobile
+                - mobile
               properties:
                 mobile:
                   type: string
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10792,7 +10916,8 @@ paths:
   /cards/initSiaCard_deprecated:
     post:
       tags:
-      - card
+        - card
+      description: Get SIA URL
       summary: Get SIA URL
       operationId: card.initSiaCard_deprecated
       requestBody:
@@ -10830,7 +10955,7 @@ paths:
                 customCallbackUrl:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10877,7 +11002,8 @@ paths:
   /cards/completeSiaCard_deprecated:
     post:
       tags:
-      - card
+        - card
+      description: Verify card
       summary: Verify card
       operationId: card.completeSiaCard_deprecated
       requestBody:
@@ -10911,7 +11037,7 @@ paths:
                 backUrl:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10958,11 +11084,12 @@ paths:
   /cards/hasCard:
     get:
       tags:
-      - card
+        - card
+      description: Check if user has card
       summary: Check if user has card
       operationId: card.hasCard
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -10999,11 +11126,12 @@ paths:
   /cards/getCards:
     get:
       tags:
-      - card
+        - card
+      description: Get users cards
       summary: Get users cards
       operationId: card.getCards
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11011,7 +11139,10 @@ paths:
                 type: object
                 properties:
                   cards:
-                    type: string
+                    type: array
+                    items:
+                      type: object
+                      properties: {}
             application/xml:
               schema:
                 type: object
@@ -11040,11 +11171,12 @@ paths:
   /cards/initEcpCard:
     post:
       tags:
-      - card
+        - card
+      description: Init ECP card
       summary: Init ECP card
       operationId: card.initEcpCard
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11091,17 +11223,18 @@ paths:
   /cards/getCardInfo:
     get:
       tags:
-      - card
+        - card
+      description: Returns card info
       summary: Returns card info
       operationId: card.getCardInfo
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11143,7 +11276,8 @@ paths:
   /cards/validateBIN:
     post:
       tags:
-      - card
+        - card
+      description: Validate BIN number of the card
       summary: Validate BIN number of the card
       operationId: card.validateBIN
       requestBody:
@@ -11169,7 +11303,7 @@ paths:
                 bin:
                   type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11236,17 +11370,18 @@ paths:
   /paymentRequest/getOrderDetails:
     get:
       tags:
-      - paymentRequest
+        - paymentRequest
+      description: Get order details
       summary: Get order details
       operationId: paymentRequest.getOrderDetails
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11288,17 +11423,18 @@ paths:
   /paymentRequest/getLandingDetails:
     get:
       tags:
-      - paymentRequest
+        - paymentRequest
+      description: Get order details for non logged user
       summary: Get order details for non logged user
       operationId: paymentRequest.getLandingDetails
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11340,17 +11476,18 @@ paths:
   /paymentRequest/getPaymentDetails:
     get:
       tags:
-      - paymentRequest
+        - paymentRequest
+      description: Get order details for authorized user
       summary: Get order details for authorized user
       operationId: paymentRequest.getPaymentDetails
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11392,17 +11529,18 @@ paths:
   /paymentRequest/initPaymentSession:
     get:
       tags:
-      - paymentRequest
+        - paymentRequest
+      description: Initialize payment session
       summary: Initialize payment session
       operationId: paymentRequest.initPaymentSession
       parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11439,7 +11577,8 @@ paths:
   /notificationTokens/setNotificationToken:
     post:
       tags:
-      - notificationToken
+        - notificationToken
+      description: Set notification token
       summary: Set notification token
       operationId: notificationToken.setNotificationToken
       requestBody:
@@ -11447,7 +11586,7 @@ paths:
           application/json:
             schema:
               required:
-              - token
+                - token
               properties:
                 token:
                   type: string
@@ -11456,7 +11595,7 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - token
+                - token
               properties:
                 token:
                   type: string
@@ -11465,7 +11604,7 @@ paths:
           application/xml:
             schema:
               required:
-              - token
+                - token
               properties:
                 token:
                   type: string
@@ -11474,7 +11613,7 @@ paths:
           text/xml:
             schema:
               required:
-              - token
+                - token
               properties:
                 token:
                   type: string
@@ -11482,18 +11621,19 @@ paths:
                   type: string
         required: true
       responses:
-        204:
+        '204':
           description: Request was successful
           content: {}
       deprecated: false
   /SummaryMessages/getUnsentMessages:
     get:
       tags:
-      - SummaryMessage
+        - SummaryMessage
+      description: Get unsent summary messages
       summary: Get unsent summary messages
       operationId: SummaryMessage.getUnsentMessages
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11545,7 +11685,8 @@ paths:
   /SummaryMessages/resendMessage:
     post:
       tags:
-      - SummaryMessage
+        - SummaryMessage
+      description: Resend summary message
       summary: Resend summary message
       operationId: SummaryMessage.resendMessage
       requestBody:
@@ -11553,7 +11694,7 @@ paths:
           application/json:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
@@ -11561,7 +11702,7 @@ paths:
           application/x-www-form-urlencoded:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
@@ -11569,7 +11710,7 @@ paths:
           application/xml:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
@@ -11577,14 +11718,14 @@ paths:
           text/xml:
             schema:
               required:
-              - id
+                - id
               properties:
                 id:
                   type: string
                   description: transaction id
         required: true
       responses:
-        200:
+        '200':
           description: Request was successful
           content:
             application/json:
@@ -11624,7 +11765,7 @@ components:
       type: object
     Role:
       required:
-      - name
+        - name
       type: object
       properties:
         id:
@@ -11644,8 +11785,7 @@ components:
       properties:
         principalType:
           type: string
-          description: The principal type, such as USER, APPLICATION, ROLE, or user
-            model name in case of multiple user models
+          description: 'The principal type, such as USER, APPLICATION, ROLE, or user model name in case of multiple user models'
         principalId:
           type: string
         roleId:
@@ -11658,8 +11798,7 @@ components:
           $ref: '#/components/schemas/ObjectID'
         principalType:
           type: string
-          description: The principal type, such as USER, APPLICATION, ROLE, or user
-            model name in case of multiple user models
+          description: 'The principal type, such as USER, APPLICATION, ROLE, or user model name in case of multiple user models'
         principalId:
           type: string
         roleId:
@@ -11667,7 +11806,7 @@ components:
       description: Map principals to roles
     new_Role:
       required:
-      - name
+        - name
       type: object
       properties:
         name:
@@ -11682,7 +11821,7 @@ components:
           format: date-time
     AccessToken:
       required:
-      - id
+        - id
       type: object
       properties:
         id:
@@ -11691,7 +11830,7 @@ components:
           type: number
           description: time to live in seconds (2 weeks by default)
           format: double
-          default: 1209600.0
+          default: 1209600
         scopes:
           type: array
           description: Array of scopes granted to this access token.
@@ -11704,8 +11843,8 @@ components:
           $ref: '#/components/schemas/ObjectID'
     new_user:
       required:
-      - email
-      - name
+        - email
+        - name
       type: object
       properties:
         name:
@@ -11720,8 +11859,8 @@ components:
           type: boolean
     user:
       required:
-      - email
-      - name
+        - email
+        - name
       type: object
       properties:
         name:
@@ -11738,8 +11877,8 @@ components:
           $ref: '#/components/schemas/ObjectID'
     new_merchant:
       required:
-      - createdAt
-      - name
+        - createdAt
+        - name
       type: object
       properties:
         name:
@@ -11767,8 +11906,8 @@ components:
           type: boolean
     merchant:
       required:
-      - createdAt
-      - name
+        - createdAt
+        - name
       type: object
       properties:
         name:
@@ -11798,7 +11937,7 @@ components:
           $ref: '#/components/schemas/ObjectID'
     new_store:
       required:
-      - createdAt
+        - createdAt
       type: object
       properties:
         merchantId:
@@ -11814,7 +11953,7 @@ components:
           format: date-time
     store:
       required:
-      - createdAt
+        - createdAt
       type: object
       properties:
         merchantId:
@@ -11832,8 +11971,8 @@ components:
           $ref: '#/components/schemas/ObjectID'
     transaction:
       required:
-      - createdAt
-      - updatedAt
+        - createdAt
+        - updatedAt
       type: object
       properties:
         amount:
@@ -11910,5 +12049,12 @@ components:
         merchantId:
           $ref: '#/components/schemas/ObjectID'
     ObjectID:
-      pattern: ^[a-fA-F\d]{24}$
+      pattern: '^[a-fA-F\d]{24}$'
       type: string
+  securitySchemes:
+    TheDefaultAuth:
+      name: Authorization
+      type: apiKey
+      in: header
+security:
+  - TheDefaultAuth: []
