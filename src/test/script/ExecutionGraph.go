@@ -1,6 +1,8 @@
 package script
 
 import (
+	"sync"
+
 	gog "github.com/x1n13y84issmd42/gog/graph"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
@@ -15,6 +17,8 @@ type ExecutionNode struct {
 	Operation contract.Operation
 	OpRefID   string
 	Data      contract.OperationData
+	Mutex     sync.Mutex
+	Result    *contract.OperationResult
 }
 
 // NewExecutionNode creates a new ExecutionNode instance.
@@ -23,6 +27,8 @@ func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger
 		Operation: op,
 		OpRefID:   opRefID,
 	}
+
+	n.Mutex = sync.Mutex{}
 
 	n.Data.URL = params.URL("", log)
 	n.Data.Query = params.Query(log)
@@ -35,6 +41,16 @@ func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger
 // ID returns a uniqe operation node ID.
 func (node *ExecutionNode) ID() gcontract.NodeID {
 	return gcontract.NodeID(node.OpRefID)
+}
+
+// Lock locks the node to prevent parallel executions.
+func (node *ExecutionNode) Lock() {
+	node.Mutex.Lock()
+}
+
+// Unlock unlocks the node.
+func (node *ExecutionNode) Unlock() {
+	node.Mutex.Unlock()
 }
 
 // ExecutionGraph is a graph representing interdependencies between operations.

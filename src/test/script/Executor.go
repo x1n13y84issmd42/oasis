@@ -56,21 +56,29 @@ func (ex Executor) Walk(
 
 	//TODO: check for successful outcome of the previous ops.
 
-	// Executing the current node after it's children.
-	n.Operation.Data().Load(&n.Data)
+	n.Lock()
 
-	enrichment := []contract.RequestEnrichment{
-		n.Operation.Data().Query,
-		n.Operation.Data().Headers,
-		n.Operation.Data().Body,
+	if n.Result == nil {
+		// Executing the current node after it's children.
+		n.Operation.Data().Load(&n.Data)
 
-		n.Operation.Resolve().Security(""),
+		enrichment := []contract.RequestEnrichment{
+			n.Operation.Data().Query,
+			n.Operation.Data().Headers,
+			n.Operation.Data().Body,
+
+			n.Operation.Resolve().Security(""),
+		}
+
+		ex.Log.TestingOperation(n.Operation)
+
+		v := n.Operation.Resolve().Response(0, "")
+
+		n.Result = test.Operation(n.Operation, &enrichment, v, ex.Log)
+		*nresults = append(*nresults, n.Result)
 	}
 
-	ex.Log.TestingOperation(n.Operation)
+	n.Unlock()
 
-	v := n.Operation.Resolve().Response(0, "")
-
-	*nresults = append(*nresults, test.Operation(n.Operation, &enrichment, v, ex.Log))
 	nwg.Done()
 }
