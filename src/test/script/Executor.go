@@ -61,6 +61,7 @@ func (ex Executor) Walk(
 	if n.Result == nil {
 		// Executing the current node after it's children.
 		n.Operation.Data().Load(&n.Data)
+		n.Operation.Data().URL.Load(n.Operation.Resolve().Host(""))
 
 		enrichment := []contract.RequestEnrichment{
 			n.Operation.Data().Query,
