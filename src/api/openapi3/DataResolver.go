@@ -208,6 +208,8 @@ func (resolver *DataResolver) MetaData(status int64, CT string) (
 	specStatus, specResp, err := func() (int64, *openapi3.Response, error) {
 		if status == 0 {
 			//TODO: log using default status
+			//TODO: use 200 as default only if it presents in the spec
+			//TODO: otherwise pick something
 			status = 200
 		}
 

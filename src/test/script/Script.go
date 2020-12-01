@@ -12,6 +12,7 @@ import (
 // It references a spec operation and contains the needed data.
 type OperationRef struct {
 	OperationID string           `yaml:"operationId"`
+	After       string           `yaml:"after"`
 	Use         OperationDataUse `yaml:"use"`
 	Expect      OperationDataUse `yaml:"expect"`
 }
@@ -47,6 +48,8 @@ type OperationDataUse struct {
 	Query    OperationDataMap `yaml:"query"`
 	Headers  OperationDataMap `yaml:"headers"`
 	Security OperationDataMap `yaml:"security"`
+	CT       string           `yaml:"CT"`
+	Status   int64            `yaml:"status"`
 }
 
 // Script is a complex API testing scenario.
@@ -66,7 +69,7 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	for opRefID, opRef := range script.Operations {
 		//TODO: opRef.OperationID may be absent, use opRefID then.
 		op := script.GetOperation(opRef.OperationID)
-		opNode := script.GetNode(graph, opRefID, op)
+		opNode := script.GetNode(graph, opRefID, op, opRef)
 
 		var err error
 
@@ -89,6 +92,11 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
+
+		err = script.SetupAfterDependency(graph, opRef, opNode)
+		if err != nil {
+			return NoGraph(err, script.Log)
+		}
 	}
 
 	// Checking for cycles.
@@ -98,6 +106,26 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	// }
 
 	return graph
+}
+
+// SetupAfterDependency adds an edge to the execution graph if opRef has an 'after' specified.
+func (script *Script) SetupAfterDependency(graph *ExecutionGraph, opRef *OperationRef, opNode *ExecutionNode) error {
+	if opRef.After != "" {
+		opRef2 := script.Operations[opRef.After]
+		if opRef2 == nil {
+			return errors.NotFound("Operation reference", opRef.After, nil)
+		}
+
+		op2 := script.GetOperation(opRef2.OperationID)
+		if opRef2 == nil {
+			return errors.NotFound("Spec operation", opRef2.OperationID, nil)
+		}
+
+		// Adding an edge to the execution graph.
+		graph.AddEdge(opNode.ID(), script.GetNode(graph, opRef.After, op2, opRef2).ID())
+	}
+
+	return nil
 }
 
 // SetupDependencies iterates over the provided map, looks for reference values,
@@ -130,7 +158,7 @@ func (script *Script) SetupDependencies(
 			refParams.AddReference(pn, op2.ID()+" node", op2.Result(), selector)
 
 			// Adding an edge to the execution graph.
-			graph.AddEdge(opNode.ID(), script.GetNode(graph, op2RefID, op2).ID())
+			graph.AddEdge(opNode.ID(), script.GetNode(graph, op2RefID, op2, opRef2).ID())
 		} else {
 			memParams.Add(pn, pv)
 		}
@@ -145,13 +173,13 @@ func (script *Script) SetupDependencies(
 // GetNode returns an ExecutionNode instance corresponding to the opRefID.
 // If such a node exists in the graph, it will be returned, otherwise a new
 // node is created.
-func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract.Operation) *ExecutionNode {
+func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract.Operation, opRef *OperationRef) *ExecutionNode {
 	var opNode *ExecutionNode
 	_opNode := graph.Node(gcontract.NodeID(opRefID))
 	if _opNode != nil {
 		opNode = _opNode.(*ExecutionNode)
 	} else {
-		opNode = NewExecutionNode(op, opRefID, script.Log)
+		opNode = NewExecutionNode(op, opRefID, opRef, script.Log)
 		graph.AddNode(opNode)
 	}
 

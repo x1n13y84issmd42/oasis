@@ -153,7 +153,7 @@ func AccessObject(access ReferenceAccess, f string) ReferenceAccess {
 			errors.Report(errors.NoProperty(f, nil), "AccessObject", log)
 		}
 
-		errors.Report(errors.NotAn("array", &objv, nil), "AccessObject", log)
+		errors.Report(errors.NotAn("object", &objv, nil), "AccessObject", log)
 		return nil
 	}
 }

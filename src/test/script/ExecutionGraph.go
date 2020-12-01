@@ -19,10 +19,12 @@ type ExecutionNode struct {
 	Data      contract.OperationData
 	Mutex     sync.Mutex
 	Result    *contract.OperationResult
+	Use       *OperationDataUse
+	Expect    *OperationDataUse
 }
 
 // NewExecutionNode creates a new ExecutionNode instance.
-func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger) *ExecutionNode {
+func NewExecutionNode(op contract.Operation, opRefID string, opRef *OperationRef, log contract.Logger) *ExecutionNode {
 	n := &ExecutionNode{
 		Operation: op,
 		OpRefID:   opRefID,
@@ -34,6 +36,9 @@ func NewExecutionNode(op contract.Operation, opRefID string, log contract.Logger
 	n.Data.Query = params.Query(log)
 	n.Data.Headers = params.Headers(log)
 	n.Data.Body = params.Body(log)
+
+	n.Use = &opRef.Use
+	n.Expect = &opRef.Expect
 
 	return n
 }

@@ -73,7 +73,7 @@ func (ex Executor) Walk(
 
 		ex.Log.TestingOperation(n.Operation)
 
-		v := n.Operation.Resolve().Response(0, "")
+		v := n.Operation.Resolve().Response(n.Expect.Status, "")
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, ex.Log)
 		*nresults = append(*nresults, n.Result)

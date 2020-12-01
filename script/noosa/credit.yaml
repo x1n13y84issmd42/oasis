@@ -21,6 +21,8 @@ operations:
   
   POSScan:
     operationId: transaction.simulatePosScan
+    expect:
+      status: 204
     use:
       query:
         access_token: "#pinLogin.response.token"
@@ -28,13 +30,19 @@ operations:
   
   acceptDossier:
     operationId: transaction.acceptDossier
+    after: POSScan
+    expect:
+      status: 204
     use:
       query:
         access_token: "#pinLogin.response.token"
         id: "#createTX.response.transactionId"
   
   sendPagoOTP:
+    after: acceptDossier
     operationId: transaction.sendPagoOTP
+    expect:
+      status: 204
     use:
       query:
         access_token: "#pinLogin.response.token"
