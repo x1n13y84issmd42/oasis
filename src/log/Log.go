@@ -59,7 +59,7 @@ func (log Log) NOMESSAGE(msg string, args ...interface{}) {
 func (log Log) Parameters(name string, params contract.ParameterSource) {
 	log.Println(0, "Contents of %s", name)
 	for p := range params.Iterate() {
-		fmt.Printf("%s = %s (from %s)\n", log.Style.ID(p.N), log.Style.ValueActual(p.V()), p.Source)
+		fmt.Printf("%s = %s (from %s)\n", log.Style.ID(p.N), log.Style.Value(p.V()), p.Source)
 	}
 	log.Println(0, "")
 }
@@ -145,12 +145,12 @@ func (log Log) Requesting(method string, URL string) {
 
 // UsingParameterExample informs that a parameter example being used.
 func (log Log) UsingParameterExample(paramName string, in string, container string, value string) {
-	log.Println(5, "\tUsing the %s parameter %s %s (from %s).", in, log.Style.ID(paramName), log.Style.ValueActual(value), container)
+	log.Println(5, "\tUsing the %s parameter %s %s (from %s).", in, log.Style.ID(paramName), log.Style.Value(value), container)
 }
 
 // Expecting informs that a parameter example being used.
 func (log Log) Expecting(what string, v string) {
-	log.Println(5, "\tExpecting %s %s.", log.Style.ID(what), log.Style.ValueActual(v))
+	log.Println(5, "\tExpecting %s %s.", log.Style.ID(what), log.Style.Value(v))
 }
 
 // HeaderHasNoValue informs that a required response header has no data.
@@ -205,7 +205,7 @@ func (log Log) OperationFail() {
 
 // SchemaTesting informs about a value being tested againt some JSON schema.
 func (log Log) SchemaTesting(schema *api.Schema, data interface{}) {
-	datas := log.Style.ValueActual(fmt.Sprintf("%#v", data))
+	datas := log.Style.Value(fmt.Sprintf("%#v", data))
 	log.Print(4, "\t%s: testing %s", log.Style.ID(schema.Name), datas)
 }
 

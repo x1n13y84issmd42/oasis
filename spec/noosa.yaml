@@ -9745,8 +9745,8 @@ paths:
     post:
       tags:
         - transaction
-      description: Init payment
-      summary: Init payment
+      description: Simulate POS scan
+      summary: Simulate POS scan
       operationId: transaction.simulatePosScan
       parameters:
         - name: id
@@ -9786,7 +9786,7 @@ paths:
       tags:
         - transaction
       description: Validate pago OTP
-      summary: Validate pago OTP
+      summary: Validate Pagolight OTP
       operationId: transaction.validatePagoOtp
       requestBody:
         content:
@@ -9995,8 +9995,8 @@ paths:
     post:
       tags:
         - transaction
-      description: Get credit
-      summary: Get credit
+      description: Send Pagolight OTP
+      summary: Send Pagolight OTP
       operationId: transaction.sendPagoOTP
       parameters:
         - name: id

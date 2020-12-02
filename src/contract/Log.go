@@ -59,6 +59,7 @@ type LogStyle interface {
 	ID(...interface{}) string
 	ValueExpected(...interface{}) string
 	ValueActual(...interface{}) string
+	Value(...interface{}) string
 }
 
 // TabFn produces indentation when printing nested errors.

@@ -68,5 +68,10 @@ func (log Festive) ValueExpected(args ...interface{}) string {
 
 // ValueActual marks up actual received values.
 func (log Festive) ValueActual(args ...interface{}) string {
+	return color.New(color.FgLightWhite, color.BgRed).Sprint(args...) + "\x1b[K"
+}
+
+// Value marks up values.
+func (log Festive) Value(args ...interface{}) string {
 	return color.New(48, 5, 240, 38, 5, 255).Sprint(args...) + "\x1b[K"
 }

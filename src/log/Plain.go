@@ -71,3 +71,8 @@ func (log Plain) ValueExpected(args ...interface{}) string {
 func (log Plain) ValueActual(args ...interface{}) string {
 	return fmt.Sprint(args...)
 }
+
+// Value marks up values.
+func (log Plain) Value(args ...interface{}) string {
+	return fmt.Sprint(args...)
+}
