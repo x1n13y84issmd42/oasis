@@ -115,19 +115,27 @@ func (spec *Spec) MakeOperation(
 	op.Resolver = NewDataResolver(spec.Log, spec.OAS, op, &oasOp.Responses)
 	op.OperationPrototype.Operation = op
 
-	op.Data().URL = params.URL(oasPath, spec.Log)
+	URL := params.URL(oasPath, spec.Log)
+	op.Data().URL = URL
 	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters, "op"))
+	URL.StopRememberingSources()
 
-	op.Data().Query = params.Query(spec.Log)
+	Query := params.Query(spec.Log)
+	op.Data().Query = Query
 	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters, "op"))
+	Query.StopRememberingSources()
 
-	op.Data().Headers = params.Headers(spec.Log)
+	Headers := params.Headers(spec.Log)
+	op.Data().Headers = Headers
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters, "op"))
+	Headers.StopRememberingSources()
 
-	op.Data().Body = params.Body(spec.Log)
+	Body := params.Body(spec.Log)
+	op.Data().Body = Body
+	Body.StopRememberingSources()
 
 	requireParameters := func(p *openapi3.Parameter) {
 		switch p.In {

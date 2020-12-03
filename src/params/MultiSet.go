@@ -13,24 +13,54 @@ type Map map[string][]contract.Parameter
 // MultiSet is a set of named values used as input parameters for an operation.
 // Each key can have multiple values.
 type MultiSet struct {
-	Name     string
-	data     Map
-	required []string
+	Name            string
+	data            Map
+	required        []string
+	sources         []*contract.ParameterSource
+	rememberSources bool
 }
 
 // NewMultiSet creates a new MultiSet instance.
 func NewMultiSet(name string) *MultiSet {
 	return &MultiSet{
-		Name:     name,
-		data:     make(Map),
-		required: []string{},
+		Name:            name,
+		data:            make(Map),
+		required:        []string{},
+		rememberSources: true,
 	}
+}
+
+// ClearData clears the data (but keeps the required parameters).
+func (params *MultiSet) ClearData() {
+	params.data = make(Map)
+}
+
+// RememberSource remembers the source to later Reload() from.
+func (params *MultiSet) RememberSource(src contract.ParameterSource) {
+	if params.rememberSources {
+		params.sources = append(params.sources, &src)
+	}
+}
+
+// StopRememberingSources disables the source remembering functionality (see Load).
+func (params *MultiSet) StopRememberingSources() {
+	params.rememberSources = false
 }
 
 // Load reads parameters from a source.
 func (params *MultiSet) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
 		params.data[p.N] = append(params.data[p.N], p.Parameter)
+	}
+
+	params.RememberSource(src)
+}
+
+// Reload re-reads parameters from the saved source.
+func (params *MultiSet) Reload() {
+	params.ClearData()
+	for _, src := range params.sources {
+		params.Load(*src)
 	}
 }
 

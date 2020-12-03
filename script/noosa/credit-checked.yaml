@@ -24,6 +24,7 @@ operations:
       body:
         creditRequestStatus: approved
         barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: NA
     use:
       query:
         access_token: "#pinLogin.response.token"
@@ -34,6 +35,19 @@ operations:
     after: getStatus
     expect:
       status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+
+  getStatus2:
+    operationId: transaction.getStatus
+    after: POSScan
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: "pending_dossier_approval"
     use:
       query:
         access_token: "#pinLogin.response.token"

@@ -36,3 +36,11 @@ func (data *OperationData) Load(data2 *OperationData) {
 	data.Headers.Load(data2.Headers)
 	data.Body.Load(data2.Body)
 }
+
+// Reload reloads all the sources.
+func (data *OperationData) Reload() {
+	data.URL.Reload()
+	data.Query.Reload()
+	data.Headers.Reload()
+	data.Body.Reload()
+}

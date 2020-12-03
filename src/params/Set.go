@@ -24,4 +24,6 @@ func (params *Set) Load(src contract.ParameterSource) {
 	for p := range src.Iterate() {
 		params.data[p.N] = []contract.Parameter{p.Parameter}
 	}
+
+	params.RememberSource(src)
 }

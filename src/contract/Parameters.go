@@ -5,6 +5,7 @@ package contract
 // some are optional.
 type Set interface {
 	Load(src ParameterSource)
+	Reload()
 	Require(paramName string)
 	Validate() error
 	Iterate() ParameterIterator
