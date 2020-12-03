@@ -53,37 +53,63 @@ operations:
         access_token: "#pinLogin.response.token"
         id: "#createTX.response.transactionId"
   
-  # acceptDossier:
-  #   operationId: transaction.acceptDossier
-  #   after: POSScan
-  #   expect:
-  #     status: 204
-  #   use:
-  #     query:
-  #       access_token: "#pinLogin.response.token"
-  #       id: "#createTX.response.transactionId"
+  acceptDossier:
+    operationId: transaction.acceptDossier
+    after: getStatus2
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+
+  getStatus3:
+    operationId: transaction.getStatus
+    after: acceptDossier
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: "pending_otp_approval"
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
   
-  # sendPagoOTP:
-  #   after: acceptDossier
-  #   operationId: transaction.sendPagoOTP
-  #   expect:
-  #     status: 204
-  #   use:
-  #     query:
-  #       access_token: "#pinLogin.response.token"
-  #       id: "#createTX.response.transactionId"
-  #       src: mobile
+  sendPagoOTP:
+    after: getStatus3
+    operationId: transaction.sendPagoOTP
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+        src: mobile
   
-  # validatePagoOtp:
-  #   after: sendPagoOTP
-  #   operationId: transaction.validatePagoOtp
-  #   expect:
-  #     status: 200
-  #   use:
-  #     body:
-  #       id: "#createTX.response.transactionId"
-  #       otp: 123 # any works on the Demo OTP service
-  #     query:
-  #       access_token: "#pinLogin.response.token"
-  #     headers:
-  #       Content-Type: application/x-www-form-urlencoded
+  validatePagoOtp:
+    after: sendPagoOTP
+    operationId: transaction.validatePagoOtp
+    expect:
+      status: 200
+    use:
+      body:
+        id: "#createTX.response.transactionId"
+        otp: 123 # any works on the Demo OTP service
+      query:
+        access_token: "#pinLogin.response.token"
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+
+  getStatus4:
+    operationId: transaction.getStatus
+    after: validatePagoOtp
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: "customer_approved"
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
