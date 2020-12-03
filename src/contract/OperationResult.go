@@ -21,5 +21,5 @@ func (r1 *OperationResult) And(r2 *OperationResult) *OperationResult {
 	}
 }
 
-// OperationResults is a list of operation results.
-type OperationResults []*OperationResult
+// OperationResults is a map of operation results.
+type OperationResults map[string]*OperationResult

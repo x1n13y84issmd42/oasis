@@ -1,6 +1,7 @@
 package script
 
 import (
+	"os"
 	"sync"
 
 	"github.com/x1n13y84issmd42/gog/graph/comp"
@@ -28,12 +29,25 @@ func (ex Executor) Execute(graph gcontract.Graph) {
 	// TODO: it returns nil sometimes (on script/noosa_test.yaml)
 	ex.Log.ScriptExecutionStart(string(n0.ID()))
 
-	results := contract.OperationResults{}
+	results := make(contract.OperationResults)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	ex.Walk(graph, n0.(*ExecutionNode), &wg, &results)
 	wg.Wait()
+
+	success := true
+
+	for nID, nRes := range results {
+		if !nRes.Success {
+			ex.Log.NOMESSAGE("Operation %s has failed.", nID)
+			success = false
+		}
+	}
+
+	if !success {
+		os.Exit(255)
+	}
 }
 
 // Walk walks the execution graph and executes operations.
@@ -79,7 +93,7 @@ func (ex Executor) Walk(
 		v.Expect(expect.JSONBody(n.ExpectBody, graph, ex.Log))
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, ex.Log)
-		*nresults = append(*nresults, n.Result)
+		(*nresults)[string(n.ID())] = n.Result
 	}
 
 	n.Unlock()
