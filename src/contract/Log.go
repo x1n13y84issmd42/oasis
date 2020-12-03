@@ -34,6 +34,7 @@ type Logger interface {
 	HeaderHasNoValue(hdr string)
 	ResponseHasWrongStatus(expectedStatus int, actualStatus int)
 	ResponseHasWrongContentType(expectedCT string, actualCT string)
+	ResponseHasWrongPropertyValue(propName string, expected string, actual string)
 
 	OperationOK()
 	OperationFail()

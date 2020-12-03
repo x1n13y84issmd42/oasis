@@ -14,13 +14,14 @@ import (
 // where operation parameters are stored. Those later get loaded into
 // an Operation's own Data() instance.
 type ExecutionNode struct {
-	Operation contract.Operation
-	OpRefID   string
-	Data      contract.OperationData
-	Mutex     sync.Mutex
-	Result    *contract.OperationResult
-	Use       *OperationDataUse
-	Expect    *OperationDataUse
+	Operation  contract.Operation
+	OpRefID    string
+	Data       contract.OperationData
+	Mutex      sync.Mutex
+	Result     *contract.OperationResult
+	Use        *OperationDataUse
+	Expect     *OperationDataUse
+	ExpectBody *params.BodyParameters
 }
 
 // NewExecutionNode creates a new ExecutionNode instance.
@@ -39,6 +40,7 @@ func NewExecutionNode(op contract.Operation, opRefID string, opRef *OperationRef
 
 	n.Use = &opRef.Use
 	n.Expect = &opRef.Expect
+	n.ExpectBody = params.Body(log)
 
 	return n
 }

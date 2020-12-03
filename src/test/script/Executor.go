@@ -7,6 +7,7 @@ import (
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/test"
+	"github.com/x1n13y84issmd42/oasis/src/test/expect"
 )
 
 // Executor executes an ExecutionGraph that comes from a script.
@@ -74,6 +75,8 @@ func (ex Executor) Walk(
 		ex.Log.TestingOperation(n.Operation)
 
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
+
+		v.Expect(expect.JSONBody(n.ExpectBody, graph, ex.Log))
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, ex.Log)
 		*nresults = append(*nresults, n.Result)

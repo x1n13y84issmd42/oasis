@@ -41,7 +41,7 @@ func (m OperationDataMap) Iterate() contract.ParameterIterator {
 	return ch
 }
 
-// OperationDataUse corresponds to the 'use' block of the OperationRef in a script file.``
+// OperationDataUse corresponds to the 'use' block of the OperationRef in a script file.
 type OperationDataUse struct {
 	Path     OperationDataMap `yaml:"path"`
 	Body     OperationDataMap `yaml:"body"`
@@ -50,6 +50,14 @@ type OperationDataUse struct {
 	Security OperationDataMap `yaml:"security"`
 	CT       string           `yaml:"CT"`
 	Status   int64            `yaml:"status"`
+}
+
+// OperationDataExpect corresponds to the 'expect' block of the OperationRef in a script file.
+type OperationDataExpect struct {
+	Body    OperationDataMap `yaml:"body"`
+	Headers OperationDataMap `yaml:"headers"`
+	CT      string           `yaml:"CT"`
+	Status  int64            `yaml:"status"`
 }
 
 // Script is a complex API testing scenario.
@@ -89,6 +97,11 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 		}
 
 		err = script.SetupDependencies(graph, &opRef.Use.Body, opNode.Data.Body, opNode, opRefID)
+		if err != nil {
+			return NoGraph(err, script.Log)
+		}
+
+		err = script.SetupDependencies(graph, &opRef.Expect.Body, opNode.ExpectBody, opNode, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}

@@ -314,7 +314,7 @@ func (resolver *DataResolver) CollectHeaders(specResp *openapi3.Response) (
 	return res, nil
 }
 
-// Content populates the provided validator with expectations for HTTP response body.
+// Content populates the provided validator with expectations for HTTP response body structure.
 func (resolver *DataResolver) Content(mt *openapi3.MediaType, CT string, v contract.Validator) error {
 	if mt.Schema != nil && mt.Schema.Value != nil {
 

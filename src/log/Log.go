@@ -183,6 +183,18 @@ func (log Log) ResponseHasWrongContentType(expectedCT string, actualCT string) {
 	log.Println(2, m, log.Style.ValueExpected(expectedCT), log.Style.ValueActual(actualCT))
 }
 
+// ResponseHasWrongPropertyValue informs that the received response has wrong/unexpected body property value.
+func (log Log) ResponseHasWrongPropertyValue(propName string, expected string, actual string) {
+	m := strings.Join([]string{
+		"\t",
+		"Expected the %s property to equal %s ",
+		"but got %s",
+		".",
+	}, "")
+
+	log.Println(2, m, log.Style.ID(propName), log.Style.ValueExpected(expected), log.Style.ValueActual(actual))
+}
+
 // TestingOperation informs about an operation being tested.
 func (log Log) TestingOperation(op contract.Operation) {
 	log.Print(1, "Testing the %s operation... ", log.Style.Op(op.Name()))

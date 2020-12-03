@@ -1,11 +1,14 @@
 package expect
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 
+	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 )
 
@@ -71,8 +74,8 @@ func ContentType(v string, log contract.Logger) contract.Expectation {
 	}
 }
 
-// ContentSchema creates an expectation as for response's content body
-// which must comply to the provided JSON schema.
+// ContentSchema creates an expectation as for response's body
+// structure which must comply to the provided JSON schema.
 func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation {
 	log.Expecting("content schema", schema.Name)
 
@@ -88,6 +91,50 @@ func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation
 			if test.JSONResponse(result, schema, log) {
 				return true
 			}
+
+		default:
+			log.NOMESSAGE("The Content-Type of '%s' is not supported.\n", respCT)
+		}
+
+		return false
+	}
+}
+
+// JSONBody creates an expectation as for response's
+// body properties values.
+func JSONBody(props contract.Set, graph gcontract.Graph, log contract.Logger) contract.Expectation {
+
+	return func(result *contract.OperationResult) bool {
+		if result.HTTPResponse == nil {
+			return false
+		}
+
+		respCT := strings.Split(result.HTTPResponse.Header.Get("Content-Type"), ";")[0]
+
+		switch respCT {
+		case "application/json":
+			data := make(map[string]interface{})
+			err := json.Unmarshal(result.ResponseBytes, &data)
+			if err != nil {
+				log.Error(err)
+				return false
+			}
+
+			result := true
+
+			for ebp := range props.Iterate() {
+				expected := ebp.V()
+				actual := params.Cast(data[ebp.N])
+
+				if expected == actual {
+					///
+				} else {
+					log.ResponseHasWrongPropertyValue(ebp.N, expected, actual)
+					result = false
+				}
+			}
+
+			return result
 
 		default:
 			log.NOMESSAGE("The Content-Type of '%s' is not supported.\n", respCT)
