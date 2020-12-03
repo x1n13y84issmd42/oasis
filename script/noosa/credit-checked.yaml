@@ -29,15 +29,15 @@ operations:
         access_token: "#pinLogin.response.token"
         id: "#createTX.response.transactionId"
   
-  # POSScan:
-  #   operationId: transaction.simulatePosScan
-  #   after: getStatus
-  #   expect:
-  #     status: 204
-  #   use:
-  #     query:
-  #       access_token: "#pinLogin.response.token"
-  #       id: "#createTX.response.transactionId"
+  POSScan:
+    operationId: transaction.simulatePosScan
+    after: getStatus
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
   
   # acceptDossier:
   #   operationId: transaction.acceptDossier

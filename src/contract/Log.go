@@ -30,6 +30,7 @@ type Logger interface {
 	UsingParameterExample(paramName string, in string, container string, value string)
 
 	Expecting(what string, v string)
+	ExpectingProperty(what string, v string)
 
 	HeaderHasNoValue(hdr string)
 	ResponseHasWrongStatus(expectedStatus int, actualStatus int)

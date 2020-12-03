@@ -103,6 +103,10 @@ func ContentSchema(schema *api.Schema, log contract.Logger) contract.Expectation
 // JSONBody creates an expectation as for response's
 // body properties values.
 func JSONBody(props contract.Set, graph gcontract.Graph, log contract.Logger) contract.Expectation {
+	numProps := 0
+	for range props.Iterate() {
+		numProps++
+	}
 
 	return func(result *contract.OperationResult) bool {
 		if result.HTTPResponse == nil {
@@ -113,28 +117,34 @@ func JSONBody(props contract.Set, graph gcontract.Graph, log contract.Logger) co
 
 		switch respCT {
 		case "application/json":
-			data := make(map[string]interface{})
-			err := json.Unmarshal(result.ResponseBytes, &data)
-			if err != nil {
-				log.Error(err)
-				return false
-			}
-
-			result := true
-
-			for ebp := range props.Iterate() {
-				expected := ebp.V()
-				actual := params.Cast(data[ebp.N])
-
-				if expected == actual {
-					///
-				} else {
-					log.ResponseHasWrongPropertyValue(ebp.N, expected, actual)
-					result = false
+			if numProps > 0 {
+				data := make(map[string]interface{})
+				err := json.Unmarshal(result.ResponseBytes, &data)
+				if err != nil {
+					log.Error(err)
+					return false
 				}
+
+				result := true
+
+				for ebp := range props.Iterate() {
+					expected := ebp.V()
+					actual := params.Cast(data[ebp.N])
+
+					log.ExpectingProperty(ebp.N, expected)
+
+					if expected == actual {
+						///
+					} else {
+						log.ResponseHasWrongPropertyValue(ebp.N, expected, actual)
+						result = false
+					}
+				}
+
+				return result
 			}
 
-			return result
+			return true
 
 		default:
 			log.NOMESSAGE("The Content-Type of '%s' is not supported.\n", respCT)

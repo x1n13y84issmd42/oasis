@@ -153,6 +153,11 @@ func (log Log) Expecting(what string, v string) {
 	log.Println(5, "\tExpecting %s %s.", log.Style.ID(what), log.Style.Value(v))
 }
 
+// ExpectingProperty informs that a parameter example being used.
+func (log Log) ExpectingProperty(what string, v string) {
+	log.Println(5, "\tExpecting %s body property %s.", log.Style.ID(what), log.Style.Value(v))
+}
+
 // HeaderHasNoValue informs that a required response header has no data.
 func (log Log) HeaderHasNoValue(hdr string) {
 	log.Println(1, "\tHeader \"%s\" is required but is not present.", hdr)
