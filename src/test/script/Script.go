@@ -72,6 +72,10 @@ type Script struct {
 
 // GetExecutionGraph builds and returns an operation execution graph.
 func (script *Script) GetExecutionGraph() gcontract.Graph {
+	if len(script.Operations) == 0 {
+		return NoGraph(errors.Oops("The execution graph contains no nodes. Check your script file syntax, YAML format is very sensitive to errors.", nil), script.Log)
+	}
+
 	graph := NewExecutionGraph(script.Log)
 
 	for opRefID, opRef := range script.Operations {
@@ -192,6 +196,7 @@ func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract
 	if _opNode != nil {
 		opNode = _opNode.(*ExecutionNode)
 	} else {
+		script.Log.NOMESSAGE("New node %s", opRefID)
 		opNode = NewExecutionNode(op, opRefID, opRef, script.Log)
 		graph.AddNode(opNode)
 	}
