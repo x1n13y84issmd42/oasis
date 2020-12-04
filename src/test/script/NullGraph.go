@@ -76,3 +76,9 @@ func (g NullGraph) AddNode(n gcontract.Node) {
 func (g NullGraph) AddEdge(v1 gcontract.NodeID, v2 gcontract.NodeID) {
 	g.Report()
 }
+
+// Len reports an error.
+func (g *NullGraph) Len() uint {
+	g.Report()
+	return 0
+}

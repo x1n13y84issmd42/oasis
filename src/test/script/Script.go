@@ -196,7 +196,6 @@ func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract
 	if _opNode != nil {
 		opNode = _opNode.(*ExecutionNode)
 	} else {
-		script.Log.NOMESSAGE("New node %s", opRefID)
 		opNode = NewExecutionNode(op, opRefID, opRef, script.Log)
 		graph.AddNode(opNode)
 	}

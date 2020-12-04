@@ -68,7 +68,7 @@ func (ex Executor) Walk(
 ) {
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
-	anwg.Add(graph.AdjacentNodes(n.ID()).Count())
+	anwg.Add(int(graph.AdjacentNodes(n.ID()).Count()))
 	anresults := contract.OperationResults{}
 
 	for _an := range graph.AdjacentNodes(n.ID()).Range() {
