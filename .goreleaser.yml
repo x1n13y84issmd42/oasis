@@ -13,7 +13,8 @@ builds:
       - linux
       - windows
       - darwin
-    main: src/main/main.go
+    # main: main.go
+    dir: src/main
 archives:
   - replacements:
       darwin: Darwin
