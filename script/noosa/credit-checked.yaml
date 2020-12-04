@@ -113,3 +113,29 @@ operations:
       query:
         access_token: "#pinLogin.response.token"
         id: "#createTX.response.transactionId"
+
+  cancel:
+    operationId: transaction.cancelCredit
+    after: getStatus4
+    expect:
+      status: 204
+    use:
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+      query:
+        access_token: "#pinLogin.response.token"
+      body:
+        transactionId: "#createTX.response.transactionId"
+
+  getStatus5:
+    operationId: transaction.getStatus
+    after: cancel
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: canceled
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
