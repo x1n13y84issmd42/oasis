@@ -8,6 +8,8 @@ type Graph interface {
 	RDFS(n NodeID, traverse TraversalOrder) NChannel
 	RBFS(n NodeID) NChannel
 
+	Len() uint
+
 	AddNode(n Node)
 	AddEdge(v1 NodeID, v2 NodeID)
 	//TODO: RemoveEdge(v1 Node, v2 Node)
@@ -16,5 +18,8 @@ type Graph interface {
 // WGraph is an interface for weighted graphs.
 type WGraph interface {
 	NodeAccess
-	AddEdge(v1 Node, w float64, v2 Node)
+	AddNode(n Node)
+	AddEdge(v1 NodeID, w float64, v2 NodeID)
+	Len() uint
+	OutEdges(n NodeID) []WEdge
 }

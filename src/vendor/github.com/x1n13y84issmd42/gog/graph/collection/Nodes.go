@@ -50,8 +50,8 @@ func (set *Nodes) Get(nID contract.NodeID) contract.Node {
 }
 
 // Count tells how many nodes are currently in the set.
-func (set Nodes) Count() int {
-	return len(set.Map)
+func (set Nodes) Count() uint {
+	return uint(len(set.Map))
 }
 
 // Clone creates a new set by copying the receiver set.

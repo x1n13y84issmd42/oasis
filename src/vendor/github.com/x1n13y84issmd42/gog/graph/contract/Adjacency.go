@@ -13,10 +13,21 @@ type IAdjacency interface {
 	NodeAccess
 	AddNode(n Node)
 	AddEdge(v1 NodeID, v2 NodeID)
+	Len() uint
+}
+
+// WEdge is a weighted edge.
+type WEdge struct {
+	A Node
+	B Node
+	W float64
 }
 
 // IWAdjacency the same as IAdjacency, but for weighted nodes.
 type IWAdjacency interface {
 	NodeAccess
-	AddEdge(v1 Node, w float64, v2 Node)
+	AddNode(n Node)
+	AddEdge(v1 NodeID, w float64, v2 NodeID)
+	OutEdges(v NodeID) []WEdge
+	Len() uint
 }

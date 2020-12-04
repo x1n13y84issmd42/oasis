@@ -60,6 +60,11 @@ func (graph *DGraph) Nodes() contract.Nodes {
 	return graph.adjacency.Nodes()
 }
 
+// Len returns number of nodes in the graph.
+func (graph *DGraph) Len() uint {
+	return graph.adjacency.Len()
+}
+
 // AdjacentNodes returns a list of adjacent nodes for a node defined by nID.
 func (graph *DGraph) AdjacentNodes(nID contract.NodeID) contract.Nodes {
 	return graph.adjacency.AdjacentNodes(nID)

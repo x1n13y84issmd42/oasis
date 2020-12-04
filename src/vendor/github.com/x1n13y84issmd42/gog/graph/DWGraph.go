@@ -7,24 +7,28 @@ import (
 	"github.com/x1n13y84issmd42/gog/graph/storage"
 )
 
-// UEdge is an undirected graph edge.
-type UEdge DEdge
+// DWEdge is a pair of nodes making an undirected edge.
+type DWEdge contract.WEdge
 
-// Reverse creates a copy of the receiver edge.
-func (e UEdge) Reverse() contract.Edge {
-	return UEdge(e)
+// Reverse creates a new edge by swapping the receiver's nodes.
+func (e DWEdge) Reverse() contract.Edge {
+	return DWEdge{
+		A: e.B,
+		B: e.A,
+		W: e.W,
+	}
 }
 
-// UGraph is an unweighted undirected graph.
-type UGraph struct {
-	adjacency contract.IAdjacency
+// DWGraph is an unweighted directed graph.
+type DWGraph struct {
+	adjacency contract.IWAdjacency
 }
 
-// NewUGraph creates a new UGraph instance.
+// NewDWGraph creates a new DWGraph instance.
 // Provided nodes will be added pairwise as edges.
-func NewUGraph(nodes ...contract.Node) *UGraph {
-	g := &UGraph{
-		adjacency: storage.NewAdjacencyList(),
+func NewDWGraph(nodes ...contract.Node) *DWGraph {
+	g := &DWGraph{
+		adjacency: storage.NewWAdjacencyList(),
 	}
 
 	for i := 0; i < len(nodes); i++ {
@@ -35,84 +39,78 @@ func NewUGraph(nodes ...contract.Node) *UGraph {
 }
 
 // AddNode adds a node to the graph.
-func (graph *UGraph) AddNode(n contract.Node) {
+func (graph *DWGraph) AddNode(n contract.Node) {
 	graph.adjacency.AddNode(n)
 }
 
 // AddEdge creates an edge between v1 and v2 nodes.
-func (graph *UGraph) AddEdge(v1 contract.NodeID, v2 contract.NodeID) {
-	graph.adjacency.AddEdge(v1, v2)
-	graph.adjacency.AddEdge(v2, v1)
+func (graph *DWGraph) AddEdge(v1 contract.NodeID, w float64, v2 contract.NodeID) {
+	graph.adjacency.AddEdge(v1, w, v2)
 }
 
 // Node returns a node instance by it's ID.
-func (graph *UGraph) Node(nID contract.NodeID) contract.Node {
+func (graph *DWGraph) Node(nID contract.NodeID) contract.Node {
 	return graph.adjacency.Node(nID)
 }
 
 // Nodes returns a set of all graph's nodes.
-func (graph *UGraph) Nodes() contract.Nodes {
+func (graph *DWGraph) Nodes() contract.Nodes {
 	return graph.adjacency.Nodes()
 }
 
 // Len returns number of nodes in the graph.
-func (graph *UGraph) Len() uint {
+func (graph *DWGraph) Len() uint {
 	return graph.adjacency.Len()
 }
 
 // AdjacentNodes returns a list of adjacent nodes for a node defined by nID.
-func (graph *UGraph) AdjacentNodes(nID contract.NodeID) contract.Nodes {
+func (graph *DWGraph) AdjacentNodes(nID contract.NodeID) contract.Nodes {
 	return graph.adjacency.AdjacentNodes(nID)
 }
 
 // UpstreamNodes returns a list of adjacent nodes for a node defined by nID.
-func (graph *UGraph) UpstreamNodes(nID contract.NodeID) contract.Nodes {
+func (graph *DWGraph) UpstreamNodes(nID contract.NodeID) contract.Nodes {
 	return graph.adjacency.UpstreamNodes(nID)
 }
 
 // DFS returns a DFS node iterator.
-func (graph *UGraph) DFS(nID contract.NodeID, traverse contract.TraversalOrder) contract.NChannel {
+func (graph *DWGraph) DFS(nID contract.NodeID, traverse contract.TraversalOrder) contract.NChannel {
 	return iterator.DFS(iterator.Forward, traverse).Iterate(graph, collection.NewNodes(graph.Node(nID)))
 }
 
 // BFS returns a BFS node iterator.
-func (graph *UGraph) BFS(nID contract.NodeID) contract.NChannel {
+func (graph *DWGraph) BFS(nID contract.NodeID) contract.NChannel {
 	return iterator.BFS(iterator.Forward).Iterate(graph, collection.NewNodes(graph.Node(nID)))
 }
 
 // RDFS returns a reversed DFS node iterator.
-func (graph *UGraph) RDFS(nID contract.NodeID, traverse contract.TraversalOrder) contract.NChannel {
+func (graph *DWGraph) RDFS(nID contract.NodeID, traverse contract.TraversalOrder) contract.NChannel {
 	return iterator.DFS(iterator.Backward, traverse).Iterate(graph, collection.NewNodes(graph.Node(nID)))
 }
 
 // RBFS returns a RBFS node iterator.
-func (graph *UGraph) RBFS(nID contract.NodeID) contract.NChannel {
+func (graph *DWGraph) RBFS(nID contract.NodeID) contract.NChannel {
 	return iterator.BFS(iterator.Backward).Iterate(graph, collection.NewNodes(graph.Node(nID)))
 }
 
 // OutEdges returns a list of outbound edges for a node defined by nID.
-func (graph *UGraph) OutEdges(nID contract.NodeID) []UEdge {
-	res := []UEdge{}
-	n := graph.Node(nID)
-	if n != nil {
-		for na := range graph.AdjacentNodes(nID).Range() {
-			res = append(res, UEdge{
-				A: n,
-				B: na,
-			})
-		}
+func (graph *DWGraph) OutEdges(nID contract.NodeID) []contract.WEdge {
+	res := []contract.WEdge{}
+
+	for _, e := range graph.adjacency.OutEdges(nID) {
+		res = append(res, e)
 	}
 
 	return res
 }
 
 // InEdges returns a list of inbound edges for a node defined by nID.
-func (graph *UGraph) InEdges(nID contract.NodeID) []UEdge {
-	res := []UEdge{}
+func (graph *DWGraph) InEdges(nID contract.NodeID) []DWEdge {
+	res := []DWEdge{}
 	n := graph.Node(nID)
 	if n != nil {
 		for na := range graph.UpstreamNodes(nID).Range() {
-			res = append(res, UEdge{
+			res = append(res, DWEdge{
 				A: na,
 				B: n,
 			})

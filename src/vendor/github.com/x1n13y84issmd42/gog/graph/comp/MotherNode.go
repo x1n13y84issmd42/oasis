@@ -8,6 +8,7 @@ import (
 
 // MotherNode finds a node from which every other node
 // in the graph is accessible.
+// in the graph is accessible.
 func MotherNode(graph gcontract.Graph) gcontract.Node {
 
 	// The last visited node, a candidate for mother node.
@@ -25,18 +26,22 @@ func MotherNode(graph gcontract.Graph) gcontract.Node {
 		}
 	}
 
-	// Second DFS starts from the lastNode and collects a set of visited nodes.
-	i1 := iterator.DFS(iterator.Forward, iterator.PostOrder)
-	for range i1.Iterate(graph, collection.NewNodes(lastNode)) {
-		//
-	}
-
-	// Checking if i1 has visited all the nodes.
-	for n := range graph.Nodes().Range() {
-		if !i1.Visited.Visited(n.ID()) {
-			return nil
+	if lastNode != nil {
+		// Second DFS starts from the lastNode and collects a set of visited nodes.
+		i1 := iterator.DFS(iterator.Forward, iterator.PostOrder)
+		for range i1.Iterate(graph, collection.NewNodes(lastNode)) {
+			//
 		}
+
+		// Checking if i1 has visited all the nodes.
+		for n := range graph.Nodes().Range() {
+			if !i1.Visited.Visited(n.ID()) {
+				return nil
+			}
+		}
+
+		return lastNode
 	}
 
-	return lastNode
+	return nil
 }

@@ -67,6 +67,11 @@ func (list *AdjacencyList) Nodes() contract.Nodes {
 	return list.nodes
 }
 
+// Len returns number of nodes in the list.
+func (list *AdjacencyList) Len() uint {
+	return list.nodes.Count()
+}
+
 // AdjacentNodes returns a set of nodes adjacent to n.
 func (list *AdjacencyList) AdjacentNodes(nID contract.NodeID) contract.Nodes {
 	if list.list[nID] != nil {
