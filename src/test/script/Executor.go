@@ -26,6 +26,15 @@ func NewExecutor(log contract.Logger) *Executor {
 // Execute executes.
 func (ex Executor) Execute(graph gcontract.Graph) {
 	n0 := comp.MotherNode(graph)
+
+	if n0 == nil {
+		ex.Log.NOMESSAGE("Could not determine the starting node.")
+		ex.Log.NOMESSAGE("It is a bug which is about to be fixed.")
+		ex.Log.NOMESSAGE("At the moment please use simpler execution graphs.")
+		ex.Log.NOMESSAGE("Aborting.")
+		os.Exit(255)
+	}
+
 	// TODO: it returns nil sometimes (on script/noosa_test.yaml)
 	ex.Log.ScriptExecutionStart(string(n0.ID()))
 
