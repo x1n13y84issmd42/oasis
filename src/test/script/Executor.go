@@ -6,7 +6,6 @@ import (
 
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
-	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/test/expect"
 )
@@ -55,8 +54,8 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
-	logger := log.NewBuffer(ex.Log)
-	// logger := ex.Log
+	// logger := log.NewBuffer(ex.Log)
+	logger := ex.Log
 
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
@@ -75,7 +74,7 @@ func (ex Executor) Walk(
 	n.Lock()
 
 	if n.Result == nil {
-		// Executing the current node after it's children.
+		// Setting the request enrichment.
 		n.Operation.Data().Reload()
 		n.Operation.Data().Load(&n.Data)
 		n.Operation.Data().URL.Load(n.Operation.Resolve().Host(""))
@@ -90,8 +89,8 @@ func (ex Executor) Walk(
 
 		logger.TestingOperation(n.Operation)
 
+		// Setting the response validation.
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
-
 		v.Expect(expect.JSONBody(n.ExpectBody, graph, logger))
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
