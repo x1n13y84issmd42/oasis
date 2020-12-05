@@ -46,6 +46,8 @@ type Logger interface {
 	ScriptExecutionStart(node string)
 
 	XError(err error, style LogStyle, tab TabFn)
+
+	Flush()
 }
 
 // LogStyle is an interface to log styling.

@@ -244,3 +244,7 @@ func (log Log) SchemaFail(schemaName string, errors []gojsonschema.ResultError) 
 func (log Log) ScriptExecutionStart(node string) {
 	log.Println(5, "Execution starts from the node %s.\n", log.Style.Op(node))
 }
+
+// Flush does nothing for the regular logger.
+func (log Log) Flush() {
+}

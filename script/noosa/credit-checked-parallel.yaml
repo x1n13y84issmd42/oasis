@@ -1,0 +1,141 @@
+spec: spec/noosa.yaml
+operations:
+  
+  pinLogin:
+    operationId: consumer.pinLogin
+    use:
+      body:
+        mobile: +380632700628
+        pin: 111
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  
+  createTX:
+    operationId: transaction.createPayment
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        type: credit
+  
+  getStatus:
+    operationId: transaction.getStatus
+    after: createTX
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: NA
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+  
+  POSScan:
+    operationId: transaction.simulatePosScan
+    after: createTX
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+
+  getStatus2:
+    operationId: transaction.getStatus
+    after: POSScan
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: "pending_dossier_approval"
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+  
+  acceptDossier:
+    operationId: transaction.acceptDossier
+    after: POSScan
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+
+  getStatus3:
+    operationId: transaction.getStatus
+    after: acceptDossier
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: pending_otp_approval
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+  
+  sendPagoOTP:
+    after: acceptDossier
+    operationId: transaction.sendPagoOTP
+    expect:
+      status: 204
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+        src: mobile
+  
+  validatePagoOtp:
+    after: sendPagoOTP
+    operationId: transaction.validatePagoOtp
+    expect:
+      status: 200
+    use:
+      body:
+        id: "#createTX.response.transactionId"
+        otp: 123 # any works on the Demo OTP service
+      query:
+        access_token: "#pinLogin.response.token"
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+
+  getStatus4:
+    operationId: transaction.getStatus
+    after: validatePagoOtp
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: customer_approved
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+
+  cancel:
+    operationId: transaction.cancelCredit
+    after: validatePagoOtp
+    expect:
+      status: 204
+    use:
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+      query:
+        access_token: "#pinLogin.response.token"
+      body:
+        transactionId: "#createTX.response.transactionId"
+
+  getStatus5:
+    operationId: transaction.getStatus
+    after: cancel
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: canceled
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"

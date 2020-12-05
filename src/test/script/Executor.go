@@ -4,9 +4,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/x1n13y84issmd42/gog/graph/comp"
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/test/expect"
 )
@@ -25,31 +25,20 @@ func NewExecutor(log contract.Logger) *Executor {
 
 // Execute executes.
 func (ex Executor) Execute(graph gcontract.Graph) {
-	n0 := comp.MotherNode(graph)
-
-	if n0 == nil {
-		ex.Log.NOMESSAGE("Could not determine the starting node.")
-		ex.Log.NOMESSAGE("It is a bug which is about to be fixed.")
-		ex.Log.NOMESSAGE("At the moment please use simpler execution graphs.")
-		ex.Log.NOMESSAGE("Aborting.")
-		os.Exit(255)
-	}
-
-	// TODO: it returns nil sometimes (on script/noosa_test.yaml)
-	ex.Log.ScriptExecutionStart(string(n0.ID()))
-
+	success := true
 	results := make(contract.OperationResults)
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	ex.Walk(graph, n0.(*ExecutionNode), &wg, &results)
-	wg.Wait()
+	for node := range graph.Nodes().Range() {
+		wg.Add(1)
+		ex.Walk(graph, node.(*ExecutionNode), &wg, &results)
+	}
 
-	success := true
+	wg.Wait()
 
 	for nID, nRes := range results {
 		if !nRes.Success {
-			ex.Log.NOMESSAGE("Operation %s has failed.", nID)
+			ex.Log.NOMESSAGE("\rOperation %s has failed.", nID)
 			success = false
 		}
 	}
@@ -66,6 +55,9 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
+	logger := log.NewBuffer(ex.Log)
+	// logger := ex.Log
+
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
 	anwg.Add(int(graph.AdjacentNodes(n.ID()).Count()))
@@ -96,17 +88,17 @@ func (ex Executor) Walk(
 			n.Operation.Resolve().Security(""),
 		}
 
-		ex.Log.TestingOperation(n.Operation)
+		logger.TestingOperation(n.Operation)
 
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
 
-		v.Expect(expect.JSONBody(n.ExpectBody, graph, ex.Log))
+		v.Expect(expect.JSONBody(n.ExpectBody, graph, logger))
 
-		n.Result = test.Operation(n.Operation, &enrichment, v, ex.Log)
+		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
 		(*nresults)[string(n.ID())] = n.Result
 	}
 
 	n.Unlock()
-
 	nwg.Done()
+	logger.Flush()
 }
