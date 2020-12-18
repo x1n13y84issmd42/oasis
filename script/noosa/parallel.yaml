@@ -1,0 +1,34 @@
+spec: spec/noosa.yaml
+operations:
+  
+  pinLogin1:
+    operationId: consumer.pinLogin
+    use:
+      body:
+        mobile: +380632700628
+        pin: 111
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  
+  createTX1:
+    operationId: transaction.createPayment
+    use:
+      query:
+        access_token: "#pinLogin1.response.token"
+        type: credit
+  
+  pinLogin2:
+    operationId: consumer.pinLogin
+    use:
+      body:
+        mobile: +380632700628
+        pin: 111
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  
+  createTX2:
+    operationId: transaction.createPayment
+    use:
+      query:
+        access_token: "#pinLogin2.response.token"
+        type: credit

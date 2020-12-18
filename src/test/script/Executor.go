@@ -6,6 +6,7 @@ import (
 
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/test/expect"
 )
@@ -30,7 +31,7 @@ func (ex Executor) Execute(graph gcontract.Graph) {
 	wg := sync.WaitGroup{}
 	for node := range graph.Nodes().Range() {
 		wg.Add(1)
-		ex.Walk(graph, node.(*ExecutionNode), &wg, &results)
+		go ex.Walk(graph, node.(*ExecutionNode), &wg, &results)
 	}
 
 	wg.Wait()
@@ -54,8 +55,9 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
-	// logger := log.NewBuffer(ex.Log)
-	logger := ex.Log
+	ex.Log.NOMESSAGE("Walking %s", n.ID())
+	logger := log.NewBuffer(ex.Log)
+	// logger := ex.Log
 
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
@@ -73,7 +75,10 @@ func (ex Executor) Walk(
 
 	n.Lock()
 
+	ex.Log.NOMESSAGE("Locked %s", n.ID())
+
 	if n.Result == nil {
+		ex.Log.NOMESSAGE("Enter %s", n.ID())
 		// Setting the request enrichment.
 		n.Operation.Data().Reload()
 		n.Operation.Data().Load(&n.Data)
@@ -95,9 +100,12 @@ func (ex Executor) Walk(
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
 		(*nresults)[string(n.ID())] = n.Result
+
+		ex.Log.NOMESSAGE("Exit %s", n.ID())
 	}
 
-	n.Unlock()
-	nwg.Done()
 	logger.Flush()
+	n.Unlock()
+	ex.Log.NOMESSAGE("Unlocked %s", n.ID())
+	nwg.Done()
 }
