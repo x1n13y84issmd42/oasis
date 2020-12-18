@@ -30,9 +30,10 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^run:'
+      - '^.vscode:'
+      - '^build:'
+      - '^dist:'
       - '^doc:'
-      - '^test:'
+      - '^run:'
       - '^script:'
       - '^spec:'
-      - '^.vscode:'
