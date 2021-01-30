@@ -66,7 +66,7 @@ type OperationDataExpect struct {
 type Script struct {
 	api.OperationCache
 	contract.EntityTrait
-	SpecPath   string                   `yaml:"spec"`
+	SpecPath   map[string]string        `yaml:"specs"`
 	Operations map[string]*OperationRef `yaml:"operations"`
 }
 

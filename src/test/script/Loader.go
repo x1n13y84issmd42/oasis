@@ -21,7 +21,15 @@ func Load(path string, log contract.Logger) contract.Script {
 	}
 
 	yaml.Unmarshal([]byte(fileData), script)
-	script.OperationCache = api.NewOperationCache(utility.Load(script.SpecPath, script.Log))
+
+	specs := make(map[string]contract.OperationAccess)
+
+	for k, v := range script.SpecPath {
+		spec := utility.Load(v, script.Log)
+		specs[k] = spec
+	}
+
+	script.OperationCache = api.NewOperationCache(specs)
 
 	//TODO: some validation is required
 	// Like unique op IDs.

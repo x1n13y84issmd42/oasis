@@ -1,18 +1,21 @@
 package api
 
-import "github.com/x1n13y84issmd42/oasis/src/contract"
+import (
+	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/strings"
+)
 
 // OperationCache proxies the GetOperation method
 // and caches returned operations.
 type OperationCache struct {
-	spec  contract.OperationAccess
+	specs map[string]contract.OperationAccess
 	stash map[string]contract.Operation
 }
 
 // NewOperationCache creates a new OperationCache instance.
-func NewOperationCache(spec contract.OperationAccess) OperationCache {
+func NewOperationCache(specs map[string]contract.OperationAccess) OperationCache {
 	return OperationCache{
-		spec:  spec,
+		specs: specs,
 		stash: make(map[string]contract.Operation),
 	}
 }
@@ -24,6 +27,11 @@ func (cache OperationCache) GetOperation(id string) contract.Operation {
 		return op
 	}
 
-	cache.stash[id] = cache.spec.GetOperation(id)
+	parsedID := strings.Split(id, ".")
+	specID := parsedID[0]
+	opID := strings.Cut(id, specID+".")
+
+	cache.stash[id] = cache.specs[specID].GetOperation(opID)
+
 	return cache.stash[id]
 }

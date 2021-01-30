@@ -62,3 +62,13 @@ func RxMatches(s string, rx *regexp.Regexp) map[string]string {
 
 	return matches
 }
+
+// Split a string "s" to a slice of substrings, separated by delimiter "d"
+func Split(s string, d string) []string {
+	return gostrings.Split(s, d)
+}
+
+// Cut removes "c" part from "s" string
+func Cut(s string, c string) string {
+	return gostrings.ReplaceAll(s, c, "")
+}
