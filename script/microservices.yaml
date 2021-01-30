@@ -1,0 +1,30 @@
+specs: 
+  serviceA: spec/microservices/petstore-serviceA.yaml
+  serviceB: spec/microservices/petstore-serviceB.yaml
+  serviceC: spec/microservices/petstore-serviceC.yaml
+operations:
+  listPets:
+    operationId: serviceA.findPetsByStatus
+    use:
+      path:
+        HOSTNAME: https://petstore.swagger.io/v2
+  getPetDetails:
+    operationId: serviceC.getPetById
+    use:
+      path:
+        HOSTNAME: https://petstore.swagger.io/v2
+        petId: "#listPets.response[2].id"
+      query:
+        thename: "#listPets.response[2].name"
+  placeOrder: 
+    operationId: serviceB.placeOrder
+    use:
+      path:
+        HOSTNAME: https://petstore.swagger.io/v2
+      body:
+        id: 100
+        petId: "#getPetDetails.response.id"
+        quantity: 1
+        shipDate: "2021-01-30T20:20:30.020Z"
+        status: placed
+        complete: true

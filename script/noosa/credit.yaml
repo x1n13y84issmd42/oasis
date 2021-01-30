@@ -1,8 +1,9 @@
-spec: spec/noosa.yaml
+specs: 
+  service: spec/noosa.yaml
 operations:
   
   pinLogin:
-    operationId: consumer.pinLogin
+    operationId: service.consumer.pinLogin
     use:
       body:
         mobile: +380632700628
@@ -11,14 +12,14 @@ operations:
         Content-Type: application/x-www-form-urlencoded
   
   createTX:
-    operationId: transaction.createPayment
+    operationId: service.transaction.createPayment
     use:
       query:
         access_token: "#pinLogin.response.token"
         type: credit
   
   POSScan:
-    operationId: transaction.simulatePosScan
+    operationId: service.transaction.simulatePosScan
     expect:
       status: 204
     use:
@@ -27,7 +28,7 @@ operations:
         id: "#createTX.response.transactionId"
   
   acceptDossier:
-    operationId: transaction.acceptDossier
+    operationId: service.transaction.acceptDossier
     after: POSScan
     expect:
       status: 204
@@ -38,7 +39,7 @@ operations:
   
   sendPagoOTP:
     after: acceptDossier
-    operationId: transaction.sendPagoOTP
+    operationId: service.transaction.sendPagoOTP
     expect:
       status: 204
     use:
@@ -49,7 +50,7 @@ operations:
   
   validatePagoOtp:
     after: sendPagoOTP
-    operationId: transaction.validatePagoOtp
+    operationId: service.transaction.validatePagoOtp
     expect:
       status: 200
     use:

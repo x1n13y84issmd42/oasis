@@ -1,8 +1,9 @@
-spec: spec/noosa.yaml
+specs: 
+  service: spec/noosa.yaml
 operations:
   
   pinLogin:
-    operationId: consumer.pinLogin
+    operationId: service.consumer.pinLogin
     use:
       body:
         mobile: +380632700628
@@ -11,14 +12,14 @@ operations:
         Content-Type: application/x-www-form-urlencoded
   
   createTX:
-    operationId: transaction.createPayment
+    operationId: service.transaction.createPayment
     use:
       query:
         access_token: "#pinLogin.response.token"
         type: credit
   
   getStatus:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     after: createTX
     expect:
       body:
@@ -31,7 +32,7 @@ operations:
         id: "#createTX.response.transactionId"
   
   POSScan:
-    operationId: transaction.simulatePosScan
+    operationId: service.transaction.simulatePosScan
     after: getStatus
     expect:
       status: 204
@@ -41,7 +42,7 @@ operations:
         id: "#createTX.response.transactionId"
 
   getStatus2:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     after: POSScan
     expect:
       body:
@@ -54,7 +55,7 @@ operations:
         id: "#createTX.response.transactionId"
   
   acceptDossier:
-    operationId: transaction.acceptDossier
+    operationId: service.transaction.acceptDossier
     after: getStatus2
     expect:
       status: 204
@@ -64,7 +65,7 @@ operations:
         id: "#createTX.response.transactionId"
 
   getStatus3:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     after: acceptDossier
     expect:
       body:
@@ -78,7 +79,7 @@ operations:
   
   sendPagoOTP:
     after: getStatus3
-    operationId: transaction.sendPagoOTP
+    operationId: service.transaction.sendPagoOTP
     expect:
       status: 204
     use:
@@ -89,7 +90,7 @@ operations:
   
   validatePagoOtp:
     after: sendPagoOTP
-    operationId: transaction.validatePagoOtp
+    operationId: service.transaction.validatePagoOtp
     expect:
       status: 200
     use:
@@ -102,7 +103,7 @@ operations:
         Content-Type: application/x-www-form-urlencoded
 
   getStatus4:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     after: validatePagoOtp
     expect:
       body:
@@ -115,7 +116,7 @@ operations:
         id: "#createTX.response.transactionId"
 
   cancel:
-    operationId: transaction.cancelCredit
+    operationId: service.transaction.cancelCredit
     after: getStatus4
     expect:
       status: 204
@@ -128,7 +129,7 @@ operations:
         transactionId: "#createTX.response.transactionId"
 
   getStatus5:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     after: cancel
     expect:
       body:
