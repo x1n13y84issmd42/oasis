@@ -24,7 +24,7 @@ func Load(path string, log contract.Logger) contract.Script {
 
 	specs := make(map[string]contract.OperationAccess)
 
-	for k, v := range script.SpecPath {
+	for k, v := range script.SpecPaths {
 		spec := utility.Load(v, script.Log)
 		specs[k] = spec
 	}
