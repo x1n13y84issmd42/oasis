@@ -29,7 +29,7 @@ func (cache OperationCache) GetOperation(id string) contract.Operation {
 
 	parsedID := strings.Split(id, ".")
 	specID := parsedID[0]
-	opID := strings.Cut(id, specID+".")
+	opID := strings.Cut(id, len(specID+"."), len(id))
 
 	cache.stash[id] = cache.specs[specID].GetOperation(opID)
 

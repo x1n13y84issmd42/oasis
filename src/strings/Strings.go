@@ -68,7 +68,7 @@ func Split(s string, d string) []string {
 	return gostrings.Split(s, d)
 }
 
-// Cut removes "c" part from "s" string
-func Cut(s string, c string) string {
-	return gostrings.ReplaceAll(s, c, "")
+// Cut returns a part of string "s" between "k" and "n" positions
+func Cut(s string, k int, n int) string {
+	return s[k:n]
 }
