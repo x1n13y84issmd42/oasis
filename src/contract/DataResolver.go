@@ -3,6 +3,7 @@ package contract
 // DataResolver is an interface to resolution of internal spec data
 // based on user input such as host name or ID, security name, etc.
 type DataResolver interface {
+	IEntityTrait
 
 	// Host attempts to come up with a valid host name based on the input
 	// host hint, which is a spec-specific host identifier.

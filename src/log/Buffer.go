@@ -36,7 +36,7 @@ func (buffer *Buffer) Capture(f func()) {
 
 	restore := func() {
 		os.Stdout = stdout
-		// fmt.Println("Restored the os.Stdout")
+		fmt.Println("Restored the os.Stdout")
 	}
 
 	os.Stdout = writer
@@ -60,15 +60,15 @@ func (buffer *Buffer) Capture(f func()) {
 
 	output := <-out
 	restore()
-	// fmt.Printf("Buffered output: '%s'\n", output)
+	fmt.Printf("Buffered output")
 	buffer.Buffer.WriteString(output)
 }
 
 // Flush flushes the accumulated output to stdout.
 func (buffer *Buffer) Flush() {
-	// fmt.Println("Flushing")
+	// fmt.Print("Flushing\n")
 	// fmt.Printf("The buffer is '%s'\n", buffer.Buffer.String())
-	fmt.Print(buffer.Buffer.String())
+	// fmt.Printf(buffer.Buffer.String())
 }
 
 // NOMESSAGE ...

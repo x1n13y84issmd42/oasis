@@ -1,7 +1,6 @@
 package script
 
 import (
-	"os"
 	"sync"
 
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
@@ -17,9 +16,9 @@ type Executor struct {
 }
 
 // NewExecutor creates a new Executor instance.
-func NewExecutor(log contract.Logger) *Executor {
+func NewExecutor(logger contract.Logger) *Executor {
 	return &Executor{
-		EntityTrait: contract.Entity(log),
+		EntityTrait: contract.Entity(logger),
 	}
 }
 
@@ -44,7 +43,7 @@ func (ex Executor) Execute(graph gcontract.Graph) {
 	}
 
 	if !success {
-		os.Exit(255)
+		// os.Exit(255)
 	}
 }
 
@@ -55,16 +54,17 @@ func (ex Executor) Walk(
 	nwg *sync.WaitGroup,
 	nresults *contract.OperationResults,
 ) {
-	ex.Log.NOMESSAGE("Walking %s", n.ID())
-	logger := log.NewBuffer(ex.Log)
-	// logger := ex.Log
 
+	// logger.NOMESSAGE("Child nodes %s", n.ID())
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
 	anwg.Add(int(graph.AdjacentNodes(n.ID()).Count()))
 	anresults := contract.OperationResults{}
 
+	// TODO: consider moving execution of adjacent nodes
+	// into the Reference.Value() function in truly lazy fashion.
 	for _an := range graph.AdjacentNodes(n.ID()).Range() {
+		ex.Log.NOMESSAGE("Child node %s of %s", _an.ID(), n.ID())
 		an := _an.(*ExecutionNode)
 		go ex.Walk(graph, an, &anwg, &anresults)
 	}
@@ -75,15 +75,24 @@ func (ex Executor) Walk(
 
 	n.Lock()
 
-	ex.Log.NOMESSAGE("Locked %s", n.ID())
+	// logger.NOMESSAGE("Locked %s", n.ID())
 
 	if n.Result == nil {
-		ex.Log.NOMESSAGE("Enter %s", n.ID())
+		logger := log.NewBufferX(ex.Log.(*log.Log))
+
+		// this is so shit
+		// TODO: remake the logger, separate outputs from message methods
+		n.Operation.Resolve().SetLogger(logger)
+		n.Operation.Data().URL.SetLogger(logger)
+
+		logger.NOMESSAGE("Walking %s", n.ID())
+		// logger.NOMESSAGE("Enter %s", n.ID())
 		// Setting the request enrichment.
 		n.Operation.Data().Reload()
 		n.Operation.Data().Load(&n.Data)
 		n.Operation.Data().URL.Load(n.Operation.Resolve().Host(""))
 
+		// logger.NOMESSAGE("Setting Enrichment %s", n.ID())
 		enrichment := []contract.RequestEnrichment{
 			n.Operation.Data().Query,
 			n.Operation.Data().Headers,
@@ -92,20 +101,23 @@ func (ex Executor) Walk(
 			n.Operation.Resolve().Security(""),
 		}
 
+		// logger.NOMESSAGE("Testing %s", n.ID())
 		logger.TestingOperation(n.Operation)
 
+		// logger.NOMESSAGE("Setting Response %s", n.ID())
 		// Setting the response validation.
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
+		v.SetLogger(logger)
 		v.Expect(expect.JSONBody(n.ExpectBody, graph, logger))
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
 		(*nresults)[string(n.ID())] = n.Result
 
-		ex.Log.NOMESSAGE("Exit %s", n.ID())
+		// logger.NOMESSAGE("Exit %s", n.ID())
+		logger.Flush()
 	}
 
-	logger.Flush()
 	n.Unlock()
-	ex.Log.NOMESSAGE("Unlocked %s", n.ID())
+	// logger.NOMESSAGE("Unlocked %s", n.ID())
 	nwg.Done()
 }

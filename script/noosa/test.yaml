@@ -3,8 +3,6 @@ operations:
   pinLogin:
     operationId: consumer.pinLogin
     use:
-      path:
-        HOSTNAME: http://localhost:3000/api
       query:
         foo: bar
       body:
@@ -15,7 +13,5 @@ operations:
   getCards:
     operationId: card.getCards
     use:
-      path:
-        HOSTNAME: http://localhost:3000/api
       query:
         access_token: "#pinLogin.response.token"
