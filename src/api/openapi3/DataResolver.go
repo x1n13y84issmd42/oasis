@@ -71,23 +71,36 @@ func (resolver *DataResolver) Host(hostHint string) contract.ParameterSource {
 	return params.NoSource(errors.NotFound("Host", hostHint, nil), resolver.Log)
 }
 
-// SecurityName figures security scheme name from the operation.
+// SecurityName figures security scheme name from the operation or from global settings.
 func (resolver *DataResolver) SecurityName(name string) string {
-	for _, opSecRef := range *resolver.Op.SpecOp.Security {
-		for specSecName := range opSecRef {
-			if name != "" {
-				if specSecName == name {
-					return specSecName
+	beepbop := func(secReqs *openapi3.SecurityRequirements) string {
+		if secReqs != nil {
+			for _, opSecRef := range *secReqs {
+				for specSecName := range opSecRef {
+					if name != "" {
+						if specSecName == name {
+							return specSecName
+						}
+					}
+
+					if name == "" {
+						return specSecName
+					}
 				}
 			}
 
-			if name == "" {
-				return specSecName
-			}
 		}
+
+		return ""
 	}
 
-	return ""
+	result := beepbop(resolver.Op.SpecOp.Security)
+
+	if result == "" {
+		return beepbop(&resolver.Spec.Security)
+	}
+
+	return result
 }
 
 // SecurityCredentials returns a username, password and token when available.
@@ -133,29 +146,28 @@ func (resolver *DataResolver) SecurityCredentials(scheme *openapi3.SecuritySchem
 
 // Security returns a security object to use in request.
 func (resolver *DataResolver) Security(name string) contract.Security {
-	if resolver.Op.SpecOp.Security != nil {
-		secName := resolver.SecurityName(name)
+	secName := resolver.SecurityName(name)
 
-		if secName == "" {
-			return api.NoSecurity(errors.NotFound("Security", name, nil), resolver.Log)
-		}
+	if secName == "" {
+		return security.Insecurity(resolver.Log)
+		// return api.NoSecurity(errors.NotFound("Security", name, nil), resolver.Log)
+	}
 
-		// Retrieving security scheme details from the spec components.
-		if secSchemeRef, ok := resolver.Spec.Components.SecuritySchemes[secName]; ok {
-			if secScheme := secSchemeRef.Value; secScheme != nil {
-				username, password, token, err := resolver.SecurityCredentials(secScheme)
+	// Retrieving security scheme details from the spec components.
+	if secSchemeRef, ok := resolver.Spec.Components.SecuritySchemes[secName]; ok {
+		if secScheme := secSchemeRef.Value; secScheme != nil {
+			username, password, token, err := resolver.SecurityCredentials(secScheme)
 
-				if err != nil {
-					return api.NoSecurity(err, resolver.Log)
-				}
+			if err != nil {
+				return api.NoSecurity(err, resolver.Log)
+			}
 
-				switch secScheme.Type {
-				case "apiKey":
-					return secAPIKey.New(secName, secScheme.In, secScheme.Name, token, resolver.Log)
+			switch secScheme.Type {
+			case "apiKey":
+				return secAPIKey.New(secName, secScheme.In, secScheme.Name, token, resolver.Log)
 
-				case "http":
-					return secHTTP.New(secName, secScheme.Scheme, token, username, password, resolver.Log)
-				}
+			case "http":
+				return secHTTP.New(secName, secScheme.Scheme, token, username, password, resolver.Log)
 			}
 		}
 	}
