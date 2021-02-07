@@ -78,7 +78,7 @@
 			"env": {},
 			"args": [
 				"execute",
-				"script/noosa/credit-checked.yaml",
+				"script/noosa/credit-checked-2.yaml",
 				"log",
 				"at",
 				"level",
