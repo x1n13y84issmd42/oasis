@@ -2,7 +2,7 @@ package contract
 
 // IEntityTrait is an interface of entity traits.
 type IEntityTrait interface {
-	SetLogger(log Logger)
+	GetLogger() Logger
 }
 
 // EntityTrait contains basic functions shared by multiple different app components,
@@ -18,7 +18,7 @@ func Entity(log Logger) EntityTrait {
 	}
 }
 
-// SetLogger sets a logger instance to use.
-func (e *EntityTrait) SetLogger(log Logger) {
-	e.Log = log
+// GetLogger returns logger.
+func (entity EntityTrait) GetLogger() Logger {
+	return entity.Log
 }

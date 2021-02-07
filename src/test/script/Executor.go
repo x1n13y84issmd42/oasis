@@ -5,7 +5,6 @@ import (
 
 	gcontract "github.com/x1n13y84issmd42/gog/graph/contract"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
-	"github.com/x1n13y84issmd42/oasis/src/log"
 	"github.com/x1n13y84issmd42/oasis/src/test"
 	"github.com/x1n13y84issmd42/oasis/src/test/expect"
 )
@@ -78,12 +77,8 @@ func (ex Executor) Walk(
 	// logger.NOMESSAGE("Locked %s", n.ID())
 
 	if n.Result == nil {
-		logger := log.NewBufferX(ex.Log.(*log.Log))
-
-		// this is so shit
-		// TODO: remake the logger, separate outputs from message methods
-		n.Operation.Resolve().SetLogger(logger)
-		n.Operation.Data().URL.SetLogger(logger)
+		logger := n.Operation.GetLogger()
+		logger.Buffer(true)
 
 		logger.NOMESSAGE("Walking %s", n.ID())
 		// logger.NOMESSAGE("Enter %s", n.ID())
@@ -101,13 +96,13 @@ func (ex Executor) Walk(
 			n.Operation.Resolve().Security(""),
 		}
 
-		// logger.NOMESSAGE("Testing %s", n.ID())
+		logger.NOMESSAGE("Testing %s", n.ID())
 		logger.TestingOperation(n.Operation)
 
-		// logger.NOMESSAGE("Setting Response %s", n.ID())
+		logger.NOMESSAGE("Setting Response %s", n.ID())
 		// Setting the response validation.
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
-		v.SetLogger(logger)
+		// v.SetLogger(logger)
 		v.Expect(expect.JSONBody(n.ExpectBody, graph, logger))
 
 		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
@@ -115,6 +110,7 @@ func (ex Executor) Walk(
 
 		// logger.NOMESSAGE("Exit %s", n.ID())
 		logger.Flush()
+		logger.Buffer(false)
 	}
 
 	n.Unlock()
