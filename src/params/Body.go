@@ -63,17 +63,17 @@ func (params BodyParameters) Enrich(req *http.Request, log contract.Logger) {
 	// TODO: move this to some kind of body encoder
 	switch req.Header["Content-Type"][0] {
 	case "application/x-www-form-urlencoded":
-		log.NOMESSAGE("BodyParameters.Enrich: Body: application/x-www-form-urlencoded")
+		// log.NOMESSAGE("BodyParameters.Enrich: Body: application/x-www-form-urlencoded")
 		req.Body = ioutil.NopCloser(strings.NewReader(fd.Encode()))
 		break
 
 	case "application/json":
-		log.NOMESSAGE("BodyParameters.Enrich: Body: application/json")
+		// log.NOMESSAGE("BodyParameters.Enrich: Body: application/json")
 		json, jsonErr := json.Marshal(data)
 		if jsonErr != nil {
 			errors.Report(jsonErr, "BodyParameters", log)
 		}
-		log.NOMESSAGE("BodyParameters.Enrich: Body:\n%s", string(json))
+		// log.NOMESSAGE("BodyParameters.Enrich: Body:\n%s", string(json))
 
 		req.Body = ioutil.NopCloser(strings.NewReader(string(json)))
 
