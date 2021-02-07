@@ -6,6 +6,8 @@ import (
 
 // Operation is an interface for accessing operation properties.
 type Operation interface {
+	IEntityTrait
+
 	ID() string
 	Name() string
 	Description() string

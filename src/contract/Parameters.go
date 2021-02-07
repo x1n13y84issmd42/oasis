@@ -14,6 +14,7 @@ type Set interface {
 // StringParameters represent all the available parameters as a string value.
 // At the moment it is used for building a URL.
 type StringParameters interface {
+	IEntityTrait
 	Set
 	String() string
 }

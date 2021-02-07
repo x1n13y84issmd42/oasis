@@ -33,7 +33,7 @@ func (params QueryParameters) Enrich(req *http.Request, log contract.Logger) {
 
 	for p := range params.Iterate() {
 		v := p.V()
-		params.Log.UsingParameterExample(p.N, "query", p.Source, v)
+		log.UsingParameterExample(p.N, "query", p.Source, v)
 		q.Add(p.N, v)
 	}
 

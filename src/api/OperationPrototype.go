@@ -18,7 +18,7 @@ type OperationPrototype struct {
 // NewOperationPrototype create a new OperationPrototype instance.
 func NewOperationPrototype(log contract.Logger) *OperationPrototype {
 	return &OperationPrototype{
-		EntityTrait: contract.Entity(log),
+		EntityTrait: contract.Entity(log.Clone()),
 		data:        contract.OperationData{},
 		result: contract.OperationResult{
 			Success: true,
@@ -39,4 +39,9 @@ func (op *OperationPrototype) Data() *contract.OperationData {
 // Result returns a pointer to the internal result object.
 func (op *OperationPrototype) Result() *contract.OperationResult {
 	return &op.result
+}
+
+// GetLogger returns logger.
+func (op *OperationPrototype) GetLogger() contract.Logger {
+	return op.EntityTrait.GetLogger()
 }

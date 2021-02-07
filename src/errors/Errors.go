@@ -15,8 +15,10 @@ import (
 func Report(err error, source string, log contract.Logger) {
 	if err != nil {
 		log.Error(err)
+		log.Flush()
 	} else {
 		log.Error(NewBase(nil, "Reporting nothing."))
+		log.Flush()
 	}
 
 	panic(gostrings.Title(source) + " has panicked.\nSee the error message reported above for details.")

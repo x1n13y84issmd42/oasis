@@ -20,6 +20,12 @@ func NoOperation(err error, log contract.Logger) *NullOperation {
 	}
 }
 
+// GetLogger reports an error.
+func (op NullOperation) GetLogger() contract.Logger {
+	op.Report()
+	return nil
+}
+
 // GetRequest reports an error.
 func (op NullOperation) GetRequest() (*http.Request, error) {
 	op.Report()

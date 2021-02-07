@@ -4,15 +4,15 @@ import "github.com/x1n13y84issmd42/oasis/src/contract"
 
 // Validator tests an operation response for compliance with the expectations.
 type Validator struct {
+	contract.EntityTrait
 	expectations []contract.Expectation
-	log          contract.Logger
 }
 
 // NewValidator creates a new Validator instance.
 func NewValidator(log contract.Logger) *Validator {
 	return &Validator{
 		expectations: []contract.Expectation{},
-		log:          log,
+		EntityTrait:  contract.Entity(log),
 	}
 }
 

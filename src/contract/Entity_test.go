@@ -10,5 +10,5 @@ import (
 // This exists just to get coverage.
 func Test_Entity(T *testing.T) {
 	e := contract.Entity(log.NewPlain(0))
-	e.Log.NOMESSAGE("")
+	e.GetLogger().NOMESSAGE("")
 }

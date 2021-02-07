@@ -1,0 +1,73 @@
+spec: spec/noosa.yaml
+operations:
+  
+  pinLogin:
+    operationId: consumer.pinLogin
+    use:
+      body:
+        mobile: +380632700628
+        pin: 111
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  
+  merchantLogin:
+    operationId: merchant.login
+    use:
+      body:
+        username: pos_merchant
+        password: 123123
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+  
+  createTX:
+    operationId: transaction.createPayment
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        type: credit
+  
+  getStatus:
+    operationId: transaction.getStatus
+    after: createTX
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: NA
+    use:
+      query:
+        access_token: "#pinLogin.response.token"
+        id: "#createTX.response.transactionId"
+  
+  merchantProcess:
+    operationId: transaction.process
+    after: getStatus
+    expect:
+      status: 202
+    use:
+      path:
+        id: "#createTX.response.barcodeId"
+      query:
+        timestamp: "1612119665"
+      body:
+        amount: 6000
+        currency: EUR
+        transactionId: "#createTX.response.transactionId"
+        storeId: -1
+      headers:
+        Content-Type: application/json
+        Authorization: "#merchantLogin.response.id"
+
+  getStatus2:
+    operationId: transaction.getStatus
+    after: merchantProcess
+    expect:
+      body:
+        creditRequestStatus: approved
+        barcodeId: "#createTX.response.barcodeId"
+        paymentStatus: "pending_dossier_approval"
+    use:
+      query:
+        id: "#createTX.response.transactionId"
+        access_token: "#pinLogin.response.token"
+  

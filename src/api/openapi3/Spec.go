@@ -112,28 +112,28 @@ func (spec *Spec) MakeOperation(
 		SpecPath:           oasPathItem,
 	}
 
-	op.Resolver = NewDataResolver(spec.Log, spec.OAS, op, &oasOp.Responses)
+	op.Resolver = NewDataResolver(op.Log, spec.OAS, op, &oasOp.Responses)
 	op.OperationPrototype.Operation = op
 
-	URL := params.URL(oasPath, spec.Log)
+	URL := params.URL(oasPath, op.Log)
 	op.Data().URL = URL
 	op.Data().URL.Load(PathParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().URL.Load(PathParameterSource(&op.SpecOp.Parameters, "op"))
 	URL.StopRememberingSources()
 
-	Query := params.Query(spec.Log)
+	Query := params.Query(op.Log)
 	op.Data().Query = Query
 	op.Data().Query.Load(QueryParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().Query.Load(QueryParameterSource(&op.SpecOp.Parameters, "op"))
 	Query.StopRememberingSources()
 
-	Headers := params.Headers(spec.Log)
+	Headers := params.Headers(op.Log)
 	op.Data().Headers = Headers
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecPath.Parameters, "path"))
 	op.Data().Headers.Load(HeadersParameterSource(&op.SpecOp.Parameters, "op"))
 	Headers.StopRememberingSources()
 
-	Body := params.Body(spec.Log)
+	Body := params.Body(op.Log)
 	op.Data().Body = Body
 	Body.StopRememberingSources()
 

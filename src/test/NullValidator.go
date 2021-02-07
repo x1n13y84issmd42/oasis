@@ -8,6 +8,7 @@ import (
 // NullValidator is used whenever we can't have a real one from DataResolver.Response().
 // Reports the contained error on every method call.
 type NullValidator struct {
+	contract.EntityTrait
 	errors.NullObjectPrototype
 }
 

@@ -8,6 +8,9 @@ import (
 
 // Logger - interface for test execution loggers.
 type Logger interface {
+	Clone() Logger
+	Buffer(enabled bool)
+
 	NOMESSAGE(msg string, args ...interface{})
 	Parameters(name string, params ParameterSource)
 
@@ -46,6 +49,14 @@ type Logger interface {
 	ScriptExecutionStart(node string)
 
 	XError(err error, style LogStyle, tab TabFn)
+
+	Flush()
+}
+
+// LogOutput is a receiver of the messages coming from LogMethods
+type LogOutput interface {
+	Print(msg string, args ...interface{})
+	Flush()
 }
 
 // LogStyle is an interface to log styling.
