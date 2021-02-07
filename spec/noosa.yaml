@@ -9088,7 +9088,7 @@ paths:
                   type: string
         required: true
       responses:
-        '200':
+        '202':
           description: Request was successful
           content:
             application/json:
@@ -9113,10 +9113,10 @@ paths:
                       properties: {}
                   storeId:
                     type: string
-                  posId:
-                    type: string
-                  documentId:
-                    type: string
+                  # posId:
+                  #   type: string
+                  # documentId:
+                  #   type: string
             application/xml:
               schema:
                 type: object
