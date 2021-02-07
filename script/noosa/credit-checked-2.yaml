@@ -1,8 +1,9 @@
-spec: spec/noosa.yaml
+specs:
+  API: spec/noosa.yaml
+
 operations:
-  
   pinLogin:
-    operationId: consumer.pinLogin
+    operationId: API.consumer.pinLogin
     use:
       body:
         mobile: +380632700628
@@ -11,7 +12,7 @@ operations:
         Content-Type: application/x-www-form-urlencoded
   
   merchantLogin:
-    operationId: merchant.login
+    operationId: API.merchant.login
     use:
       body:
         username: pos_merchant
@@ -20,14 +21,14 @@ operations:
         Content-Type: application/x-www-form-urlencoded
   
   createTX:
-    operationId: transaction.createPayment
+    operationId: API.transaction.createPayment
     use:
       query:
         access_token: "#pinLogin.response.token"
         type: credit
   
   getStatus:
-    operationId: transaction.getStatus
+    operationId: API.transaction.getStatus
     after: createTX
     expect:
       body:
@@ -40,7 +41,7 @@ operations:
         id: "#createTX.response.transactionId"
   
   merchantProcess:
-    operationId: transaction.process
+    operationId: API.transaction.process
     after: getStatus
     expect:
       status: 202
@@ -59,7 +60,7 @@ operations:
         Authorization: "#merchantLogin.response.id"
 
   getStatus2:
-    operationId: transaction.getStatus
+    operationId: API.transaction.getStatus
     after: merchantProcess
     expect:
       body:
