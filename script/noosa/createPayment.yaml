@@ -1,8 +1,9 @@
-spec: spec/noosa.yaml
+specs: 
+  service: spec/noosa.yaml
 operations:
 
   pinLogin:
-    operationId: consumer.pinLogin
+    operationId: service.consumer.pinLogin
     use:
       query:
         foo: bar
@@ -13,14 +14,14 @@ operations:
         Content-Type: application/x-www-form-urlencoded
 
   createTX:
-    operationId: transaction.createPayment
+    operationId: service.transaction.createPayment
     use:
       query:
         access_token: "#pinLogin.response.token"
         type: credit
 
   getTXStatus:
-    operationId: transaction.getStatus
+    operationId: service.transaction.getStatus
     use:
       query:
         access_token: "#pinLogin.response.token"

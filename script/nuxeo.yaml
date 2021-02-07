@@ -1,20 +1,21 @@
-spec: spec/nuxeo.yaml
+specs: 
+  service: spec/nuxeo.yaml
 operations:
   taskList:
-    operationId: taskList
+    operationId: service.taskList
     use:
       path:
         HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
     expect:
       status: 200
   task:
-    operationId: task
+    operationId: service.task
     use:
       path:
         HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
         taskId: "#taskList.response.entries[0].id"
   search:
-    operationId: search
+    operationId: service.search
     use:
       path:
         HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1
@@ -22,7 +23,7 @@ operations:
       query:
         query: "SELECT * FROM Document"
   document:
-    operationId: docFromRepo
+    operationId: service.docFromRepo
     use:
       path:
         HOSTNAME: https://demo.nuxeo.com/nuxeo/api/v1

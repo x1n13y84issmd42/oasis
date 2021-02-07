@@ -70,15 +70,22 @@ func (oa *opaccess) Operations() contract.OperationIterator {
 }
 
 func Test_OperationAccess(T *testing.T) {
-	access := &opaccess{}
-	cache := api.NewOperationCache(access)
-
+	serviceID := "serviceA"
 	opID := "theGloriousOp"
 
-	cache.GetOperation(opID)
+	specOperationID := serviceID + "." + opID
+
+	access := &opaccess{}
+
+	specs := make(map[string]contract.OperationAccess)
+	specs[serviceID] = access
+
+	cache := api.NewOperationCache(specs)
+	cache.GetOperation(specOperationID)
+
 	assert.Equal(T, opID, access.RequestedOpID)
 
 	access.RequestedOpID = ""
-	cache.GetOperation(opID)
+	cache.GetOperation(specOperationID)
 	assert.Equal(T, "", access.RequestedOpID)
 }

@@ -1,12 +1,13 @@
-spec: spec/petstore.yaml
+specs: 
+  service: spec/petstore.yaml 
 operations:
   listPets:
-    operationId: findPetsByStatus
+    operationId: service.findPetsByStatus
     use:
       path:
         HOSTNAME: https://petstore.swagger.io/v2
   getPetDetails:
-    operationId: getPetById
+    operationId: service.getPetById
     use:
       path:
         HOSTNAME: https://petstore.swagger.io/v2
