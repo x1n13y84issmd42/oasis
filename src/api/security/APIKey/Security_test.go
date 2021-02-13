@@ -84,7 +84,7 @@ func Test_New(T *testing.T) {
 
 		if ok {
 			assert.Equal(T, key, tsec.ParamName)
-			assert.Equal(T, value, tsec.Value)
+			assert.Equal(T, value, tsec.Value())
 		}
 	})
 
@@ -95,7 +95,7 @@ func Test_New(T *testing.T) {
 
 		if ok {
 			assert.Equal(T, key, tsec.ParamName)
-			assert.Equal(T, value, tsec.Value)
+			assert.Equal(T, value, tsec.Value())
 		}
 	})
 
@@ -106,7 +106,7 @@ func Test_New(T *testing.T) {
 
 		if ok {
 			assert.Equal(T, key, tsec.ParamName)
-			assert.Equal(T, value, tsec.Value)
+			assert.Equal(T, value, tsec.Value())
 		}
 	})
 

@@ -56,7 +56,7 @@ func Test_New(T *testing.T) {
 		assert.True(T, ok)
 
 		if ok {
-			assert.Equal(T, token, tsec.Token)
+			assert.Equal(T, token, tsec.Token())
 		}
 	})
 
@@ -66,7 +66,7 @@ func Test_New(T *testing.T) {
 		assert.True(T, ok)
 
 		if ok {
-			assert.Equal(T, token, tsec.Token)
+			assert.Equal(T, token, tsec.Token())
 		}
 	})
 

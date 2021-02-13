@@ -148,9 +148,14 @@ func (resolver *DataResolver) SecurityCredentials(scheme *openapi3.SecuritySchem
 func (resolver *DataResolver) Security(name string) contract.Security {
 	secName := resolver.SecurityName(name)
 
+	resolver.Log.NOMESSAGE("DataResolver.Security.secName='%s'", secName)
+
 	if secName == "" {
-		return security.Insecurity(resolver.Log)
-		// return api.NoSecurity(errors.NotFound("Security", name, nil), resolver.Log)
+		if name == "" {
+			return security.Insecurity(resolver.Log)
+		}
+
+		return api.NoSecurity(errors.NotFound("Security", name, nil), resolver.Log)
 	}
 
 	// Retrieving security scheme details from the spec components.

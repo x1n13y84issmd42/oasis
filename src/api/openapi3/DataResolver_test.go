@@ -236,7 +236,7 @@ func Test_DataResolver_Security(T *testing.T) {
 		}
 		resolver := openapi3.NewDataResolver(log, spec.OAS, op, &op.SpecOp.Responses)
 
-		expected := secHTTP.Basic{}
+		expected := &secHTTP.Basic{}
 		actual := resolver.Security("")
 
 		assert.IsType(T, expected, actual)
