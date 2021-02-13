@@ -8,6 +8,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	apikey "github.com/x1n13y84issmd42/oasis/src/api/security/APIKey"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 func Test_Cookie(T *testing.T) {
@@ -18,7 +19,7 @@ func Test_Cookie(T *testing.T) {
 		Security: apikey.Security{
 			Name:      "test sec",
 			ParamName: name,
-			Value:     key,
+			Value:     params.Value(key),
 			Log:       log,
 		},
 	}
@@ -40,7 +41,7 @@ func Test_Query(T *testing.T) {
 		Security: apikey.Security{
 			Name:      "test sec",
 			ParamName: name,
-			Value:     key,
+			Value:     params.Value(key),
 			Log:       log,
 		},
 	}
@@ -60,7 +61,7 @@ func Test_Header(T *testing.T) {
 		Security: apikey.Security{
 			Name:      "test sec",
 			ParamName: name,
-			Value:     key,
+			Value:     params.Value(key),
 			Log:       log,
 		},
 	}
@@ -78,7 +79,7 @@ func Test_New(T *testing.T) {
 
 	T.Run("Cookie", func(T *testing.T) {
 		sec := apikey.New("test sec", "cookie", key, value, log.NewPlain(0))
-		tsec, ok := sec.(apikey.Cookie)
+		tsec, ok := sec.(*apikey.Cookie)
 		assert.True(T, ok)
 
 		if ok {
@@ -89,7 +90,7 @@ func Test_New(T *testing.T) {
 
 	T.Run("Cookie", func(T *testing.T) {
 		sec := apikey.New("test sec", "query", key, value, log.NewPlain(0))
-		tsec, ok := sec.(apikey.Query)
+		tsec, ok := sec.(*apikey.Query)
 		assert.True(T, ok)
 
 		if ok {
@@ -100,7 +101,7 @@ func Test_New(T *testing.T) {
 
 	T.Run("Header", func(T *testing.T) {
 		sec := apikey.New("test sec", "header", key, value, log.NewPlain(0))
-		tsec, ok := sec.(apikey.Header)
+		tsec, ok := sec.(*apikey.Header)
 		assert.True(T, ok)
 
 		if ok {

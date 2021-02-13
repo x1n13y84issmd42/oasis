@@ -47,7 +47,7 @@ type OperationDataUse struct {
 	Body     OperationDataMap `yaml:"body"`
 	Query    OperationDataMap `yaml:"query"`
 	Headers  OperationDataMap `yaml:"headers"`
-	Security OperationDataMap `yaml:"security"`
+	Security string           `yaml:"security"`
 	CT       string           `yaml:"CT"`
 	Status   int64            `yaml:"status"`
 }
@@ -66,8 +66,11 @@ type OperationDataExpect struct {
 type Script struct {
 	api.OperationCache
 	contract.EntityTrait
-	SpecPaths  map[string]string        `yaml:"specs"`
-	Operations map[string]*OperationRef `yaml:"operations"`
+	SpecPaths  map[string]string                   `yaml:"specs"`
+	Securities map[string]*contract.ScriptSecurity `yaml:"security"`
+	Operations map[string]*OperationRef            `yaml:"operations"`
+
+	Sec map[string]*contract.SecurityAccess `yaml:-`
 }
 
 // GetExecutionGraph builds and returns an operation execution graph.
@@ -85,32 +88,37 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 
 		var err error
 
-		err = script.SetupDependencies(graph, &opRef.Use.Path, opNode.Data.URL, opNode, opRefID)
+		err = script.SetupDataDependency(graph, &opRef.Use.Path, opNode.Data.URL, opNode, opRef, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(graph, &opRef.Use.Query, opNode.Data.Query, opNode, opRefID)
+		err = script.SetupDataDependency(graph, &opRef.Use.Query, opNode.Data.Query, opNode, opRef, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRefID)
+		err = script.SetupDataDependency(graph, &opRef.Use.Headers, opNode.Data.Headers, opNode, opRef, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(graph, &opRef.Use.Body, opNode.Data.Body, opNode, opRefID)
+		err = script.SetupDataDependency(graph, &opRef.Use.Body, opNode.Data.Body, opNode, opRef, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
-		err = script.SetupDependencies(graph, &opRef.Expect.Body, opNode.ExpectBody, opNode, opRefID)
+		err = script.SetupDataDependency(graph, &opRef.Expect.Body, opNode.ExpectBody, opNode, opRef, opRefID)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
 
 		err = script.SetupAfterDependency(graph, opRef, opNode)
+		if err != nil {
+			return NoGraph(err, script.Log)
+		}
+
+		err = script.SetupSecurityDependency(graph, opRef, opNode)
 		if err != nil {
 			return NoGraph(err, script.Log)
 		}
@@ -125,33 +133,110 @@ func (script *Script) GetExecutionGraph() gcontract.Graph {
 	return graph
 }
 
-// SetupAfterDependency adds an edge to the execution graph if opRef has an 'after' specified.
-func (script *Script) SetupAfterDependency(graph *ExecutionGraph, opRef *OperationRef, opNode *ExecutionNode) error {
-	if opRef.After != "" {
-		opRef2 := script.Operations[opRef.After]
-		if opRef2 == nil {
-			return errors.NotFound("Operation reference", opRef.After, nil)
+// SetupDependency adds an edge to the execution graph between two spec nodes.
+func (script *Script) SetupDependency(
+	scriptNodeName string,
+	graph *ExecutionGraph,
+	opRef *OperationRef,
+	opNode *ExecutionNode,
+) (contract.Operation, error) {
+	opRef2 := script.Operations[scriptNodeName]
+	if opRef2 == nil {
+		return nil, errors.NotFound("Operation reference", scriptNodeName, nil)
+	}
+
+	op2 := script.GetOperation(opRef2.OperationID)
+	if opRef2 == nil {
+		return nil, errors.NotFound("Spec operation", opRef2.OperationID, nil)
+	}
+
+	// Adding an edge to the execution graph.
+	graph.AddEdge(opNode.ID(), script.GetNode(graph, scriptNodeName, op2, opRef2).ID())
+
+	return op2, nil
+}
+
+// SetupSecurityDependency adds an edge to the execution graph if opRef has an 'after' specified.
+func (script *Script) SetupSecurityDependency(graph *ExecutionGraph, opRef *OperationRef, opNode *ExecutionNode) error {
+	refdep := func(p *contract.ParameterAccess, v string) error {
+		isref, op2RefID, selector := Dereference(v)
+		if isref {
+			op2, err := script.SetupDependency(op2RefID, graph, opRef, opNode)
+
+			if err != nil {
+				return err
+			}
+			script.Log.NOMESSAGE("SetSecDep op '%s' depends on '%s' via security.", opNode.ID(), op2RefID)
+
+			(*p) = (params.Reference{
+				OpID:     op2.ID(),
+				Result:   op2.Result(),
+				Selector: selector,
+				Log:      script.Log,
+			}).Value()
+		} else {
+			(*p) = params.Value(v)
 		}
 
-		op2 := script.GetOperation(opRef2.OperationID)
-		if opRef2 == nil {
-			return errors.NotFound("Spec operation", opRef2.OperationID, nil)
+		return nil
+	}
+
+	var err error
+
+	for secName, sec := range script.Securities {
+		opNodeSec := opNode.Operation.Resolve().Security(opRef.Use.Security)
+		script.Log.NOMESSAGE("SetSecDep.opRef.Use.Security: '%s'", opRef.Use.Security)
+		script.Log.NOMESSAGE("SetSecDep.opNodeSec.GetName: '%s'", opNodeSec.GetName())
+
+		if opNodeSec.GetName() == secName {
+			script.Sec[secName] = &contract.SecurityAccess{}
+
+			err = refdep(&script.Sec[secName].Value, sec.Value)
+			if err != nil {
+				return err
+			}
+
+			err = refdep(&script.Sec[secName].Token, sec.Token)
+			if err != nil {
+				return err
+			}
+
+			err = refdep(&script.Sec[secName].Username, sec.Username)
+			if err != nil {
+				return err
+			}
+
+			err = refdep(&script.Sec[secName].Password, sec.Password)
+			if err != nil {
+				return err
+			}
+
+			script.Log.NOMESSAGE("SetSecDep.script.Sec[secName]: %#v", script.Sec[secName])
 		}
 
-		// Adding an edge to the execution graph.
-		graph.AddEdge(opNode.ID(), script.GetNode(graph, opRef.After, op2, opRef2).ID())
 	}
 
 	return nil
 }
 
-// SetupDependencies iterates over the provided map, looks for reference values,
-// collects a list of references operations along with ParameterAccess functions.
-func (script *Script) SetupDependencies(
+// SetupAfterDependency adds an edge to the execution graph if opRef has an 'after' specified.
+func (script *Script) SetupAfterDependency(graph *ExecutionGraph, opRef *OperationRef, opNode *ExecutionNode) error {
+	if opRef.After != "" {
+		_, err := script.SetupDependency(opRef.After, graph, opRef, opNode)
+		return err
+	}
+
+	return nil
+}
+
+// SetupDataDependency iterates over the provided map, looks for reference values,
+// collects a list of references operations, and adds edges b/w them & opNode.
+func (script *Script) SetupDataDependency(
 	graph *ExecutionGraph,
 	srcParams *OperationDataMap,
 	dstParams contract.Set,
 	opNode *ExecutionNode,
+	opRef *OperationRef,
 	opRefID string,
 ) error {
 	refParams := params.NewReferenceSource(script.Log)
@@ -160,22 +245,13 @@ func (script *Script) SetupDependencies(
 	for pn, pv := range *srcParams {
 		isref, op2RefID, selector := Dereference(pv)
 		if isref {
-			// Retrieving the referenced operation.
-			opRef2 := script.Operations[op2RefID]
-			if opRef2 == nil {
-				return errors.NotFound("Operation reference", op2RefID, nil)
-			}
-
-			op2 := script.GetOperation(opRef2.OperationID)
-			if opRef2 == nil {
-				return errors.NotFound("Spec operation", opRef2.OperationID, nil)
+			op2, err := script.SetupDependency(op2RefID, graph, opRef, opNode)
+			if err != nil {
+				return err
 			}
 
 			// Adding the value so it's available for op later.
 			refParams.AddReference(pn, op2.ID()+" node", op2.Result(), selector)
-
-			// Adding an edge to the execution graph.
-			graph.AddEdge(opNode.ID(), script.GetNode(graph, op2RefID, op2, opRef2).ID())
 		} else {
 			memParams.Add(pn, pv)
 		}
@@ -201,4 +277,9 @@ func (script *Script) GetNode(graph gcontract.Graph, opRefID string, op contract
 	}
 
 	return opNode
+}
+
+// GetSecurity returns the script's security parameters.
+func (script *Script) GetSecurity(name string) *contract.SecurityAccess {
+	return script.Sec[name]
 }

@@ -12,11 +12,11 @@ type Cookie struct {
 }
 
 // Enrich adds an API key to the request's headers.
-func (sec Cookie) Enrich(req *http.Request, log contract.Logger) {
+func (sec *Cookie) Enrich(req *http.Request, log contract.Logger) {
 	log.UsingSecurity(sec)
 
-	if sec.Value != "" {
-		req.AddCookie(&http.Cookie{Name: sec.ParamName, Value: sec.Value})
+	if v := sec.Value(); v != "" {
+		req.AddCookie(&http.Cookie{Name: sec.ParamName, Value: v})
 	} else {
 		log.SecurityHasNoData(sec)
 	}

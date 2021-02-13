@@ -13,13 +13,13 @@ type Basic struct {
 }
 
 // Enrich adds an example value from the API spec to the Authorization request header.
-func (sec Basic) Enrich(req *http.Request, log contract.Logger) {
+func (sec *Basic) Enrich(req *http.Request, log contract.Logger) {
 	log.UsingSecurity(sec)
 
-	if sec.Token != "" {
-		req.Header["Authorization"] = append(req.Header["Authorization"], sec.Token)
-	} else if sec.Username != "" {
-		token := base64.StdEncoding.EncodeToString([]byte(sec.Username + ":" + sec.Password))
+	if t := sec.Token(); t != "" {
+		req.Header["Authorization"] = append(req.Header["Authorization"], t)
+	} else if u := sec.Username(); u != "" {
+		token := base64.StdEncoding.EncodeToString([]byte(u + ":" + sec.Password()))
 		token = "Basic " + token
 		req.Header["Authorization"] = append(req.Header["Authorization"], token)
 	} else {

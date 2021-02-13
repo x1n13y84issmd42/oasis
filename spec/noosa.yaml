@@ -8327,6 +8327,8 @@ paths:
                 properties:
                   token:
                     type: string
+                  '':
+                    type: string
             application/xml:
               schema:
                 type: object
@@ -8976,10 +8978,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - amount
-                - currency
-                - storeId
+              type: object
               properties:
                 amount:
                   type: number
@@ -9002,6 +9001,10 @@ paths:
                   format: double
                 __simulatedError:
                   type: string
+              required:
+                - amount
+                - currency
+                - storeId
           application/x-www-form-urlencoded:
             schema:
               required:
@@ -9110,13 +9113,12 @@ paths:
                     type: array
                     items:
                       type: object
-                      properties: {}
                   storeId:
                     type: string
-                  # posId:
-                  #   type: string
-                  # documentId:
-                  #   type: string
+                  posId:
+                    type: null
+                  documentId:
+                    type: null
             application/xml:
               schema:
                 type: object
@@ -9222,6 +9224,8 @@ paths:
                   documentId:
                     type: string
       deprecated: false
+      security:
+        - MerchantAuth: []
   '/transactions/{id}/refund':
     post:
       tags:
@@ -9664,6 +9668,8 @@ paths:
                   paymentRequestStatus:
                     type: string
       deprecated: false
+      security:
+        - ConsumerAuth: []
   /transactions/createPayment:
     post:
       tags:
@@ -9741,12 +9747,14 @@ paths:
                     type: number
                     format: double
       deprecated: false
+      security:
+        - ConsumerAuth: []
   /transactions/simulatePosScan:
     post:
       tags:
         - transaction
-      description: Simulate POS scan
-      summary: Simulate POS scan
+      description: POS Scan
+      summary: POS Scan
       operationId: transaction.simulatePosScan
       parameters:
         - name: id
@@ -9786,7 +9794,7 @@ paths:
       tags:
         - transaction
       description: Validate pago OTP
-      summary: Validate Pagolight OTP
+      summary: Validate pago OTP
       operationId: transaction.validatePagoOtp
       requestBody:
         content:
@@ -12062,9 +12070,11 @@ components:
       pattern: '^[a-fA-F\d]{24}$'
       type: string
   securitySchemes:
-    TheDefaultAuth:
+    ConsumerAuth:
+      name: access_token
+      type: apiKey
+      in: query
+    MerchantAuth:
       name: Authorization
       type: apiKey
       in: header
-security:
-  - TheDefaultAuth: []

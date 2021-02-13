@@ -20,13 +20,33 @@ func NoSecurity(err error, log contract.Logger) contract.Security {
 	}
 }
 
-//GetName reports an error.
+// GetName reports an error.
 func (sec *NullSecurity) GetName() string {
 	sec.Report()
 	return ""
 }
 
-//Enrich reports an error.
+// Enrich reports an error.
 func (sec *NullSecurity) Enrich(req *http.Request, log contract.Logger) {
+	sec.Report()
+}
+
+// SetValue reports an error.
+func (sec *NullSecurity) SetValue(v contract.ParameterAccess) {
+	sec.Report()
+}
+
+// SetToken reports an error.
+func (sec *NullSecurity) SetToken(v contract.ParameterAccess) {
+	sec.Report()
+}
+
+// SetUsername reports an error.
+func (sec *NullSecurity) SetUsername(v contract.ParameterAccess) {
+	sec.Report()
+}
+
+// SetPassword reports an error.
+func (sec *NullSecurity) SetPassword(v contract.ParameterAccess) {
 	sec.Report()
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
 	"github.com/x1n13y84issmd42/oasis/src/errors"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 // Security implements the security type that requires a unique API key
@@ -14,7 +15,7 @@ import (
 type Security struct {
 	Name      string
 	ParamName string
-	Value     string
+	Value     contract.ParameterAccess
 	Log       contract.Logger
 }
 
@@ -22,18 +23,18 @@ type Security struct {
 func New(name string, location string, paramName string, value string, logger contract.Logger) contract.Security {
 	switch location {
 	case "cookie":
-		return Cookie{
-			Security{name, paramName, value, logger},
+		return &Cookie{
+			Security{name, paramName, params.Value(value), logger},
 		}
 
 	case "header":
-		return Header{
-			Security{name, paramName, value, logger},
+		return &Header{
+			Security{name, paramName, params.Value(value), logger},
 		}
 
 	case "query":
-		return Query{
-			Security{name, paramName, value, logger},
+		return &Query{
+			Security{name, paramName, params.Value(value), logger},
 		}
 	}
 
@@ -44,4 +45,21 @@ func New(name string, location string, paramName string, value string, logger co
 // GetName returns name.
 func (sec Security) GetName() string {
 	return sec.Name
+}
+
+// SetValue sets Value.
+func (sec *Security) SetValue(v contract.ParameterAccess) {
+	sec.Value = v
+}
+
+// SetToken does nothig.
+func (sec *Security) SetToken(v contract.ParameterAccess) {
+}
+
+// SetUsername does nothig.
+func (sec *Security) SetUsername(v contract.ParameterAccess) {
+}
+
+// SetPassword does nothig.
+func (sec *Security) SetPassword(v contract.ParameterAccess) {
 }

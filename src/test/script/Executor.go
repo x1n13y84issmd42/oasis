@@ -12,12 +12,15 @@ import (
 // Executor executes an ExecutionGraph that comes from a script.
 type Executor struct {
 	contract.EntityTrait
+
+	Script contract.Script
 }
 
 // NewExecutor creates a new Executor instance.
-func NewExecutor(logger contract.Logger) *Executor {
+func NewExecutor(logger contract.Logger, script contract.Script) *Executor {
 	return &Executor{
 		EntityTrait: contract.Entity(logger),
+		Script:      script,
 	}
 }
 
@@ -54,7 +57,7 @@ func (ex Executor) Walk(
 	nresults *contract.OperationResults,
 ) {
 
-	// logger.NOMESSAGE("Child nodes %s", n.ID())
+	ex.Log.NOMESSAGE("Walking %s", n.ID())
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
 	anwg.Add(int(graph.AdjacentNodes(n.ID()).Count()))
@@ -74,32 +77,35 @@ func (ex Executor) Walk(
 
 	n.Lock()
 
-	// logger.NOMESSAGE("Locked %s", n.ID())
-
 	if n.Result == nil {
 		logger := n.Operation.GetLogger()
 		logger.Buffer(true)
 
-		// logger.NOMESSAGE("Walking %s", n.ID())
-		// logger.NOMESSAGE("Enter %s", n.ID())
 		// Setting the request enrichment.
 		n.Operation.Data().Reload()
 		n.Operation.Data().Load(&n.Data)
 		n.Operation.Data().URL.Load(n.Operation.Resolve().Host(""))
 
-		// logger.NOMESSAGE("Setting Enrichment %s", n.ID())
+		opSecurity := n.Operation.Resolve().Security("")
+		ex.Log.NOMESSAGE("security.GetName() = %s", opSecurity.GetName())
+
+		if scriptSec := ex.Script.GetSecurity(opSecurity.GetName()); scriptSec != nil {
+			opSecurity.SetValue(scriptSec.Value)
+			opSecurity.SetToken(scriptSec.Token)
+			opSecurity.SetUsername(scriptSec.Username)
+			opSecurity.SetPassword(scriptSec.Password)
+		}
+
 		enrichment := []contract.RequestEnrichment{
 			n.Operation.Data().Query,
 			n.Operation.Data().Headers,
 			n.Operation.Data().Body,
 
-			n.Operation.Resolve().Security(""),
+			opSecurity,
 		}
 
-		// logger.NOMESSAGE("Testing %s", n.ID())
 		logger.TestingOperation(n.Operation)
 
-		// logger.NOMESSAGE("Setting Response %s", n.ID())
 		// Setting the response validation.
 		v := n.Operation.Resolve().Response(n.Expect.Status, "")
 		// v.SetLogger(logger)
@@ -108,12 +114,10 @@ func (ex Executor) Walk(
 		n.Result = test.Operation(n.Operation, &enrichment, v, logger)
 		(*nresults)[string(n.ID())] = n.Result
 
-		// logger.NOMESSAGE("Exit %s", n.ID())
 		logger.Flush()
 		logger.Buffer(false)
 	}
 
 	n.Unlock()
-	// logger.NOMESSAGE("Unlocked %s", n.ID())
 	nwg.Done()
 }

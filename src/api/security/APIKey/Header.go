@@ -12,11 +12,11 @@ type Header struct {
 }
 
 // Enrich adds an API key to the request's headers.
-func (sec Header) Enrich(req *http.Request, log contract.Logger) {
+func (sec *Header) Enrich(req *http.Request, log contract.Logger) {
 	log.UsingSecurity(sec)
 
-	if sec.Value != "" {
-		req.Header.Add(sec.ParamName, sec.Value)
+	if v := sec.Value(); v != "" {
+		req.Header.Add(sec.ParamName, v)
 	} else {
 		log.SecurityHasNoData(sec)
 	}

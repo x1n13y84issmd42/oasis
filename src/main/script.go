@@ -13,5 +13,5 @@ func Script(args *env.Args, log contract.Logger) {
 	s := script.Load(args.Script, log)
 	graph := s.GetExecutionGraph()
 
-	script.NewExecutor(log).Execute(graph)
+	script.NewExecutor(log, s).Execute(graph)
 }

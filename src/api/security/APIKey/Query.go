@@ -12,12 +12,12 @@ type Query struct {
 }
 
 // Enrich adds an API key to the request's query.
-func (sec Query) Enrich(req *http.Request, log contract.Logger) {
+func (sec *Query) Enrich(req *http.Request, log contract.Logger) {
 	log.UsingSecurity(sec)
 
-	if sec.Value != "" {
+	if v := sec.Value(); v != "" {
 		q := req.URL.Query()
-		q.Add(sec.ParamName, sec.Value)
+		q.Add(sec.ParamName, v)
 		req.URL.RawQuery = q.Encode()
 	} else {
 		log.SecurityHasNoData(sec)

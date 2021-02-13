@@ -24,3 +24,9 @@ func (s *NullScript) GetExecutionGraph() gcontract.Graph {
 	s.Report()
 	return nil
 }
+
+// GetSecurity reports an error.
+func (s *NullScript) GetSecurity(name string) *contract.SecurityAccess {
+	s.Report()
+	return nil
+}

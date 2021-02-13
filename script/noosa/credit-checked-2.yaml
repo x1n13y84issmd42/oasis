@@ -1,8 +1,14 @@
 specs:
   API: spec/noosa.yaml
 
+security:
+  ConsumerAuth:
+    value: "#consumerLogin.response.token"
+  MerchantAuth:
+    value: "#merchantLogin.response.id"
+
 operations:
-  pinLogin:
+  consumerLogin:
     operationId: API.consumer.pinLogin
     use:
       body:
@@ -24,7 +30,6 @@ operations:
     operationId: API.transaction.createPayment
     use:
       query:
-        access_token: "#pinLogin.response.token"
         type: credit
   
   getStatus:
@@ -37,7 +42,6 @@ operations:
         paymentStatus: NA
     use:
       query:
-        access_token: "#pinLogin.response.token"
         id: "#createTX.response.transactionId"
   
   merchantProcess:
@@ -57,7 +61,6 @@ operations:
         storeId: -1
       headers:
         Content-Type: application/json
-        Authorization: "#merchantLogin.response.id"
 
   getStatus2:
     operationId: API.transaction.getStatus
@@ -70,5 +73,4 @@ operations:
     use:
       query:
         id: "#createTX.response.transactionId"
-        access_token: "#pinLogin.response.token"
   

@@ -8,6 +8,7 @@ import (
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	http "github.com/x1n13y84issmd42/oasis/src/api/security/HTTP"
 	"github.com/x1n13y84issmd42/oasis/src/log"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 func Test_Basic(T *testing.T) {
@@ -16,7 +17,7 @@ func Test_Basic(T *testing.T) {
 	sec := &http.Basic{
 		Security: http.Security{
 			Name:  "test sec",
-			Token: token,
+			Token: params.Value(token),
 			Log:   log,
 		},
 	}
@@ -34,7 +35,7 @@ func Test_Digest(T *testing.T) {
 	sec := &http.Digest{
 		Security: http.Security{
 			Name:  "test sec",
-			Token: token,
+			Token: params.Value(token),
 			Log:   log,
 		},
 	}
@@ -51,7 +52,7 @@ func Test_New(T *testing.T) {
 
 	T.Run("Basic", func(T *testing.T) {
 		sec := http.New("test sec", "basic", token, "", "", log.NewPlain(0))
-		tsec, ok := sec.(http.Basic)
+		tsec, ok := sec.(*http.Basic)
 		assert.True(T, ok)
 
 		if ok {
@@ -61,7 +62,7 @@ func Test_New(T *testing.T) {
 
 	T.Run("Digest", func(T *testing.T) {
 		sec := http.New("test sec", "digest", token, "", "", log.NewPlain(0))
-		tsec, ok := sec.(http.Digest)
+		tsec, ok := sec.(*http.Digest)
 		assert.True(T, ok)
 
 		if ok {

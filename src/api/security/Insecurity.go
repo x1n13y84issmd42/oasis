@@ -16,8 +16,24 @@ func (sec Empty) GetName() string {
 	return "Insecurity"
 }
 
-// Enrich does nothing.
-func (sec Empty) Enrich(req *http.Request, log contract.Logger) {
+// SetValue does nothing for Insecurity.
+func (sec *Empty) SetValue(v contract.ParameterAccess) {
+}
+
+// SetToken does nothing for Insecurity.
+func (sec *Empty) SetToken(v contract.ParameterAccess) {
+}
+
+// SetUsername does nothing for Insecurity.
+func (sec *Empty) SetUsername(v contract.ParameterAccess) {
+}
+
+// SetPassword does nothing for Insecurity.
+func (sec *Empty) SetPassword(v contract.ParameterAccess) {
+}
+
+// Enrich does nothing for Insecurity.
+func (sec *Empty) Enrich(req *http.Request, log contract.Logger) {
 	sec.Log.UsingSecurity(sec)
 }
 

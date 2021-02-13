@@ -12,12 +12,12 @@ type Digest struct {
 }
 
 // Enrich adds an example value from the API spec to the Authorization request header.
-func (sec Digest) Enrich(req *http.Request, log contract.Logger) {
+func (sec *Digest) Enrich(req *http.Request, log contract.Logger) {
 	log.UsingSecurity(sec)
 
-	if sec.Token != "" {
-		req.Header["Authorization"] = append(req.Header["Authorization"], sec.Token)
-	} else if sec.Username != "" {
+	if t := sec.Token(); t != "" {
+		req.Header["Authorization"] = append(req.Header["Authorization"], t)
+	} else if u := sec.Username(); u != "" {
 		//TODO: implement client-side digest encoding
 	} else {
 		log.SecurityHasNoData(sec)

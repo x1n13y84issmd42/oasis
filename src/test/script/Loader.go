@@ -18,6 +18,7 @@ func Load(path string, log contract.Logger) contract.Script {
 
 	script := &Script{
 		EntityTrait: contract.Entity(log),
+		Sec:         make(map[string]*contract.SecurityAccess),
 	}
 
 	yaml.Unmarshal([]byte(fileData), script)
@@ -32,7 +33,7 @@ func Load(path string, log contract.Logger) contract.Script {
 	script.OperationCache = api.NewOperationCache(specs)
 
 	//TODO: some validation is required
-	// Like unique op IDs.
+	// Like unique node IDs.
 
 	return script
 }

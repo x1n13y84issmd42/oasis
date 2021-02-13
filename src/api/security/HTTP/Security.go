@@ -7,14 +7,15 @@ import (
 
 	"github.com/x1n13y84issmd42/oasis/src/api"
 	"github.com/x1n13y84issmd42/oasis/src/contract"
+	"github.com/x1n13y84issmd42/oasis/src/params"
 )
 
 // Security implements the 'http' security type.
 type Security struct {
 	Name     string
-	Token    string
-	Username string
-	Password string
+	Token    contract.ParameterAccess
+	Username contract.ParameterAccess
+	Password contract.ParameterAccess
 	Log      contract.Logger
 }
 
@@ -40,21 +41,21 @@ type WWWAuthenticate struct {
 func New(name string, scheme string, token string, username string, password string, logger contract.Logger) contract.Security {
 	switch scheme {
 	case "basic":
-		return Basic{
+		return &Basic{
 			Security{
 				Name:     name,
-				Token:    token,
+				Token:    params.Value(token),
 				Log:      logger,
-				Username: username,
-				Password: password,
+				Username: params.Value(username),
+				Password: params.Value(password),
 			},
 		}
 
 	case "digest":
-		return Digest{
+		return &Digest{
 			Security{
 				Name:  name,
-				Token: token,
+				Token: params.Value(token),
 				Log:   logger,
 			},
 		}
@@ -126,4 +127,23 @@ func (sec Security) ParseWWWAuthenticate(header string) map[string]string {
 // GetName returns name.
 func (sec Security) GetName() string {
 	return sec.Name
+}
+
+// SetValue does nothing.
+func (sec *Security) SetValue(v contract.ParameterAccess) {
+}
+
+// SetToken sets Token.
+func (sec *Security) SetToken(v contract.ParameterAccess) {
+	sec.Token = v
+}
+
+// SetUsername sets Username.
+func (sec *Security) SetUsername(v contract.ParameterAccess) {
+	sec.Username = v
+}
+
+// SetPassword sets Password.
+func (sec *Security) SetPassword(v contract.ParameterAccess) {
+	sec.Password = v
 }
