@@ -57,7 +57,7 @@ func (ex Executor) Walk(
 	nresults *contract.OperationResults,
 ) {
 
-	ex.Log.NOMESSAGE("Walking %s", n.ID())
+	// ex.Log.NOMESSAGE("Walking %s", n.ID())
 	// Executing child nodes first (post-order).
 	anwg := sync.WaitGroup{}
 	anwg.Add(int(graph.AdjacentNodes(n.ID()).Count()))
@@ -87,7 +87,7 @@ func (ex Executor) Walk(
 		n.Operation.Data().URL.Load(n.Operation.Resolve().Host(""))
 
 		opSecurity := n.Operation.Resolve().Security("")
-		ex.Log.NOMESSAGE("security.GetName() = %s", opSecurity.GetName())
+		// ex.Log.NOMESSAGE("security.GetName() = %s", opSecurity.GetName())
 
 		if scriptSec := ex.Script.GetSecurity(opSecurity.GetName()); scriptSec != nil {
 			opSecurity.SetValue(scriptSec.Value)

@@ -166,7 +166,7 @@ func (script *Script) SetupSecurityDependency(graph *ExecutionGraph, opRef *Oper
 			if err != nil {
 				return err
 			}
-			script.Log.NOMESSAGE("SetSecDep op '%s' depends on '%s' via security.", opNode.ID(), op2RefID)
+			// script.Log.NOMESSAGE("SetSecDep op '%s' depends on '%s' via security.", opNode.ID(), op2RefID)
 
 			(*p) = (params.Reference{
 				OpID:     op2.ID(),
@@ -185,8 +185,8 @@ func (script *Script) SetupSecurityDependency(graph *ExecutionGraph, opRef *Oper
 
 	for secName, sec := range script.Securities {
 		opNodeSec := opNode.Operation.Resolve().Security(opRef.Use.Security)
-		script.Log.NOMESSAGE("SetSecDep.opRef.Use.Security: '%s'", opRef.Use.Security)
-		script.Log.NOMESSAGE("SetSecDep.opNodeSec.GetName: '%s'", opNodeSec.GetName())
+		// script.Log.NOMESSAGE("SetSecDep.opRef.Use.Security: '%s'", opRef.Use.Security)
+		// script.Log.NOMESSAGE("SetSecDep.opNodeSec.GetName: '%s'", opNodeSec.GetName())
 
 		if opNodeSec.GetName() == secName {
 			script.Sec[secName] = &contract.SecurityAccess{}
@@ -211,7 +211,7 @@ func (script *Script) SetupSecurityDependency(graph *ExecutionGraph, opRef *Oper
 				return err
 			}
 
-			script.Log.NOMESSAGE("SetSecDep.script.Sec[secName]: %#v", script.Sec[secName])
+			// script.Log.NOMESSAGE("SetSecDep.script.Sec[secName]: %#v", script.Sec[secName])
 		}
 
 	}
