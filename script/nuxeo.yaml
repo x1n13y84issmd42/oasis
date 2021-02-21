@@ -1,5 +1,5 @@
 specs: 
-  service: spec/nuxeo.yaml
+  service: ../spec/nuxeo.yaml
 operations:
   taskList:
     operationId: service.taskList

@@ -1,7 +1,7 @@
 specs: 
-  serviceA: spec/microservices/petstore-serviceA.yaml
-  serviceB: spec/microservices/petstore-serviceB.yaml
-  serviceC: spec/microservices/petstore-serviceC.yaml
+  serviceA: ../spec/microservices/petstore-serviceA.yaml
+  serviceB: ../spec/microservices/petstore-serviceB.yaml
+  serviceC: ../spec/microservices/petstore-serviceC.yaml
 operations:
   listPets:
     operationId: serviceA.findPetsByStatus

@@ -1,5 +1,5 @@
 specs: 
-  service: spec/noosa.yaml
+  service: ../spec/noosa.yaml
 operations:
   
   pinLogin:
