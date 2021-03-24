@@ -1,4 +1,4 @@
-spec: spec/noosa.yaml
+spec: ../spec/noosa.yaml
 operations:
   
   pinLogin:

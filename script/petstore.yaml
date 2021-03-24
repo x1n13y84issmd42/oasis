@@ -1,5 +1,5 @@
 specs: 
-  service: spec/petstore.yaml 
+  service: ../spec/petstore.yaml
 operations:
   listPets:
     operationId: service.findPetsByStatus
