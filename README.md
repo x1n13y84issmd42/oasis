@@ -61,4 +61,6 @@ Script is a graph of dependent operations. Cycles are not allowed:
 
 [Nuxeo API Playground](https://nuxeo.github.io/api-playground/#/resources)
 
+[Booker API Playground](https://restful-booker.herokuapp.com/apidoc/index.html)
+
 [Oasis V2](https://github.com/x1n13y84issmd42/oasis/tree/c88c9a15e0a05abbf732f7fd95aa30f7cf4947fd)
